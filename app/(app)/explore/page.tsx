@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { getExplore, getSources, getTopics } from "@/lib/data/feed";
+import { getExplore, getSettings, getSources, getTopics, getWatchItems } from "@/lib/data/feed";
+import { effectivePrefs } from "@/lib/prefs";
 import { eagerIndexes } from "@/lib/feed/masonry";
 import { TIME_CHIPS, parseTimeChip, type TimeChip } from "@/lib/feed/select";
 import { ItemCard } from "@/components/cards/item-card";
+import { LeanBoard } from "@/components/motion/lean-board";
+import { SwipeDeck } from "@/components/modes/swipe-deck";
+import { WatchStream } from "@/components/modes/watch-stream";
 import { CheckIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Explore" };
@@ -13,9 +17,6 @@ export default function ExplorePage({ searchParams }: PageProps<"/explore">) {
   return (
     <>
       <h1 className="pt-2 text-2xl font-bold lg:pt-0">Explore</h1>
-      <p className="mt-1 text-muted">
-        What your sources published lately. Tap anything to open it.
-      </p>
       <Suspense fallback={<BoardSkeleton />}>
         <Board searchParams={searchParams} />
       </Suspense>
@@ -26,21 +27,35 @@ export default function ExplorePage({ searchParams }: PageProps<"/explore">) {
 type Search = Awaited<PageProps<"/explore">["searchParams"]>;
 const one = (v: Search[string]) => (Array.isArray(v) ? v[0] : v);
 
+const MODES = [
+  { id: "board", label: "Board" },
+  { id: "swipe", label: "Swipe" },
+  { id: "watch", label: "Watch" },
+] as const;
+type Mode = (typeof MODES)[number]["id"];
+const parseMode = (v: unknown): Mode => (MODES.some((m) => m.id === v) ? (v as Mode) : "board");
+
 async function Board({ searchParams }: { searchParams: PageProps<"/explore">["searchParams"] }) {
   const params = await searchParams;
   const topic = one(params.topic);
   const source = one(params.source);
   const time = parseTimeChip(one(params.time));
-  const [topics, sources, { items, more }] = await Promise.all([
+  const mode = parseMode(one(params.mode));
+  const [topics, sources, { items, more }, settings] = await Promise.all([
     getTopics(),
     getSources(),
     getExplore({ topic, source, time }),
+    getSettings(),
   ]);
+  const prefs = effectivePrefs(settings);
+  const watchItems = mode === "watch" ? await getWatchItems({ topic, source }, prefs.captions) : [];
 
   const eager = eagerIndexes(items.map((i) => (i.image ? i.image.width / i.image.height : 4 / 3)));
 
-  const href = (next: { topic?: string; source?: string; time?: TimeChip }) => {
+  const href = (next: { topic?: string; source?: string; time?: TimeChip; mode?: Mode }) => {
     const q = new URLSearchParams();
+    const m = next.mode ?? mode;
+    if (m !== "board") q.set("mode", m);
     if (next.topic) q.set("topic", next.topic);
     if (next.source) q.set("source", next.source);
     if (next.time && next.time !== "any") q.set("time", next.time);
@@ -68,7 +83,24 @@ async function Board({ searchParams }: { searchParams: PageProps<"/explore">["se
 
   return (
     <>
-      <nav aria-label="Filter by topic or source" className="mt-5">
+      <nav aria-label="View" className="mt-4">
+        <ul className="inline-flex rounded-control bg-surface-2 p-1">
+          {MODES.map((m) => (
+            <li key={m.id}>
+              <Link
+                href={href({ topic, source, time, mode: m.id })}
+                aria-current={mode === m.id ? "page" : undefined}
+                className={`flex min-h-11 items-center rounded-control px-4 ${
+                  mode === m.id ? "bg-surface font-bold shadow-card" : "text-muted hover:text-ink"
+                }`}
+              >
+                {m.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <nav aria-label="Filter by topic or source" className="mt-3">
         <ul className="flex gap-2 overflow-x-auto pb-2">
           {tabs.map((t) => (
             <li key={t.key} className="shrink-0">
@@ -88,43 +120,54 @@ async function Board({ searchParams }: { searchParams: PageProps<"/explore">["se
           ))}
         </ul>
       </nav>
-      <nav aria-label="Filter by time" className="mt-2">
-        <ul className="flex flex-wrap gap-2">
-          {TIME_CHIPS.map((c) => (
-            <li key={c.id}>
-              <Link
-                href={href({ topic, source, time: c.id })}
-                prefetch={false}
-                aria-current={time === c.id ? "page" : undefined}
-                className={`flex min-h-11 items-center rounded-control px-3 text-sm ${
-                  time === c.id
-                    ? "bg-accent-soft font-bold text-accent"
-                    : "text-muted hover:bg-surface-2"
-                }`}
-              >
-                {c.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {mode !== "watch" && (
+        <nav aria-label="Filter by time" className="mt-2">
+          <ul className="flex flex-wrap gap-2">
+            {TIME_CHIPS.map((c) => (
+              <li key={c.id}>
+                <Link
+                  href={href({ topic, source, time: c.id })}
+                  prefetch={false}
+                  aria-current={time === c.id ? "page" : undefined}
+                  className={`flex min-h-11 items-center rounded-control px-3 text-sm ${
+                    time === c.id
+                      ? "bg-accent-soft font-bold text-accent"
+                      : "text-muted hover:bg-surface-2"
+                  }`}
+                >
+                  {c.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
 
-      <h2 className="sr-only">Posts</h2>
-      <div className="mt-6 columns-2 gap-4 sm:columns-3 lg:columns-4 2xl:columns-5">
-        {items.map((item, i) => (
-          <ItemCard
-            key={item.id}
-            item={item}
-            priority={eager.has(i)}
-            sizes="(min-width: 1536px) 18vw, (min-width: 1024px) 21vw, (min-width: 640px) 30vw, 44vw"
+      {mode === "swipe" ? (
+        <SwipeDeck items={items} more={more} />
+      ) : mode === "watch" ? (
+        <WatchStream items={watchItems} autoplay={prefs.autoplay} />
+      ) : (
+        <>
+          <h2 className="sr-only">Posts</h2>
+          <LeanBoard className="board mt-6">
+            {items.map((item, i) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                priority={eager.has(i)}
+                morph
+                sizes="(min-width: 1536px) 18vw, (min-width: 1024px) 21vw, (min-width: 640px) 30vw, 44vw"
+              />
+            ))}
+          </LeanBoard>
+          <CaughtUp
+            shown={items.length}
+            more={more}
+            filtered={Boolean(topic || source || time !== "any")}
           />
-        ))}
-      </div>
-      <CaughtUp
-        shown={items.length}
-        more={more}
-        filtered={Boolean(topic || source || time !== "any")}
-      />
+        </>
+      )}
     </>
   );
 }

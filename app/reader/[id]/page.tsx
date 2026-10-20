@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, ViewTransition } from "react";
 import { getReaderItem } from "@/lib/data/feed";
 import { costLabel } from "@/lib/feed/select";
 import { proxyBodyImages } from "@/lib/images";
@@ -82,14 +82,16 @@ async function Reader({ params }: { params: PageProps<"/reader/[id]">["params"] 
         {video ? (
           <VideoPlayer src={video} poster={item.image?.src ?? null} title={item.title} />
         ) : item.image ? (
-          <div className="overflow-hidden rounded-card">
-            <CardImage
-              item={item}
-              ratio="native"
-              sizes="(min-width: 720px) 680px, 100vw"
-              priority
-            />
-          </div>
+          <ViewTransition name={`card-${item.id}`} share="morph" default="none">
+            <div className="overflow-hidden rounded-card">
+              <CardImage
+                item={item}
+                ratio="native"
+                sizes="(min-width: 720px) 680px, 100vw"
+                priority
+              />
+            </div>
+          </ViewTransition>
         ) : null}
 
         <p className="mt-6 text-sm text-muted">

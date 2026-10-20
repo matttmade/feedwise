@@ -1,5 +1,7 @@
 import "server-only";
 import { requireUser } from "@/lib/auth";
+import { playerSrc } from "@/lib/reader/video";
+import { DEFAULT_PREFS, normalisePrefs, type Prefs } from "@/lib/prefs";
 import { itemImageSet, proxiedImage, type ImageSet } from "@/lib/images";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
@@ -73,21 +75,27 @@ const hostOf = (url: string) => {
 const timeZone = () => process.env.APP_TIMEZONE || "UTC";
 const freshSince = () => new Date(Date.now() - FRESH_DAYS * 86_400_000).toISOString();
 
-export type Settings = { dailyGoal: number; reviewCap: number; calmMode: boolean };
+export type Settings = Prefs;
 
 export async function getSettings(): Promise<Settings> {
   const user = await requireUser();
   const supabase = await createClient();
   const { data } = await supabase
     .from("settings")
-    .select("daily_goal, review_cap, calm_mode")
+    .select("density, motion, autoplay, captions, text_size, daily_goal, review_cap, calm_mode")
     .eq("user_id", user.id)
     .maybeSingle();
-  return {
-    dailyGoal: data?.daily_goal ?? 5,
-    reviewCap: data?.review_cap ?? 10,
-    calmMode: data?.calm_mode ?? false,
-  };
+  if (!data) return DEFAULT_PREFS;
+  return normalisePrefs({
+    density: data.density,
+    motion: data.motion,
+    autoplay: data.autoplay,
+    captions: data.captions,
+    textSize: data.text_size,
+    dailyGoal: data.daily_goal,
+    reviewCap: data.review_cap,
+    calmMode: data.calm_mode,
+  });
 }
 
 export type TodayData = {
@@ -166,6 +174,31 @@ export async function getExplore(filter: ExploreFilter): Promise<ExploreData> {
     items: matching.slice(0, BOARD_LIMIT),
     more: Math.max(0, matching.length - BOARD_LIMIT),
   };
+}
+
+export type WatchItem = CardItem & { player: string | null; poster: string | null };
+
+/** Unhandled videos for Watch mode, with a player URL built from each video's id. */
+export async function getWatchItems(
+  filter: { topic?: string; source?: string },
+  captions: boolean,
+): Promise<WatchItem[]> {
+  const { items } = await getExplore({ ...filter, time: "video" });
+  if (!items.length) return [];
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("items")
+    .select("id, embed_html")
+    .in(
+      "id",
+      items.map((i) => i.id),
+    );
+  const embeds = new Map((data ?? []).map((r) => [r.id, r.embed_html]));
+  return items.map((i) => ({
+    ...i,
+    player: playerSrc(i.url, embeds.get(i.id) ?? null, { muted: true, captions }),
+    poster: i.image ? itemImageSet(i.id, [960]).src : null,
+  }));
 }
 
 export type ReaderHighlight = {

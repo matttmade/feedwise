@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
 import type { CardItem } from "@/lib/data/feed";
 import { costLabel } from "@/lib/feed/select";
 import { PlayIcon } from "@/components/ui/icons";
@@ -11,10 +12,18 @@ type Props = {
   layout?: "board" | "row";
   /** Above-the-fold cards load eagerly so the largest image isn't held back by lazy loading. */
   priority?: boolean;
+  /** Name the image so it morphs into the same card in Swipe or the Reader. Unique per page. */
+  morph?: boolean;
 };
 
 /** A feed item: image first, a short label, the cost, and Keep / Skip. */
-export function ItemCard({ item, sizes, layout = "board", priority = false }: Props) {
+export function ItemCard({
+  item,
+  sizes,
+  layout = "board",
+  priority = false,
+  morph = false,
+}: Props) {
   const href = `/reader/${item.id}`;
   const cost = costLabel(item);
   const titleId = `t-${item.id}`;
@@ -31,12 +40,20 @@ export function ItemCard({ item, sizes, layout = "board", priority = false }: Pr
       }
     >
       <div className="relative">
-        <CardImage
-          item={item}
-          sizes={sizes}
-          ratio={layout === "row" ? "wide" : "native"}
-          priority={priority}
-        />
+        {morph ? (
+          <ViewTransition name={`card-${item.id}`} share="morph" default="none">
+            <div>
+              <CardImage item={item} sizes={sizes} ratio="native" priority={priority} />
+            </div>
+          </ViewTransition>
+        ) : (
+          <CardImage
+            item={item}
+            sizes={sizes}
+            ratio={layout === "row" ? "wide" : "native"}
+            priority={priority}
+          />
+        )}
         {item.type === "video" && (
           <span className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-1 text-sm text-white">
             <PlayIcon width={14} height={14} />
