@@ -1,0 +1,89 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Help" };
+
+const SHORTCUTS = [
+  ["K", "Keep the focused card, or the item you're reading"],
+  ["X", "Skip the focused card"],
+  ["Enter", "Open the focused card"],
+  ["Esc", "Close the Reader"],
+  ["Tab / Shift+Tab", "Move between cards and buttons"],
+];
+
+export default function HelpPage() {
+  return (
+    <div className="max-w-2xl">
+      <h1 className="pt-2 text-2xl font-bold lg:pt-0">Help</h1>
+
+      <section aria-labelledby="how" className="mt-6">
+        <h2 id="how" className="text-lg font-bold">
+          How Feedwise works
+        </h2>
+        <ul className="mt-2 list-disc space-y-1 pl-5">
+          <li>
+            <strong>Sources</strong> are sites and YouTube channels you follow. We check them every
+            couple of hours.
+          </li>
+          <li>
+            <strong>Today</strong> gives you a short set (3–5) of fresh posts. When it&apos;s done,
+            you&apos;re done.
+          </li>
+          <li>
+            <strong>Explore</strong> shows the rest as a board. It ends too — nothing scrolls
+            forever.
+          </li>
+          <li>
+            <strong>Keep</strong> saves something worth remembering. Skip just moves it out of the
+            way. Both can be undone.
+          </li>
+          <li>
+            The Reader remembers where you stopped, and offers to take you back. It never jumps on
+            its own.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="keys" className="mt-8">
+        <h2 id="keys" className="text-lg font-bold">
+          Keyboard shortcuts
+        </h2>
+        <table className="mt-2 w-full border-collapse text-left">
+          <thead>
+            <tr className="border-b border-line">
+              <th scope="col" className="py-2 pr-4">
+                Key
+              </th>
+              <th scope="col" className="py-2">
+                What it does
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {SHORTCUTS.map(([key, what]) => (
+              <tr key={key} className="border-b border-line">
+                <td className="py-2 pr-4">
+                  <kbd className="rounded border border-line bg-surface-2 px-2 py-0.5">{key}</kbd>
+                </td>
+                <td className="py-2">{what}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section aria-labelledby="account" className="mt-8">
+        <h2 id="account" className="text-lg font-bold">
+          Account
+        </h2>
+        <form action="/auth/signout" method="post" className="mt-2">
+          <button
+            type="submit"
+            className="min-h-11 rounded-control border border-line px-4 hover:border-ink"
+          >
+            Sign out
+          </button>
+        </form>
+      </section>
+    </div>
+  );
+}

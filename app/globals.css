@@ -1,26 +1,233 @@
 @import "tailwindcss";
 
+/* ── Design tokens ─────────────────────────────────────────────────────────
+   Every colour, radius and type size used by components comes from here.
+   Light is the default; dark follows the OS. Text pairs meet WCAG AA (4.5:1). */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f2f0eb;
+  --border: #e3dfd6;
+  --text: #1c1b19;
+  --muted: #5c5851;
+  --accent: #2f55c9;
+  --accent-ink: #ffffff;
+  --accent-soft: #e6ecfb;
+  --keep: #1d7348;
+  --keep-soft: #e3f3ea;
+  --warn: #9a4b00;
+  --warn-soft: #fbeedd;
+  --focus: #2f55c9;
+  --shadow: 0 1px 2px rgb(28 27 25 / 0.06), 0 4px 16px rgb(28 27 25 / 0.06);
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --radius-card: 18px;
+  --radius-control: 12px;
+  --tap: 44px;
+  --rail: 88px;
+  --bar: 64px;
+
+  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.9rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --step-1: clamp(1.2rem, 1.12rem + 0.4vw, 1.4rem);
+  --step-2: clamp(1.44rem, 1.3rem + 0.7vw, 1.8rem);
+  --step-3: clamp(1.73rem, 1.5rem + 1.1vw, 2.4rem);
+  --reader-size: clamp(1.125rem, 1.08rem + 0.25vw, 1.25rem);
+
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #141413;
+    --surface: #1d1c1a;
+    --surface-2: #272624;
+    --border: #383532;
+    --text: #f3f1ec;
+    --muted: #b5b0a7;
+    --accent: #93abff;
+    --accent-ink: #0f1633;
+    --accent-soft: #232b45;
+    --keep: #6fd09b;
+    --keep-soft: #1b3326;
+    --warn: #f3b26b;
+    --warn-soft: #3a2a17;
+    --focus: #93abff;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.25);
+    color-scheme: dark;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--border);
+  --color-ink: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-keep: var(--keep);
+  --color-keep-soft: var(--keep-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --radius-card: var(--radius-card);
+  --radius-control: var(--radius-control);
+  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --text-sm: var(--step--1);
+  --text-base: var(--step-0);
+  --text-lg: var(--step-1);
+  --text-xl: var(--step-2);
+  --text-2xl: var(--step-3);
+  --shadow-card: var(--shadow);
+}
+
+/* Repeated card pieces as named utilities: the Board renders dozens of cards, and short
+   class names keep the streamed HTML (and React's copy of it) small. */
+@utility card {
+  @apply overflow-hidden rounded-card border border-line bg-surface shadow-card;
+}
+@utility card-btn {
+  @apply flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-control px-1 py-1 text-sm sm:flex-row sm:gap-1.5 sm:px-3 sm:text-base;
+}
+@utility img-frame {
+  @apply relative aspect-(--ar) overflow-hidden bg-surface-2;
+}
+@utility img-fill {
+  @apply absolute inset-0 h-full w-full object-cover;
+}
+@utility img-blur {
+  @apply absolute inset-0 h-full w-full scale-110 object-cover blur-lg;
+}
+@utility art {
+  @apply absolute inset-0 flex flex-col justify-between p-4 text-white;
+}
+
+html {
+  /* Keep focused or scrolled-to elements clear of the fixed tab bar / sticky reader header (WCAG 2.4.11). */
+  scroll-padding-top: 72px;
+  scroll-padding-bottom: calc(var(--bar) + env(safe-area-inset-bottom) + 16px);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.55;
+}
+
+/* Visible, consistent focus everywhere (WCAG 2.4.7 / 2.4.13). */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Non-essential motion only runs when the user hasn't asked for less (OS or Calm mode). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+html[data-calm] *,
+html[data-calm] *::before,
+html[data-calm] *::after {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Reader typography for sanitised article HTML. */
+.prose-reader {
+  font-size: var(--reader-size);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.prose-reader > * + * {
+  margin-top: 1.1em;
+}
+.prose-reader h1,
+.prose-reader h2,
+.prose-reader h3,
+.prose-reader h4 {
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.8em;
+}
+.prose-reader h2 {
+  font-size: var(--step-2);
+}
+.prose-reader h3 {
+  font-size: var(--step-1);
+}
+.prose-reader a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-reader img,
+.prose-reader video,
+.prose-reader iframe {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+.prose-reader figcaption {
+  color: var(--muted);
+  font-size: var(--step--1);
+  margin-top: 0.5em;
+}
+.prose-reader blockquote {
+  border-left: 4px solid var(--border);
+  padding-left: 1em;
+  color: var(--muted);
+}
+.prose-reader pre {
+  background: var(--surface-2);
+  padding: 1em;
+  border-radius: 12px;
+  overflow-x: auto;
+  font-size: 0.85em;
+}
+.prose-reader code {
+  font-size: 0.9em;
+}
+.prose-reader ul,
+.prose-reader ol {
+  padding-left: 1.4em;
+}
+.prose-reader ul {
+  list-style: disc;
+}
+.prose-reader ol {
+  list-style: decimal;
+}
+.prose-reader table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+.prose-reader td,
+.prose-reader th {
+  border: 1px solid var(--border);
+  padding: 0.4em 0.6em;
+}
+
+@media (min-width: 1024px) {
+  html {
+    scroll-padding-bottom: 16px;
+  }
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
 }
