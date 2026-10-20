@@ -2,6 +2,7 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 import { BookmarkIcon, SkipIcon } from "@/components/ui/icons";
+import { useSwipe } from "@/components/motion/use-swipe";
 import { shortcutHandler, useItemActions } from "./use-item-actions";
 
 type Actions = ReturnType<typeof useItemActions>;
@@ -25,13 +26,19 @@ export function CardFrame({
   children: ReactNode;
 }) {
   const actions = useItemActions(itemId, title);
+  // Swipe right to keep, left to hide; press and hold to keep. Vertical moves stay scrolling.
+  const swipeRef = useSwipe<HTMLElement>({
+    onAction: (a) => (a === "skip" ? actions.skip() : actions.keep()),
+    enabled: !actions.hidden,
+  });
   if (actions.hidden) return null;
   return (
     <ActionsContext value={actions}>
       <article
+        ref={swipeRef}
         aria-labelledby={labelledBy}
         onKeyDown={shortcutHandler(actions)}
-        className={className}
+        className={`swipeable ${className}`}
       >
         {children}
       </article>

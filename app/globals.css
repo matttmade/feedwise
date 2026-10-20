@@ -140,10 +140,160 @@ body {
 }
 html[data-calm] *,
 html[data-calm] *::before,
-html[data-calm] *::after {
+html[data-calm] *::after,
+html[data-motion="off"] *,
+html[data-motion="off"] *::before,
+html[data-motion="off"] *::after {
   animation-duration: 0.001ms !important;
   transition-duration: 0.001ms !important;
   scroll-behavior: auto !important;
+}
+
+/* ── Dials from Settings (data-* set on <html> before paint) ───────────────── */
+
+/* Text size scales everything sized in rem, which is everything. */
+html[data-text="sm"] {
+  font-size: 93.75%;
+}
+html[data-text="lg"] {
+  font-size: 112.5%;
+}
+html[data-text="xl"] {
+  font-size: 125%;
+}
+
+/* Board columns by density: spacious 1/2/3/4 · comfortable 2/3/4/5 · compact 3/4/5/6. */
+.board {
+  column-gap: 1rem;
+  column-count: 2;
+}
+@media (min-width: 640px) {
+  .board {
+    column-count: 3;
+  }
+}
+@media (min-width: 1024px) {
+  .board {
+    column-count: 4;
+  }
+}
+@media (min-width: 1536px) {
+  .board {
+    column-count: 5;
+  }
+}
+html[data-density="spacious"] .board {
+  column-count: 1;
+}
+html[data-density="compact"] .board {
+  column-count: 3;
+  column-gap: 0.75rem;
+}
+@media (min-width: 640px) {
+  html[data-density="spacious"] .board {
+    column-count: 2;
+  }
+  html[data-density="compact"] .board {
+    column-count: 4;
+  }
+}
+@media (min-width: 1024px) {
+  html[data-density="spacious"] .board {
+    column-count: 3;
+  }
+  html[data-density="compact"] .board {
+    column-count: 5;
+  }
+}
+@media (min-width: 1536px) {
+  html[data-density="spacious"] .board {
+    column-count: 4;
+  }
+  html[data-density="compact"] .board {
+    column-count: 6;
+  }
+}
+html[data-density="compact"] .board .card-btn {
+  font-size: var(--step--1);
+}
+
+/* ── Motion: lean and gray-at-rest (both off at reduced/off motion and in Calm mode) ── */
+.board > * {
+  transform: skewY(calc(var(--lean, 0) * 1.5deg));
+}
+html[data-motion="full"]:not([data-calm])
+  .board:has(.card:hover, .card:focus-within)
+  .card:not(:hover, :focus-within) {
+  filter: saturate(0.55);
+  opacity: 0.9;
+}
+.board .card {
+  transition:
+    filter 220ms ease,
+    opacity 220ms ease;
+}
+
+/* Cards you can swipe: keep vertical scrolling native, no text selection or image menu on hold. */
+.swipeable {
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* Swipe deck */
+.swipe-card {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+  cursor: grab;
+}
+.swipe-card:active {
+  cursor: grabbing;
+}
+/* Gray at rest: cards waiting behind the top one are desaturated until they come up. */
+.deck-behind {
+  filter: saturate(0.3);
+  opacity: 0.85;
+}
+@utility deck-btn {
+  @apply flex min-h-16 flex-col items-center justify-center gap-1 rounded-control font-bold disabled:opacity-60;
+}
+
+/* Mode morph: the same card moves between Board, Swipe and the Reader. Only at full motion. */
+::view-transition-group(.morph) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+html:not([data-motion="full"])::view-transition-group(*),
+html:not([data-motion="full"])::view-transition-old(*),
+html:not([data-motion="full"])::view-transition-new(*),
+html[data-calm]::view-transition-group(*),
+html[data-calm]::view-transition-old(*),
+html[data-calm]::view-transition-new(*) {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Watch stream: its own snap-scrolling area sized to the screen between header and tab bar. */
+.watch-stream {
+  /* Screen minus mobile header, page title, view switch, filter row and tab bar. */
+  height: calc(100dvh - 14.5rem - var(--bar) - env(safe-area-inset-bottom));
+  min-height: 22rem;
+}
+@media (min-width: 1024px) {
+  .watch-stream {
+    height: calc(100dvh - 13rem);
+  }
+}
+.watch-slide {
+  height: 100%;
+  scroll-snap-stop: always;
 }
 
 /* Reader typography for sanitised article HTML. */
