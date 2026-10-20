@@ -6,6 +6,7 @@ import type { ComponentType, ReactNode, SVGProps } from "react";
 import {
   BookmarkIcon,
   CardsIcon,
+  DialsIcon,
   GridIcon,
   HelpIcon,
   RssIcon,
@@ -67,6 +68,14 @@ export function Rail({ reviewBadge }: NavProps) {
         })}
       </ul>
       <Link
+        href="/settings"
+        aria-current={isActive(path, "/settings") ? "page" : undefined}
+        className="flex w-18 flex-col items-center gap-1 rounded-control px-1 py-2 text-sm text-muted hover:bg-surface-2 hover:text-ink"
+      >
+        <DialsIcon />
+        Settings
+      </Link>
+      <Link
         href="/help"
         aria-current={isActive(path, "/help") ? "page" : undefined}
         className="flex w-18 flex-col items-center gap-1 rounded-control px-1 py-2 text-sm text-muted hover:bg-surface-2 hover:text-ink"
@@ -118,6 +127,14 @@ export function MobileHeader() {
     <header className="flex h-14 items-center justify-between px-4 lg:hidden">
       <Link href="/today" className="text-lg font-bold">
         Feedwise
+      </Link>
+      <span className="flex-1" />
+      <Link
+        href="/settings"
+        className="flex min-h-11 items-center gap-1.5 rounded-control px-3 text-muted hover:text-ink"
+      >
+        <DialsIcon width={20} height={20} />
+        Settings
       </Link>
       <Link
         href="/help"

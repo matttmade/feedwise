@@ -115,3 +115,13 @@ export const SearchIcon = (p: P) => (
     <path d="m21 21-4.3-4.3" />
   </Icon>
 );
+export const DialsIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" />
+  </Icon>
+);
+export const ArrowUpIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M12 19V5M5 12l7-7 7 7" />
+  </Icon>
+);

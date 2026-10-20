@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Atkinson_Hyperlegible_Next } from "next/font/google";
+import { PREFS_SCRIPT } from "@/lib/prefs";
 import "./globals.css";
 
 // Designed by the Braille Institute for legibility; distinct letterforms help tired eyes too.
@@ -26,7 +27,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${atkinson.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${atkinson.variable} h-full antialiased`}
+      // The prefs script below sets data-* attributes before React hydrates.
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: PREFS_SCRIPT }} />
+      </head>
       <body className="min-h-full">
         <a
           href="#main"
