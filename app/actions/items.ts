@@ -4,6 +4,7 @@ import { refresh } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { READ_THRESHOLD } from "@/lib/feed/select";
 import { bumpActivity, createHighlightWithCard, rebuildCard } from "@/lib/srs/cards";
+import { removeHighlight, restoreHighlight, type HighlightSnapshot } from "./highlights";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -150,4 +151,24 @@ export async function saveProgress(itemId: string, position: number): Promise<vo
     last_opened_at: new Date().toISOString(),
   });
   if (finishing) await bumpActivity(supabase, user.id, "items_read");
+}
+
+export type UnkeepSnapshot = { item: Snapshot; keepHighlight: HighlightSnapshot | null };
+
+/**
+ * Take an item out of the Library: it's no longer kept and its "key idea" card goes too.
+ * Highlights made while reading stay, since you chose those separately. Undo puts it all back.
+ */
+export async function unkeepItem(itemId: string): Promise<UnkeepSnapshot> {
+  const { supabase } = await context(itemId);
+  const id = await keepHighlightId(supabase, itemId);
+  const keepHighlight = id ? await removeHighlight(id) : null;
+  const item = await write(itemId, { state: "read", kept_at: null });
+  refresh();
+  return { item, keepHighlight };
+}
+
+export async function restoreKept(itemId: string, snapshot: UnkeepSnapshot): Promise<void> {
+  await restoreItem(itemId, snapshot.item);
+  if (snapshot.keepHighlight) await restoreHighlight(snapshot.keepHighlight);
 }
