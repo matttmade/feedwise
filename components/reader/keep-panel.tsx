@@ -64,7 +64,7 @@ export function KeepPanel({ itemId, variant }: { itemId: string; variant: "bar" 
           Keep this
         </button>
       ) : noteSaved ? (
-        <p className="mt-2">Saved. You&apos;ll see it again when reviews arrive.</p>
+        <p className="mt-2">Saved. It&apos;ll come back in Review, starting tomorrow.</p>
       ) : (
         <form
           className="mt-3 flex flex-col gap-2"

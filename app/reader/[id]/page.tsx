@@ -9,6 +9,8 @@ import { sanitizeBody } from "@/lib/ingest/sanitize";
 import { chunkHtml } from "@/lib/reader/chunk";
 import { playerSrc } from "@/lib/reader/video";
 import { CardImage } from "@/components/cards/card-image";
+import { HighlightList } from "@/components/reader/highlight-list";
+import { Highlighter, READER_BODY_ID } from "@/components/reader/highlighter";
 import { KeepPanel } from "@/components/reader/keep-panel";
 import { ReaderShell } from "@/components/reader/reader-shell";
 import { VideoPlayer } from "@/components/reader/video-player";
@@ -97,23 +99,26 @@ async function Reader({ params }: { params: PageProps<"/reader/[id]">["params"] 
         </p>
         <h1 className="mt-2 text-2xl leading-tight font-bold">{item.title}</h1>
 
-        {chunks.length > 0 ? (
-          chunks.map((html, i) => (
-            <section key={i} aria-label={`Part ${i + 1} of ${chunks.length}`} className="mt-8">
-              {chunks.length > 1 && (
-                <p
-                  aria-hidden="true"
-                  className="mb-3 text-sm font-bold tracking-wide text-muted uppercase"
-                >
-                  Part {i + 1} of {chunks.length}
-                </p>
-              )}
-              <div className="prose-reader" dangerouslySetInnerHTML={{ __html: html }} />
-            </section>
-          ))
-        ) : item.summary ? (
-          <p className="prose-reader mt-6 whitespace-pre-line">{item.summary}</p>
-        ) : null}
+        <div id={READER_BODY_ID}>
+          {chunks.length > 0 ? (
+            chunks.map((html, i) => (
+              <section key={i} aria-label={`Part ${i + 1} of ${chunks.length}`} className="mt-8">
+                {chunks.length > 1 && (
+                  <p
+                    aria-hidden="true"
+                    className="mb-3 text-sm font-bold tracking-wide text-muted uppercase"
+                  >
+                    Part {i + 1} of {chunks.length}
+                  </p>
+                )}
+                <div className="prose-reader" dangerouslySetInnerHTML={{ __html: html }} />
+              </section>
+            ))
+          ) : item.summary ? (
+            <p className="prose-reader mt-6 whitespace-pre-line">{item.summary}</p>
+          ) : null}
+        </div>
+        <Highlighter itemId={item.id} />
 
         {item.type !== "video" && chunks.length === 0 && (
           <p className="mt-6 rounded-card bg-surface-2 p-4">
@@ -129,6 +134,8 @@ async function Reader({ params }: { params: PageProps<"/reader/[id]">["params"] 
             .
           </p>
         )}
+
+        <HighlightList highlights={item.highlights} />
 
         <KeepPanel itemId={item.id} variant="end" />
 

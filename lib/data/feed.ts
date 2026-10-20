@@ -1,6 +1,6 @@
 import "server-only";
 import { requireUser } from "@/lib/auth";
-import { itemImageSet, type ImageSet } from "@/lib/images";
+import { itemImageSet, proxiedImage, type ImageSet } from "@/lib/images";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import {
@@ -34,7 +34,7 @@ export type CardItem = {
   resumePosition: number;
 };
 
-const CARD_COLUMNS =
+export const CARD_COLUMNS =
   "id, source_id, url, title, summary, type, lead_image_url, lead_image_width, lead_image_height, read_minutes, duration_seconds, sort_at, source_title, source_site_url, state, resume_position, last_opened_at, topic_ids";
 
 export function toCard(row: Partial<FeedRow>): CardItem {
@@ -168,7 +168,16 @@ export async function getExplore(filter: ExploreFilter): Promise<ExploreData> {
   };
 }
 
+export type ReaderHighlight = {
+  id: string;
+  text: string | null;
+  /** Proxied, for display. */
+  image: string | null;
+  note: string | null;
+};
+
 export type ReaderItem = CardItem & {
+  highlights: ReaderHighlight[];
   bodyHtml: string | null;
   embedHtml: string | null;
   sourceSiteUrl: string | null;
@@ -179,13 +188,21 @@ export type ReaderItem = CardItem & {
 export async function getReaderItem(id: string): Promise<ReaderItem | null> {
   const user = await requireUser();
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("items")
-    .select(
-      "id, source_id, url, title, summary, type, lead_image_url, lead_image_width, lead_image_height, read_minutes, duration_seconds, published_at, created_at, body_html, embed_html, sources(title, site_url), user_items(state, resume_position, kept_at, user_id)",
-    )
-    .eq("id", id)
-    .maybeSingle();
+  const [{ data }, { data: highlightRows }] = await Promise.all([
+    supabase
+      .from("items")
+      .select(
+        "id, source_id, url, title, summary, type, lead_image_url, lead_image_width, lead_image_height, read_minutes, duration_seconds, published_at, created_at, body_html, embed_html, sources(title, site_url), user_items(state, resume_position, kept_at, user_id)",
+      )
+      .eq("id", id)
+      .maybeSingle(),
+    supabase
+      .from("highlights")
+      .select("id, text, image_url, note")
+      .eq("item_id", id)
+      .eq("user_id", user.id)
+      .order("created_at"),
+  ]);
   if (!data) return null;
   const mine = data.user_items.find((u) => u.user_id === user.id);
   const card = toCard({
@@ -207,6 +224,15 @@ export async function getReaderItem(id: string): Promise<ReaderItem | null> {
   return {
     ...card,
     image: hero,
+    // The text-less, image-less highlight just stands for "kept"; it has no passage to show.
+    highlights: (highlightRows ?? [])
+      .filter((h) => h.text || h.image_url)
+      .map((h) => ({
+        id: h.id,
+        text: h.text,
+        image: h.image_url ? proxiedImage(h.image_url, 480) : null,
+        note: h.note,
+      })),
     bodyHtml: data.body_html,
     embedHtml: data.embed_html,
     sourceSiteUrl: data.sources?.site_url ?? null,
