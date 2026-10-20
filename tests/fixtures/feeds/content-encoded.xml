@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<channel>
+  <title>UX Journal</title>
+  <link>https://ux.example.com</link>
+  <item>
+    <title><![CDATA[Human attention is the bottleneck]]></title>
+    <link>https://ux.example.com/human-attention-d7bc?source=rss----138adf9c44c---4</link>
+    <guid isPermaLink="false">https://medium.example.com/p/d7bc</guid>
+    <dc:creator><![CDATA[Pat Example]]></dc:creator>
+    <pubDate>Mon, 19 Oct 2026 21:39:27 GMT</pubDate>
+    <content:encoded><![CDATA[<figure><img alt="An office" src="https://cdn-images.example.com/max/1024/office.png" /></figure><p>Agents now log six hours for every human hour.</p><p>The job is to design judgement systems for what deserves attention.</p><img src="https://medium.example.com/_/stat?event=post.clientViewed" width="1" height="1" alt="">]]></content:encoded>
+  </item>
+</channel>
+</rss>

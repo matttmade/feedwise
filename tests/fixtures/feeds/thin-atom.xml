@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://design.example.com/blog/</id>
+    <title>Shortcut</title>
+    <updated>2026-10-15T04:55:00.000Z</updated>
+    <link rel="alternate" href="https://design.example.com/blog/"/>
+    <link rel="self" href="https://design.example.com/blog/feed/atom.xml"/>
+    <entry>
+        <title type="html"><![CDATA[Deepening our investment in India]]></title>
+        <id>https://design.example.com/blog/india/</id>
+        <link href="https://design.example.com/blog/india/"/>
+        <updated>2026-10-15T04:55:00.000Z</updated>
+        <content type="html"><![CDATA[We're launching an education program and new research.]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Build by design]]></title>
+        <id>https://design.example.com/blog/build-by-design/</id>
+        <link href="https://design.example.com/blog/build-by-design/"/>
+        <updated>2026-10-14T04:55:00.000Z</updated>
+    </entry>
+</feed>

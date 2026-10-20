@@ -1,0 +1,18 @@
+{
+  "version": "https://jsonfeed.org/version/1.1",
+  "title": "Gallery Notes",
+  "home_page_url": "https://gallery.example.com/",
+  "feed_url": "https://gallery.example.com/feed.json",
+  "items": [
+    {
+      "id": "post-1",
+      "url": "/posts/one",
+      "title": "Posters from the archive",
+      "summary": "Twelve posters, one room.",
+      "image": "https://gallery.example.com/img/posters.jpg",
+      "date_published": "2026-10-10T09:00:00Z",
+      "attachments": [{ "url": "https://gallery.example.com/audio/tour.mp3", "mime_type": "audio/mpeg" }]
+    },
+    { "id": "post-2", "url": "https://gallery.example.com/posts/two", "content_html": "<p>Untitled short note about type.</p>" }
+  ]
+}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+ <link rel="self" href="http://www.youtube.com/feeds/videos.xml?channel_id=UCkCnraWwlnBw1_i7C9-3p0w"/>
+ <id>yt:channel:kCnraWwlnBw1_i7C9-3p0w</id>
+ <yt:channelId>kCnraWwlnBw1_i7C9-3p0w</yt:channelId>
+ <title>Dive Club 🤿</title>
+ <link rel="alternate" href="https://www.youtube.com/channel/UCkCnraWwlnBw1_i7C9-3p0w"/>
+ <entry>
+  <id>yt:video:0FQC0mu5Z00</id>
+  <yt:videoId>0FQC0mu5Z00</yt:videoId>
+  <yt:channelId>UCkCnraWwlnBw1_i7C9-3p0w</yt:channelId>
+  <title>Kyle Barber - Designing Inflight</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=0FQC0mu5Z00"/>
+  <author><name>Dive Club 🤿</name></author>
+  <published>2026-10-20T12:36:42+00:00</published>
+  <updated>2026-10-20T13:44:05+00:00</updated>
+  <media:group>
+   <media:title>Kyle Barber - Designing Inflight</media:title>
+   <media:content url="https://www.youtube.com/v/0FQC0mu5Z00?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/0FQC0mu5Z00/hqdefault.jpg" width="480" height="360"/>
+   <media:description>A behind-the-scenes of the Inflight design journey.</media:description>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:I11v5cOCWog</id>
+  <yt:videoId>I11v5cOCWog</yt:videoId>
+  <title>"Cats" #design</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/I11v5cOCWog"/>
+  <published>2026-10-18T12:00:00+00:00</published>
+  <media:group>
+   <media:thumbnail url="https://i2.ytimg.com/vi/I11v5cOCWog/hqdefault.jpg" width="480" height="360"/>
+  </media:group>
+ </entry>
+</feed>

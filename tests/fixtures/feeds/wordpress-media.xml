@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/">
+<channel>
+  <title>Motion Studio Journal</title>
+  <link>https://motion.example.com</link>
+  <description>Moving image, made well</description>
+  <item>
+    <title>Hypersail | FutureDeluxe</title>
+    <link>https://motion.example.com/quickie/hypersail/</link>
+    <dc:creator><![CDATA[Staff]]></dc:creator>
+    <pubDate>Mon, 19 Oct 2026 22:52:07 +0000</pubDate>
+    <guid isPermaLink="false">https://motion.example.com/?p=92434</guid>
+    <description><![CDATA[A short film about a sailing yacht that flies.]]></description>
+    <media:content url="https://cdn.example.com/hypersail-cover.jpg?fit=700%2C394" type="image/jpeg" medium="image" width="700" height="394">
+      <media:description type="plain"><![CDATA[Hypersail cover]]></media:description>
+    </media:content>
+  </item>
+  <item>
+    <title>ROVE Launches a New Identity</title>
+    <link>https://motion.example.com/news/rove/?utm_source=rss&amp;utm_medium=rss</link>
+    <pubDate>Sun, 18 Oct 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="false">https://motion.example.com/?p=92400</guid>
+    <description><![CDATA[The Portland studio unveils a motion-led identity &amp; website.]]></description>
+    <media:thumbnail url="https://cdn.example.com/rove-thumb.png" width="320" height="180"/>
+  </item>
+  <item>
+    <title>ROVE Launches a New Identity (duplicate)</title>
+    <link>https://motion.example.com/news/rove/</link>
+    <guid isPermaLink="false">https://motion.example.com/?p=92400</guid>
+  </item>
+</channel>
+</rss>
