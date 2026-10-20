@@ -9,7 +9,7 @@ Read `BRIEF.md` first. Build phase by phase. **Do not start a phase until the pr
 | Framework | Next.js (App Router) + TypeScript (strict) |
 | Styling | Tailwind CSS + CSS custom-property design tokens |
 | Database / auth / storage | Supabase (Postgres, RLS, Storage) |
-| Hosting + jobs | Vercel; Vercel Cron hits a protected `/api/cron/fetch` route |
+| Hosting + jobs | Vercel; GitHub Actions schedule hits a protected `/api/cron/fetch` route (see DECISIONS.md) |
 | Users | Single user (Matt) in v1; still use Supabase auth (magic link) and RLS so multi-user is a later switch, not a rewrite |
 | Keep action | One tap saves; optional "one thing to remember" note |
 | Spaced repetition | FSRS via `ts-fsrs` |
@@ -51,15 +51,15 @@ RLS on every user table: `user_id = auth.uid()`. Map review buttons: Got it → 
 
 ## Phase 1 — Personal MVP (reading loop)
 
-- [ ] Auth (magic link), app shell, design tokens (light + dark), responsive nav (bottom bar < 1024px, left rail above)
-- [ ] **Sources** screen: add by URL → show detected feeds → confirm; list with health status, mute, rename, topic tags
-- [ ] Cron route: fetch due sources every 2h, enrich, store; per-source error capture; never let one failing feed stop the run
-- [ ] **Today**: hero = one next action; Continue rail; today's batch of 3–5 new items; finish card
-- [ ] **Explore → Board**: 2/3/4–5 column masonry, native aspect ratios, lazy images, topic/source tabs, time chips, "caught up" card
-- [ ] **Reader**: lead image, chunked body, progress bar, resume position saved on scroll (debounced), "Keep" action, link to original
-- [ ] Keep / Skip with one-tap undo toast
-- [ ] Image proxy/resizing for thumbnails; blurred placeholder; branded fallback when no image
-- [ ] Deploy to Vercel
+- [x] Auth (magic link), app shell, design tokens (light + dark), responsive nav (bottom bar < 1024px, left rail above)
+- [x] **Sources** screen: add by URL → show detected feeds → confirm; list with health status, mute, rename, topic tags
+- [x] Cron route: fetch due sources every 2h, enrich, store; per-source error capture; never let one failing feed stop the run
+- [x] **Today**: hero = one next action; Continue rail; today's batch of 3–5 new items; finish card
+- [x] **Explore → Board**: 2/3/4–5 column masonry, native aspect ratios, lazy images, topic/source tabs, time chips, "caught up" card
+- [x] **Reader**: lead image, chunked body, progress bar, resume position saved on scroll (debounced), "Keep" action, link to original
+- [x] Keep / Skip with one-tap undo toast
+- [x] Image proxy/resizing for thumbnails; blurred placeholder; branded fallback when no image
+- [ ] Deploy to Vercel (ready: follow DEPLOY.md; needs Matt's Supabase + Vercel accounts)
 
 **Exit gate:** Matt uses it 5 days in a row. Lighthouse mobile ≥ 90 performance and accessibility. Axe: zero critical issues.
 

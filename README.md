@@ -1,36 +1,54 @@
 # Feedwise
 
-Turn the sites you already follow into a visual, swipeable learning feed. Product spec: [BRIEF.md](BRIEF.md). Build plan and gates: [PLAN.md](PLAN.md). Working rules: [CLAUDE.md](CLAUDE.md). Deviations: [DECISIONS.md](DECISIONS.md).
+Turn the sites you already follow into a visual, swipeable learning feed. Product spec: [BRIEF.md](BRIEF.md). Build plan and gates: [PLAN.md](PLAN.md). Working rules: [CLAUDE.md](CLAUDE.md). Deviations: [DECISIONS.md](DECISIONS.md). Going live: [DEPLOY.md](DEPLOY.md).
 
 ## Status
 
-Phase 0 is the ingestion spike: discover, then fetch, then enrich. The latest results are in [spike-report.md](spike-report.md).
+- **Phase 0 (ingestion spike):** done. See [spike-report.md](spike-report.md).
+- **Phase 1 (reading loop):** built and verified locally. It's waiting on deployment (DEPLOY.md) and five days of real use.
 
-## Setup
+## Local development
+
+You need Node 22+, pnpm and Docker.
 
 ```bash
 pnpm install
-cp .env.example .env.local   # Supabase keys from Phase 1 onward
+pnpm db:start                 # local Supabase in Docker; prints the URL and keys
+cp .env.example .env.local    # fill in the local keys, ALLOWED_EMAILS, secrets
+pnpm dev                      # http://localhost:3000
+```
+
+Sign-in links arrive in the local Mailpit inbox at http://127.0.0.1:54324.
+
+To fetch feeds by hand:
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/fetch
 ```
 
 ## Commands
 
 | Command | What it does |
 | --- | --- |
-| `pnpm spike <url...>` | Discover, fetch and enrich the given sites. Prints JSON and writes `spike-report.md`. |
-| `pnpm spike --sites spike/sites.json` | The same for Matt's named sites, with expected item types checked. |
+| `pnpm check` | Lint, format check, typecheck and unit tests. Run it before every commit. |
 | `pnpm test` | Unit tests on saved fixtures. They make no network calls. |
-| `pnpm check` | Lint, format check, typecheck and tests. Run it before every commit. |
-| `pnpm dev` | Next.js dev server. Only a placeholder page exists until Phase 1. |
-
-Spike options: `--items N` (default 5), `--report path`, `--json path` (default `spike-output/spike.json`, gitignored) and `--full` (include the body HTML in the JSON output).
+| `pnpm db:start` / `pnpm db:reset` | Start the local Supabase, or wipe it and re-apply the migrations. |
+| `pnpm db:types` | Regenerate `lib/supabase/database.types.ts` from the local schema. |
+| `pnpm spike <url...>` | Discover, fetch and enrich sites. Prints JSON and writes `spike-report.md`. |
+| `pnpm audit:a11y [--seed]` | Signs in via Mailpit, runs axe on every screen at 375, 768 and 1280 px, and saves screenshots to `audit-output/`. `--seed` adds real sources first. |
+| `pnpm audit:lighthouse` | Lighthouse mobile on every screen, median of `LH_RUNS` (default 3). Run `audit:a11y` first. |
 
 ## Layout
 
 ```
-lib/ingest/   discover.ts · fetch.ts · enrich.ts · parse.ts (feeds) · html.ts (pages) · http.ts
-scripts/      spike.ts
-spike/        sites.json (the spike set) · notes.md (reviewer notes merged into the report)
-supabase/     migrations/
-tests/        *.test.ts · fixtures/ (feeds, pages, oEmbed responses)
+app/(app)/       today · explore · sources · help (tabbed shell)
+app/reader/[id]  the Reader
+app/api/         cron/fetch (scheduled ingest) · img (image proxy)
+app/actions/     server actions: keep / skip / undo / progress, sources
+components/      cards · today · reader · sources · shell · ui
+lib/ingest/      discover · fetch · enrich · parse · html · sanitize · images · http (SSRF-guarded) · run
+lib/feed/        selection rules (today's set, time chips, masonry estimates)
+lib/data/        server-side queries for the screens
+supabase/        migrations + local config
+tests/           unit tests + fixtures
 ```
