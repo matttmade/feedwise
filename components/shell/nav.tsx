@@ -2,22 +2,33 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ComponentType, SVGProps } from "react";
-import { GridIcon, HelpIcon, RssIcon, SunIcon } from "@/components/ui/icons";
+import type { ComponentType, ReactNode, SVGProps } from "react";
+import {
+  BookmarkIcon,
+  CardsIcon,
+  GridIcon,
+  HelpIcon,
+  RssIcon,
+  SunIcon,
+} from "@/components/ui/icons";
 
 type Tab = { href: string; label: string; icon: ComponentType<SVGProps<SVGSVGElement>> };
 
-// Review and Library join in Phase 2.
 export const TABS: Tab[] = [
   { href: "/today", label: "Today", icon: SunIcon },
   { href: "/explore", label: "Explore", icon: GridIcon },
+  { href: "/review", label: "Review", icon: CardsIcon },
+  { href: "/library", label: "Library", icon: BookmarkIcon },
   { href: "/sources", label: "Sources", icon: RssIcon },
 ];
+
+/** The due-count badge streams in from the server; the nav itself is static. */
+type NavProps = { reviewBadge?: ReactNode };
 
 const isActive = (path: string, href: string) => path === href || path.startsWith(`${href}/`);
 
 /** Left rail ≥ 1024px. */
-export function Rail() {
+export function Rail({ reviewBadge }: NavProps) {
   const path = usePathname();
   return (
     <nav
@@ -45,7 +56,10 @@ export function Rail() {
                     : "text-muted hover:bg-surface-2 hover:text-ink"
                 }`}
               >
-                <Icon />
+                <span className="relative">
+                  <Icon />
+                  {href === "/review" && reviewBadge}
+                </span>
                 {label}
               </Link>
             </li>
@@ -65,14 +79,14 @@ export function Rail() {
 }
 
 /** Bottom tab bar < 1024px. */
-export function BottomBar() {
+export function BottomBar({ reviewBadge }: NavProps) {
   const path = usePathname();
   return (
     <nav
       aria-label="Main"
       className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface lg:hidden"
     >
-      <ul className="mx-auto grid h-[var(--bar)] max-w-md grid-cols-3">
+      <ul className="mx-auto grid h-[var(--bar)] max-w-lg grid-cols-5">
         {TABS.map(({ href, label, icon: Icon }) => {
           const active = isActive(path, href);
           return (
@@ -84,7 +98,10 @@ export function BottomBar() {
                   active ? "font-bold text-accent" : "text-muted"
                 }`}
               >
-                <Icon />
+                <span className="relative">
+                  <Icon />
+                  {href === "/review" && reviewBadge}
+                </span>
                 {label}
               </Link>
             </li>

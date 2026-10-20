@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { getToday } from "@/lib/data/feed";
+import { getDaysLearned, getReview } from "@/lib/data/review";
+import { sessionMinutes } from "@/lib/srs/queue";
 import { ItemCard } from "@/components/cards/item-card";
 import { ContinueRail } from "@/components/today/continue-rail";
 import { HeroCard } from "@/components/today/hero-card";
-import { CheckIcon, PlusIcon } from "@/components/ui/icons";
+import { CardsIcon, CheckIcon, PlusIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Today" };
 
@@ -21,7 +23,9 @@ export default function TodayPage() {
 }
 
 async function TodayContent() {
-  const { sourceCount, goal, doneToday, batch, continueItems } = await getToday();
+  const [{ sourceCount, goal, doneToday, batch, continueItems }, review, daysLearned] =
+    await Promise.all([getToday(), getReview(), getDaysLearned()]);
+  const reviewDue = review.cards.length;
 
   if (sourceCount === 0) {
     return (
@@ -41,9 +45,12 @@ async function TodayContent() {
     );
   }
 
-  // Prefer something fresh; if today's set is done, offer what's already in progress.
-  const [hero, ...rest] = batch;
-  const resume = !hero ? continueItems[0] : undefined;
+  // One next thing: due reviews first, then something fresh, then what's already in progress.
+  // When reviews lead, the fresh picks all move into the set below.
+  const [first, ...others] = batch;
+  const hero = reviewDue ? undefined : first;
+  const rest = reviewDue ? batch : others;
+  const resume = !reviewDue && !hero ? continueItems[0] : undefined;
   const railItems = continueItems.filter((i) => i.id !== resume?.id);
   const done = Math.min(doneToday, goal);
 
@@ -59,10 +66,17 @@ async function TodayContent() {
         <span>
           {done} of {goal} done today
         </span>
+        {daysLearned > 0 && (
+          <span>
+            · {daysLearned} {daysLearned === 1 ? "day" : "days"} learned
+          </span>
+        )}
       </div>
 
       <div className="mt-6">
-        {hero ? (
+        {reviewDue ? (
+          <ReviewHero count={reviewDue} />
+        ) : hero ? (
           <HeroCard item={hero} resuming={false} />
         ) : resume ? (
           <HeroCard item={resume} resuming />
@@ -88,10 +102,42 @@ async function TodayContent() {
         </section>
       )}
 
-      {!hero && <FinishCard reachedGoal={doneToday >= goal} goal={goal} />}
+      {!hero && !reviewDue && batch.length === 0 && (
+        <FinishCard reachedGoal={doneToday >= goal} goal={goal} />
+      )}
 
       <ContinueRail items={railItems} />
     </>
+  );
+}
+
+function ReviewHero({ count }: { count: number }) {
+  return (
+    <section
+      aria-labelledby="review-hero"
+      className="card flex flex-col items-start gap-3 p-6 sm:flex-row sm:items-center sm:justify-between lg:p-8"
+    >
+      <div className="flex items-center gap-4">
+        <span className="grid size-14 shrink-0 place-items-center rounded-card bg-accent-soft text-accent">
+          <CardsIcon width={28} height={28} />
+        </span>
+        <div>
+          <p className="text-sm font-bold tracking-wide text-accent uppercase">Your next one</p>
+          <h2 id="review-hero" className="text-xl font-bold">
+            Time to review
+          </h2>
+          <p className="text-muted">
+            {count} {count === 1 ? "card" : "cards"} · about {sessionMinutes(count)} min
+          </p>
+        </div>
+      </div>
+      <Link
+        href="/review"
+        className="flex min-h-12 items-center rounded-control bg-accent px-6 font-bold text-accent-ink hover:brightness-110"
+      >
+        Start review
+      </Link>
+    </section>
   );
 }
 

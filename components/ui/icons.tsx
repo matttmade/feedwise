@@ -103,3 +103,15 @@ export const PlusIcon = (p: P) => (
     <path d="M12 5v14M5 12h14" />
   </Icon>
 );
+export const CardsIcon = (p: P) => (
+  <Icon {...p}>
+    <rect x="3" y="7" width="14" height="14" rx="2" />
+    <path d="M7 3h12a2 2 0 0 1 2 2v12" />
+  </Icon>
+);
+export const SearchIcon = (p: P) => (
+  <Icon {...p}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="m21 21-4.3-4.3" />
+  </Icon>
+);
