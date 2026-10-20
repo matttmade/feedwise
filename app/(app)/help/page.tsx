@@ -10,6 +10,8 @@ const SHORTCUTS = [
   ["H", "Highlight the text you've selected in the Reader"],
   ["Space / Enter", "Show the answer in Review"],
   ["1 / 2 / 3", "Forgot / Shaky / Got it in Review"],
+  ["→ / ← / ↑", "Keep / Skip / Open the top card in Swipe"],
+  ["↓ / ↑", "Next / previous video in Watch"],
   ["Tab / Shift+Tab", "Move between cards and buttons"],
 ];
 
@@ -45,7 +47,20 @@ export default function HelpPage() {
           </li>
           <li>
             <strong>Review</strong> brings back what you kept and highlighted, starting the next
-            day. Say how it went and it comes back sooner or later. Never more than 10 a day.
+            day. Say how it went and it comes back sooner or later. Never more than your daily cap
+            (10 unless you change it in Settings).
+          </li>
+          <li>
+            <strong>Gestures:</strong> swipe a card right to keep it or left to hide it, or press
+            and hold to keep. In Swipe, swipe up to open. Every gesture also has a button and a key.
+          </li>
+          <li>
+            <strong>Explore has three views:</strong> Board (a wall of cards), Swipe (one at a time,
+            ten per set) and Watch (videos, one per screen, eight per session).
+          </li>
+          <li>
+            <strong>Settings</strong> holds the dials: motion, density, text size, autoplay,
+            captions, how many posts and reviews a day, and Calm mode.
           </li>
           <li>
             <strong>Library</strong> holds everything you&apos;ve kept and highlighted, with search.

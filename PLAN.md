@@ -76,12 +76,12 @@ RLS on every user table: `user_id = auth.uid()`. Map review buttons: Got it → 
 
 ## Phase 3 — Rich modes + craft
 
-- [ ] **Swipe** mode: gesture deck, visible Keep/Skip/Open buttons, keyboard shortcuts, batch of 10 → summary
-- [ ] **Watch** mode: CSS scroll-snap vertical stream, click-to-play embeds (poster first), muted by default, session break card
-- [ ] Mode morph: shared card objects animate between Board/Swipe/Reader layouts
-- [ ] Damped motion system (fast + slow follower lean; gray-at-rest/color-on-focus); loop stops when settled
-- [ ] **Settings "Make it mine"**: density, motion, autoplay, captions, text size, daily goal, review cap, Calm mode
-- [ ] `prefers-reduced-motion` and Calm mode disable all non-essential motion
+- [x] **Swipe** mode: gesture deck, visible Keep/Skip/Open buttons, keyboard shortcuts, batch of 10 → summary
+- [x] **Watch** mode: CSS scroll-snap vertical stream, click-to-play embeds (poster first), muted by default, session break card
+- [x] Mode morph: shared card objects animate between Board/Swipe/Reader layouts
+- [x] Damped motion system (fast + slow follower lean; gray-at-rest/color-on-focus); loop stops when settled
+- [x] **Settings "Make it mine"**: density, motion, autoplay, captions, text size, daily goal, review cap, Calm mode
+- [x] `prefers-reduced-motion` and Calm mode disable all non-essential motion
 
 **Exit gate:** test with 5 people who identify with ADHD, anxiety or memory struggles using W3C COGA test questions; fix top 5 issues.
 

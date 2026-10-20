@@ -40,6 +40,7 @@ log("kept:", keptTitle.slice(0, 50), "| cards now:", sql("select count(*) from c
 // 2. Reader: select a passage and highlight it, add a note, save an image
 const href = `/reader/${sql("select id from items where type = 'article' and length(body_html) > 3000 and body_html like '%<img%' order by created_at desc limit 1")}`;
 await p.goto(`${BASE}${href}`);
+await p.waitForLoadState("networkidle");
 const para = p
   .locator("#reader-body .prose-reader p")
   .filter({ hasText: /\w+ \w+ \w+ \w+ \w+ \w+ \w+ \w+/ })

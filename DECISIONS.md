@@ -37,6 +37,20 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
 - **2026-10-20 · Each answer button shows when the card comes back** ("back in 3 days"). This follows rule 5: no surprises.
 - **2026-10-20 · Days learned** is the count of days with any reading or reviewing. It's shown on Today and at the end of Review, and never resets.
 
+- **2026-10-20 · Phase 3 started before the Phase 2 gate closed** (Matt's call). Phase 3's own gate is testing with 5 people, which is Matt's to run.
+- **2026-10-20 · Gestures** (Matt asked for force press to save and swipe off-screen to hide):
+  - Swipe right keeps, left skips, and up opens (Swipe deck only). On the Board, vertical moves stay native scrolling (`touch-action: pan-y`).
+  - Press and hold (550 ms, touch and pen) keeps. That's the practical stand-in for force press, which current iPhones and mobile browsers don't expose.
+  - Every gesture keeps its visible button and a key (CLAUDE.md).
+  - A drag or hold never counts as a tap on the card's link, and the browser's own image/link drag is turned off on cards.
+- **2026-10-20 · Swipe sets are 10 cards, then a summary** with an optional "Another set". Swipes save independently, so fast swiping never waits on the previous save. The summary counts outcomes immediately.
+- **2026-10-20 · Watch is its own scroll-snap area,** not the page, so it never hijacks page scroll. Players are built from the video ID (YouTube nocookie or Vimeo) and always start muted. Autoplay (muted) happens only when switched on and only for the video that's 70% in view, never in Calm mode. Captions use `cc_load_policy=1` (YouTube) and `texttrack` (Vimeo). Sessions are 8 videos, then a break card.
+- **2026-10-20 · Motion levels.** "Full" gives the scroll lean (CLAUDE.md's fast/slow followers: lean = gap ÷ 500, at most 1.5° of skew; the loop stops once settled), gray-at-rest on the Board and the Swipe deck, and the mode morph. "Reduced" and "off" drop those. The OS "reduce motion" setting caps everything at reduced. Calm mode forces off.
+- **2026-10-20 · Default motion is "full"** (the column default from Phase 0 was "reduced"). The OS setting still wins, and the new effects are deliberately small. This matters for the Phase 3 tests: testers who want less can turn it down, and their OS preference already applies.
+- **2026-10-20 · Mode morph uses React 19.3's `<ViewTransition>`** (no animation library). The same card image is named on the Board, on the top card in Swipe and on the Reader hero, so it moves between them. It only animates at full motion. Browsers without the View Transitions API just switch views.
+- **2026-10-20 · Preferences apply before first paint.** They're saved to `settings` and mirrored in a small `fw_prefs` cookie, which an inline script reads to set `data-*` attributes on `<html>`. Text size, density and motion never flash. The Settings screen offers presets, but any sensible stored number is honoured (daily goal 3–5, review cap 1–50).
+- **2026-10-20 · On phones, Swipe's buttons stay just above the tab bar** so they're always in thumb reach. Board and Swipe intro text and length chips appear on Board only, to keep one thing in view.
+
 ## Waiting on Matt
 
 - A source of YouTube durations (Data API key or a watch-page fetch). Cards show "Video" until then.
