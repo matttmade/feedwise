@@ -2,7 +2,8 @@
 
 import { refresh } from "next/cache";
 import { requireUser } from "@/lib/auth";
-import { READ_THRESHOLD, startOfDay } from "@/lib/feed/select";
+import { READ_THRESHOLD } from "@/lib/feed/select";
+import { bumpActivity, createHighlightWithCard, rebuildCard } from "@/lib/srs/cards";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -15,6 +16,8 @@ export type Snapshot = {
   resume_position: number | null;
   last_opened_at: string | null;
   kept_at: string | null;
+  /** The keep-highlight (and its card) this Keep created, removed again on Undo. */
+  createdHighlightId?: string;
 };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -54,12 +57,37 @@ async function write(itemId: string, patch: Patch) {
   return snapshot;
 }
 
-/** One tap: kept. Returns the previous row for Undo. */
+/**
+ * One tap: kept. A kept item also becomes a recall card ("What was the key idea of …?"), via a
+ * note-less highlight. Returns the previous row (and what was created) for Undo.
+ */
 export async function keepItem(itemId: string): Promise<Snapshot> {
   const now = new Date().toISOString();
   const before = await write(itemId, { state: "kept", kept_at: now, last_opened_at: now });
+  const { user, supabase } = await context(itemId);
+  if (!(await keepHighlightId(supabase, itemId))) {
+    const { highlightId } = await createHighlightWithCard(supabase, user.id, itemId, {});
+    before.createdHighlightId = highlightId;
+  }
   refresh();
   return before;
+}
+
+/** The note-less, text-less highlight that stands for "I kept this item". */
+async function keepHighlightId(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  itemId: string,
+): Promise<string | null> {
+  const { data } = await supabase
+    .from("highlights")
+    .select("id")
+    .eq("item_id", itemId)
+    .is("text", null)
+    .is("image_url", null)
+    .order("created_at")
+    .limit(1)
+    .maybeSingle();
+  return data?.id ?? null;
 }
 
 export async function skipItem(itemId: string): Promise<Snapshot> {
@@ -73,6 +101,9 @@ export async function skipItem(itemId: string): Promise<Snapshot> {
 
 export async function restoreItem(itemId: string, snapshot: Snapshot): Promise<void> {
   const { user, supabase } = await context(itemId);
+  if (snapshot.createdHighlightId) {
+    await supabase.from("highlights").delete().eq("id", snapshot.createdHighlightId);
+  }
   if (!snapshot.existed) {
     await supabase.from("user_items").delete().eq("user_id", user.id).eq("item_id", itemId);
   } else {
@@ -88,15 +119,18 @@ export async function restoreItem(itemId: string, snapshot: Snapshot): Promise<v
   refresh();
 }
 
-/** The optional "one thing to remember" after Keep. Becomes a highlight (cards come in Phase 2). */
+/** The optional "one thing to remember" after Keep. It becomes the answer on the item's card. */
 export async function saveKeepNote(itemId: string, note: string): Promise<void> {
   const text = note.trim().slice(0, 1000);
   if (!text) return;
   const { user, supabase } = await context(itemId);
-  const { error } = await supabase
-    .from("highlights")
-    .insert({ user_id: user.id, item_id: itemId, note: text });
-  if (error) throw new Error(error.message);
+  const id = await keepHighlightId(supabase, itemId);
+  if (id) {
+    await supabase.from("highlights").update({ note: text }).eq("id", id);
+    await rebuildCard(supabase, id);
+  } else {
+    await createHighlightWithCard(supabase, user.id, itemId, { note: text });
+  }
 }
 
 export async function markOpened(itemId: string): Promise<void> {
@@ -115,21 +149,5 @@ export async function saveProgress(itemId: string, position: number): Promise<vo
     resume_position: p,
     last_opened_at: new Date().toISOString(),
   });
-  if (finishing) await countRead(supabase, user.id);
-}
-
-async function countRead(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
-  const day = startOfDay(new Date(), process.env.APP_TIMEZONE || "UTC").toLocaleDateString(
-    "en-CA",
-    { timeZone: process.env.APP_TIMEZONE || "UTC" },
-  );
-  const { data } = await supabase
-    .from("activity")
-    .select("items_read")
-    .eq("user_id", userId)
-    .eq("day", day)
-    .maybeSingle();
-  await supabase
-    .from("activity")
-    .upsert({ user_id: userId, day, items_read: (data?.items_read ?? 0) + 1 });
+  if (finishing) await bumpActivity(supabase, user.id, "items_read");
 }
