@@ -7,6 +7,9 @@ const SHORTCUTS = [
   ["X", "Skip the focused card"],
   ["Enter", "Open the focused card"],
   ["Esc", "Close the Reader"],
+  ["H", "Highlight the text you've selected in the Reader"],
+  ["Space / Enter", "Show the answer in Review"],
+  ["1 / 2 / 3", "Forgot / Shaky / Got it in Review"],
   ["Tab / Shift+Tab", "Move between cards and buttons"],
 ];
 
@@ -39,6 +42,13 @@ export default function HelpPage() {
           <li>
             The Reader remembers where you stopped, and offers to take you back. It never jumps on
             its own.
+          </li>
+          <li>
+            <strong>Review</strong> brings back what you kept and highlighted, starting the next
+            day. Say how it went and it comes back sooner or later. Never more than 10 a day.
+          </li>
+          <li>
+            <strong>Library</strong> holds everything you&apos;ve kept and highlighted, with search.
           </li>
         </ul>
       </section>

@@ -28,6 +28,15 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
 - **2026-10-20 · Toasts stay until dismissed or replaced** (no countdown) and always offer Undo for Keep, Skip and Mute. This follows rule 5: no timers.
 - **2026-10-20 · Review and Library tabs arrive in Phase 2**, so the nav shows Today, Explore and Sources. Help is in the same place on every screen (rail bottom, or top-right on phones), per WCAG 3.2.6.
 
+- **2026-10-20 · Phase 2 started before Phase 1's gate closed** (Matt's call). Matt may rework card interactions (press to save, swipe off-screen to hide), and he is putting less weight on Lighthouse and accessibility scores for now. The Phase 1 gate (live Lighthouse, 5 days of use) is still open.
+- **2026-10-20 · Keep makes a card without changing the data model.** Keep adds a highlight with no text or image (the "keep highlight"), and the card hangs off that ("What was the key idea of …?", answered by your note or else the item's summary). Undoing the Keep, or removing the item from the Library, deletes both.
+- **2026-10-20 · FSRS with long-term scheduling only** (`enable_short_term: false`). A card is seen at most once a day, so the daily cap is literal: Forgot means tomorrow, not "again in a minute". New cards first come due the next local morning.
+- **2026-10-20 · The cap counts distinct cards reviewed today** (default 10, from `settings.review_cap`). The queue is the oldest-due cards up to what's left of the cap. The nav badge shows the queue length, so it never shows more than the cap.
+- **2026-10-20 · Prompts.** A highlighted passage of 8–60 words becomes a fill-in-the-blank. The blank is a number with its unit if there is one, else a proper noun that isn't the first word, else the longest uncommon word. Shorter or longer passages, and plain keeps, get "What was the key idea of …?". Saved images ask what the image showed and why you saved it.
+- **2026-10-20 · Review feedback appears above the card, not in a toast.** On phones the toast covered the next card's answer buttons. The session keeps its own queue until it finishes, so it always ends on its own summary.
+- **2026-10-20 · Each answer button shows when the card comes back** ("back in 3 days"). This follows rule 5: no surprises.
+- **2026-10-20 · Days learned** is the count of days with any reading or reviewing. It's shown on Today and at the end of Review, and never resets.
+
 ## Waiting on Matt
 
 - A source of YouTube durations (Data API key or a watch-page fetch). Cards show "Video" until then.

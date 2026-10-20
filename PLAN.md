@@ -65,12 +65,12 @@ RLS on every user table: `user_id = auth.uid()`. Map review buttons: Got it → 
 
 ## Phase 2 — Learn loop
 
-- [ ] Highlight text or image in Reader → creates highlight (+ optional note)
-- [ ] Highlight → card (prompt = cloze or "What was the key idea of …?", answer = highlight/note)
-- [ ] **Review** tab: due-count badge (capped display), recall-first card (prompt → tap reveal → Got it / Shaky / Forgot), FSRS scheduling, finish screen
-- [ ] Today hero switches to "Time to review" when cards are due
-- [ ] **Library**: kept items, highlights, filter by topic, search
-- [ ] Cumulative "days learned" from `activity` (never a streak)
+- [x] Highlight text or image in Reader → creates highlight (+ optional note)
+- [x] Highlight → card (prompt = cloze or "What was the key idea of …?", answer = highlight/note)
+- [x] **Review** tab: due-count badge (capped display), recall-first card (prompt → tap reveal → Got it / Shaky / Forgot), FSRS scheduling, finish screen
+- [x] Today hero switches to "Time to review" when cards are due
+- [x] **Library**: kept items, highlights, filter by topic, search
+- [x] Cumulative "days learned" from `activity` (never a streak)
 
 **Exit gate:** cards return on schedule over 2 weeks; queue never exceeds the cap; nothing in the UI uses loss framing.
 
