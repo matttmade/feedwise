@@ -1,0 +1,52 @@
+[
+  { "name": "Codrops", "url": "https://tympanus.net/codrops/", "expect": ["article"] },
+  {
+    "name": "Nielsen Norman Group – Articles & Videos",
+    "url": "https://www.nngroup.com/articles/",
+    "expect": ["article", "video"]
+  },
+  {
+    "name": "Smashing Magazine – Articles",
+    "url": "https://www.smashingmagazine.com/articles/",
+    "expect": ["article"]
+  },
+  {
+    "name": "Figma Blog | Shortcut",
+    "url": "https://www.figma.com/blog/",
+    "expect": ["article"],
+    "role": "thin title-only feed"
+  },
+  {
+    "name": "It's Nice That",
+    "url": "https://www.itsnicethat.com/",
+    "expect": ["article", "image_set", "video"],
+    "note": "Publishes recorded Nicer Tuesdays talks, so some items are genuinely video.",
+    "role": "image-heavy blog"
+  },
+  { "name": "Awwwards Blog", "url": "https://www.awwwards.com/blog/", "expect": ["article"] },
+  {
+    "name": "Motionographer",
+    "url": "https://motionographer.com/",
+    "expect": ["video", "article"]
+  },
+  { "name": "Google Design", "url": "https://design.google/", "expect": ["article"] },
+  { "name": "UX Collective", "url": "https://uxdesign.cc/", "expect": ["article"] },
+  {
+    "name": "Dive Club",
+    "url": "https://www.youtube.com/@joindiveclub",
+    "expect": ["video"],
+    "role": "YouTube channel"
+  },
+  { "name": "Built for Mars", "url": "https://builtformars.com/", "expect": ["article"] },
+  {
+    "name": "CreativeApplications.Net",
+    "url": "https://www.creativeapplications.net/",
+    "expect": ["article", "image_set"]
+  },
+  {
+    "name": "Gorilla Newsletter 102",
+    "url": null,
+    "expect": ["article"],
+    "note": "Couldn't identify the site — need a URL from Matt."
+  }
+]
