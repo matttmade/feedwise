@@ -1,14 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible_Next } from "next/font/google";
+import { Geist_Mono, Inter_Tight, Newsreader } from "next/font/google";
 import { PREFS_SCRIPT } from "@/lib/prefs";
 import "./globals.css";
 
-// Designed by the Braille Institute for legibility; distinct letterforms help tired eyes too.
-const atkinson = Atkinson_Hyperlegible_Next({
-  variable: "--font-atkinson",
+// Free stand-ins for Flecha M, GT Standard and GT Standard Mono (DESIGN.md §3).
+const display = Newsreader({
+  variable: "--font-newsreader",
   subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["opsz"],
   display: "swap",
 });
+const text = Inter_Tight({ variable: "--font-inter-tight", subsets: ["latin"], display: "swap" });
+const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: "Feedwise", template: "%s · Feedwise" },
@@ -20,8 +24,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbfaf7" },
-    { media: "(prefers-color-scheme: dark)", color: "#141413" },
+    { media: "(prefers-color-scheme: light)", color: "#f3f1ea" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0a09" },
   ],
 };
 
@@ -29,7 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${atkinson.variable} h-full antialiased`}
+      className={`${display.variable} ${text.variable} ${mono.variable} h-full`}
       // The prefs script below sets data-* attributes before React hydrates.
       suppressHydrationWarning
     >
@@ -39,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-control focus:bg-surface focus:px-4 focus:py-3 focus:shadow-card"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-ground focus:px-4 focus:py-3 focus:underline"
         >
           Skip to content
         </a>

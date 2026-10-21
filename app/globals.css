@@ -1,97 +1,161 @@
 @import "tailwindcss";
 
-/* ── Design tokens ─────────────────────────────────────────────────────────
-   Every colour, radius and type size used by components comes from here.
-   Light is the default; dark follows the OS. Text pairs meet WCAG AA (4.5:1). */
+/* ── Design tokens (DESIGN.md §3, Quiet Editorial) ──────────────────────────
+   Few families, few sizes, one ground, one ink, one accent. Ground follows the OS:
+   paper in light, press in dark. Grays are opacity of the ink, never new hues. */
 :root {
-  --bg: #fbfaf7;
-  --surface: #ffffff;
-  --surface-2: #f2f0eb;
-  --border: #e3dfd6;
-  --text: #1c1b19;
-  --muted: #5c5851;
-  --accent: #2f55c9;
-  --accent-ink: #ffffff;
-  --accent-soft: #e6ecfb;
-  --keep: #1d7348;
-  --keep-soft: #e3f3ea;
-  --warn: #9a4b00;
-  --warn-soft: #fbeedd;
-  --focus: #2f55c9;
-  --shadow: 0 1px 2px rgb(28 27 25 / 0.06), 0 4px 16px rgb(28 27 25 / 0.06);
+  /* Color — warm, never pure #000/#fff */
+  --press: #0b0a09;
+  --ink: #1a1917;
+  --paper: #f3f1ea;
+  --muted: color-mix(in srgb, currentColor 45%, transparent); /* non-essential text only */
+  --ghost: color-mix(in srgb, currentColor 20%, transparent);
+  --rule: color-mix(in srgb, currentColor 14%, transparent);
+  --accent: #c53633; /* one job: progress and live state */
 
-  --radius-card: 18px;
-  --radius-control: 12px;
+  /* The page's ground and the ink on it. */
+  --ground: var(--paper);
+  --fg: var(--ink);
+  /* Media waiting to load: a faint tint of the ink. */
+  --tint: color-mix(in srgb, var(--fg) 7%, var(--ground));
+
+  /* Type scale — 4 steps + label. Body runs 15–17px (larger than DESIGN's 13–15, see
+     DECISIONS.md); the Reader's prose is larger still. */
+  --t-label: 0.6875rem;
+  --t-body: clamp(0.9375rem, 0.9rem + 0.15vw, 1.0625rem);
+  --t-lead: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  --t-display: clamp(2.25rem, 1.2rem + 4.5vw, 5.5rem);
+  --t-reader: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+
+  --lh-tight: 0.92;
+  --lh-snug: 1.1;
+  --lh-text: 1.32;
+  --lh-reader: 1.55;
+  --tr-display: -0.02em;
+  --tr-text: -0.005em;
+  --tr-label: 0.2em;
+
+  /* Space — 4px base, used sparingly at large steps */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 16px;
+  --s-4: 24px;
+  --s-5: 48px;
+  --s-6: 96px;
+  --s-7: 160px;
+  --gutter: clamp(16px, 2.5vw, 32px);
+
+  /* Shape & motion */
+  --radius: 0;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-1: 200ms;
+  --dur-2: 450ms;
+  --dur-3: 900ms;
+
+  /* Chrome */
   --tap: 44px;
+  --top: 56px;
+  --bar: 56px;
   --rail: 88px;
-  --bar: 64px;
-
-  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.9rem);
-  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
-  --step-1: clamp(1.2rem, 1.12rem + 0.4vw, 1.4rem);
-  --step-2: clamp(1.44rem, 1.3rem + 0.7vw, 1.8rem);
-  --step-3: clamp(1.73rem, 1.5rem + 1.1vw, 2.4rem);
-  --reader-size: clamp(1.125rem, 1.08rem + 0.25vw, 1.25rem);
 
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #141413;
-    --surface: #1d1c1a;
-    --surface-2: #272624;
-    --border: #383532;
-    --text: #f3f1ec;
-    --muted: #b5b0a7;
-    --accent: #93abff;
-    --accent-ink: #0f1633;
-    --accent-soft: #232b45;
-    --keep: #6fd09b;
-    --keep-soft: #1b3326;
-    --warn: #f3b26b;
-    --warn-soft: #3a2a17;
-    --focus: #93abff;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.25);
+    --ground: var(--press);
+    --fg: var(--paper);
     color-scheme: dark;
   }
 }
 
-@theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-line: var(--border);
-  --color-ink: var(--text);
-  --color-muted: var(--muted);
-  --color-accent: var(--accent);
-  --color-accent-ink: var(--accent-ink);
-  --color-accent-soft: var(--accent-soft);
-  --color-keep: var(--keep);
-  --color-keep-soft: var(--keep-soft);
-  --color-warn: var(--warn);
-  --color-warn-soft: var(--warn-soft);
-  --radius-card: var(--radius-card);
-  --radius-control: var(--radius-control);
-  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
-  --text-sm: var(--step--1);
-  --text-base: var(--step-0);
-  --text-lg: var(--step-1);
-  --text-xl: var(--step-2);
-  --text-2xl: var(--step-3);
-  --shadow-card: var(--shadow);
+@theme {
+  --font-display: var(--font-newsreader), "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-text: var(--font-inter-tight), "Inter Tight", ui-sans-serif, -apple-system, sans-serif;
+  --font-sans: var(--font-inter-tight), "Inter Tight", ui-sans-serif, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, Menlo, monospace;
 }
 
-/* Repeated card pieces as named utilities: the Board renders dozens of cards, and short
+@theme inline {
+  --color-ground: var(--ground);
+  --color-ink: var(--fg);
+  --color-muted: var(--muted);
+  --color-ghost: var(--ghost);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+  --color-tint: var(--tint);
+  --text-label: var(--t-label);
+  --text-body: var(--t-body);
+  --text-lead: var(--t-lead);
+  --text-display: var(--t-display);
+  --ease-calm: var(--ease);
+  --radius-none: 0;
+
+  /* Old names, mapped onto the new tokens until every screen has been restyled. */
+  --color-bg: var(--ground);
+  --color-surface: var(--ground);
+  --color-surface-2: var(--tint);
+  --color-line: var(--rule);
+  --color-accent-ink: var(--ground);
+  --color-accent-soft: transparent;
+  --color-keep: var(--fg);
+  --color-keep-soft: transparent;
+  --color-warn: var(--fg);
+  --color-warn-soft: transparent;
+  --radius-card: 0;
+  --radius-control: 0;
+  --text-sm: var(--t-body);
+  --text-base: var(--t-body);
+  --text-lg: var(--t-lead);
+  --text-xl: var(--t-lead);
+  --text-2xl: var(--t-lead);
+  --shadow-card: none;
+}
+
+/* ── Type roles (DESIGN.md §4) ─────────────────────────────────────────────── */
+@utility t-display {
+  font-family: var(--font-display);
+  font-size: var(--t-display);
+  font-weight: 300;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-display);
+  text-wrap: balance;
+}
+@utility t-lead {
+  font-family: var(--font-display);
+  font-size: var(--t-lead);
+  font-weight: 350;
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tr-text);
+  text-wrap: balance;
+}
+@utility t-body {
+  font-family: var(--font-text);
+  font-size: var(--t-body);
+  font-weight: 400;
+  line-height: var(--lh-text);
+  letter-spacing: var(--tr-text);
+}
+@utility t-label {
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 400;
+  line-height: var(--lh-text);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Repeated card pieces as named utilities: the Board renders dozens of items, and short
    class names keep the streamed HTML (and React's copy of it) small. */
 @utility card {
-  @apply overflow-hidden rounded-card border border-line bg-surface shadow-card;
+  @apply overflow-hidden;
 }
 @utility card-btn {
-  @apply flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-control px-1 py-1 text-sm sm:flex-row sm:gap-1.5 sm:px-3 sm:text-base;
+  @apply flex min-h-11 min-w-0 items-center gap-1.5 pr-3 text-ink underline-offset-4 hover:underline;
 }
 @utility img-frame {
-  @apply relative aspect-(--ar) overflow-hidden bg-surface-2;
+  @apply relative aspect-(--ar) overflow-hidden bg-tint;
 }
 @utility img-fill {
   @apply absolute inset-0 h-full w-full object-cover;
@@ -107,24 +171,46 @@ html {
   /* Keep focused or scrolled-to elements clear of the fixed tab bar / sticky reader header (WCAG 2.4.11). */
   scroll-padding-top: 72px;
   scroll-padding-bottom: calc(var(--bar) + env(safe-area-inset-bottom) + 16px);
-  background: var(--bg);
-  color: var(--text);
+  background: var(--ground);
+  color: var(--fg);
   -webkit-text-size-adjust: 100%;
+  hanging-punctuation: first;
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-sans);
-  font-size: var(--step-0);
-  line-height: 1.55;
+  background: var(--ground);
+  color: var(--fg);
+  font-family: var(--font-text);
+  font-size: var(--t-body);
+  line-height: var(--lh-text);
+  letter-spacing: var(--tr-text);
+  font-optical-sizing: auto;
 }
 
-/* Visible, consistent focus everywhere (WCAG 2.4.7 / 2.4.13). */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p,
+li {
+  text-wrap: pretty;
+}
+em {
+  font-family: var(--font-display);
+  font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Visible, consistent focus everywhere: 1px of ink, set off from the element. */
 :focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
-  border-radius: 6px;
+  outline: 1px solid var(--fg);
+  outline-offset: 3px;
 }
 
 /* Non-essential motion only runs when the user hasn't asked for less (OS or Calm mode). */
@@ -214,7 +300,7 @@ html[data-density="compact"] .board {
   }
 }
 html[data-density="compact"] .board .card-btn {
-  font-size: var(--step--1);
+  font-size: var(--t-label);
 }
 
 /* ── Motion: lean and gray-at-rest (both off at reduced/off motion and in Calm mode) ── */
@@ -225,12 +311,12 @@ html[data-motion="full"]:not([data-calm])
   .board:has(.card:hover, .card:focus-within)
   .card:not(:hover, :focus-within) {
   filter: saturate(0.55);
-  opacity: 0.9;
+  opacity: 0.7;
 }
 .board .card {
   transition:
-    filter 220ms ease,
-    opacity 220ms ease;
+    filter var(--dur-1) var(--ease),
+    opacity var(--dur-1) var(--ease);
 }
 
 /* Cards you can swipe: keep vertical scrolling native, no text selection or image menu on hold. */
@@ -261,8 +347,13 @@ html[data-motion="full"]:not([data-calm])
 
 /* Mode morph: the same card moves between Board, Swipe and the Reader. Only at full motion. */
 ::view-transition-group(.morph) {
-  animation-duration: 380ms;
-  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation-duration: var(--dur-2);
+  animation-timing-function: var(--ease);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--dur-1);
+  animation-timing-function: var(--ease);
 }
 html:not([data-motion="full"])::view-transition-group(*),
 html:not([data-motion="full"])::view-transition-old(*),
@@ -296,32 +387,43 @@ html[data-calm]::view-transition-new(*) {
   scroll-snap-stop: always;
 }
 
-/* Reader typography for sanitised article HTML. */
+/* Reader typography for sanitised article HTML: the one place body type runs larger. */
 .prose-reader {
-  font-size: var(--reader-size);
-  line-height: 1.7;
+  font-size: var(--t-reader);
+  line-height: var(--lh-reader);
   overflow-wrap: anywhere;
+  max-width: 62ch;
 }
 .prose-reader > * + * {
-  margin-top: 1.1em;
+  margin-top: 1em;
 }
 .prose-reader h1,
 .prose-reader h2,
 .prose-reader h3,
 .prose-reader h4 {
-  font-weight: 700;
-  line-height: 1.25;
-  margin-top: 1.8em;
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tr-text);
+  margin-top: 2em;
 }
-.prose-reader h2 {
-  font-size: var(--step-2);
+.prose-reader h2,
+.prose-reader h1 {
+  font-size: var(--t-lead);
 }
-.prose-reader h3 {
-  font-size: var(--step-1);
+.prose-reader h3,
+.prose-reader h4 {
+  font-size: 1em;
+  font-family: var(--font-text);
+  font-weight: 600;
+}
+.prose-reader strong,
+.prose-reader b {
+  font-weight: 600;
 }
 .prose-reader a {
-  color: var(--accent);
   text-decoration: underline;
+  text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
 .prose-reader img,
@@ -329,27 +431,33 @@ html[data-calm]::view-transition-new(*) {
 .prose-reader iframe {
   max-width: 100%;
   height: auto;
-  border-radius: 12px;
 }
 .prose-reader figcaption {
-  color: var(--muted);
-  font-size: var(--step--1);
-  margin-top: 0.5em;
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  margin-top: 0.75em;
 }
 .prose-reader blockquote {
-  border-left: 4px solid var(--border);
+  font-family: var(--font-display);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: var(--lh-snug);
   padding-left: 1em;
-  color: var(--muted);
+  border-left: 1px solid var(--rule);
 }
 .prose-reader pre {
-  background: var(--surface-2);
-  padding: 1em;
-  border-radius: 12px;
+  font-family: var(--font-mono);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 1em 0;
   overflow-x: auto;
-  font-size: 0.85em;
+  font-size: 0.8em;
 }
 .prose-reader code {
-  font-size: 0.9em;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
 }
 .prose-reader ul,
 .prose-reader ol {
@@ -361,15 +469,21 @@ html[data-calm]::view-transition-new(*) {
 .prose-reader ol {
   list-style: decimal;
 }
+.prose-reader li::marker {
+  font-variant-numeric: tabular-nums;
+}
 .prose-reader table {
   display: block;
   overflow-x: auto;
   border-collapse: collapse;
+  font-size: var(--t-body);
+  font-variant-numeric: tabular-nums;
 }
 .prose-reader td,
 .prose-reader th {
-  border: 1px solid var(--border);
-  padding: 0.4em 0.6em;
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5em 1em 0.5em 0;
+  text-align: left;
 }
 
 @media (min-width: 1024px) {
@@ -383,17 +497,15 @@ html[data-calm]::view-transition-new(*) {
   display: inline-flex;
   min-height: 44px;
   align-items: center;
-  margin-top: 0.5em;
-  padding: 0 1em;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  font-size: var(--step--1);
-  font-weight: 700;
-  color: var(--accent);
-  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--dur-1) var(--ease);
 }
 .prose-reader .save-image:hover {
-  border-color: var(--accent);
+  text-decoration: underline;
 }
 
 .safe-bottom {
