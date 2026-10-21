@@ -9,7 +9,8 @@ import type { LibraryHighlight } from "@/lib/data/library";
 import { costLabel } from "@/lib/feed/select";
 import { useToast } from "@/components/ui/toast";
 
-export function KeptRow({ item }: { item: CardItem }) {
+/** One row of the index: number, thumbnail, title, source and cost, then Open / Remove. */
+export function KeptRow({ item, index }: { item: CardItem; index: number }) {
   const [hidden, setHidden] = useState(false);
   const [pending, start] = useTransition();
   const toast = useToast();
@@ -27,9 +28,13 @@ export function KeptRow({ item }: { item: CardItem }) {
     });
 
   return (
-    <li className="card flex items-stretch" aria-busy={pending}>
-      <div className="relative w-28 shrink-0 sm:w-40">
-        {item.image ? (
+    <li
+      className="grid grid-cols-[2rem_4rem_minmax(0,1fr)] items-start gap-x-(--s-3) border-b border-rule py-(--s-3) sm:grid-cols-[2.5rem_6rem_minmax(0,1fr)_auto]"
+      aria-busy={pending}
+    >
+      <span className="t-label pt-1">{String(index + 1).padStart(2, "0")}</span>
+      <div className="relative aspect-4/3 bg-tint">
+        {item.image && (
           // eslint-disable-next-line @next/next/no-img-element -- proxied thumbnail
           <img
             src={item.image.src}
@@ -37,35 +42,29 @@ export function KeptRow({ item }: { item: CardItem }) {
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover"
           />
-        ) : (
-          <div className="absolute inset-0 bg-accent-soft" />
         )}
       </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-1 p-3 sm:p-4">
-        <p className="text-sm text-muted">
-          {item.sourceTitle}
-          {cost ? ` · ${cost}` : ""}
-        </p>
-        <h3 className="line-clamp-2 font-bold">
-          <Link href={`/reader/${item.id}`} className="hover:underline">
+      <div className="flex min-w-0 flex-col gap-(--s-1)">
+        <h3 className="font-display text-(length:--t-lead) leading-(--lh-snug) font-light">
+          <Link
+            href={`/reader/${item.id}`}
+            className="decoration-1 underline-offset-4 hover:underline"
+          >
             {item.title}
           </Link>
         </h3>
-        <div className="mt-auto flex gap-2 pt-1">
-          <Link
-            href={`/reader/${item.id}`}
-            className="flex min-h-11 items-center rounded-control px-3 font-bold text-accent"
-          >
-            Open
-          </Link>
-          <button
-            type="button"
-            onClick={remove}
-            className="min-h-11 rounded-control px-3 text-muted hover:text-ink"
-          >
-            Remove
-          </button>
-        </div>
+        <p className="t-label">
+          {item.sourceTitle}
+          {cost ? ` · ${cost}` : ""}
+        </p>
+      </div>
+      <div className="t-label col-start-3 flex gap-(--s-3) sm:col-start-auto">
+        <Link href={`/reader/${item.id}`} className="link">
+          Open
+        </Link>
+        <button type="button" onClick={remove} className="link">
+          Remove
+        </button>
       </div>
     </li>
   );
@@ -93,31 +92,32 @@ export function HighlightRow({ highlight }: { highlight: LibraryHighlight }) {
     });
 
   return (
-    <li className="card flex flex-col gap-2 p-4" aria-busy={pending}>
+    <li className="flex flex-col gap-(--s-2) border-b border-rule py-(--s-3)" aria-busy={pending}>
       {highlight.image ? (
         // eslint-disable-next-line @next/next/no-img-element -- proxied thumbnail
         <img
           src={highlight.image}
           alt="Saved image"
           loading="lazy"
-          className="max-h-48 self-start rounded-control object-contain"
+          className="max-h-48 self-start object-contain"
         />
       ) : (
-        <blockquote className="border-l-4 border-accent pl-3">{highlight.text}</blockquote>
+        <blockquote className="t-lead border-l border-rule pl-(--s-3)">{highlight.text}</blockquote>
       )}
-      {highlight.note && <p className="text-muted">Note: {highlight.note}</p>}
-      <p className="text-sm text-muted">
+      {highlight.note && (
+        <p>
+          <span className="t-label mr-(--s-2)">Note</span>
+          {highlight.note}
+        </p>
+      )}
+      <p className="t-label">
         From{" "}
-        <Link href={`/reader/${highlight.itemId}`} className="underline underline-offset-2">
+        <Link href={`/reader/${highlight.itemId}`} className="underline underline-offset-4">
           {highlight.itemTitle}
         </Link>
         {highlight.sourceTitle ? ` · ${highlight.sourceTitle}` : ""}
       </p>
-      <button
-        type="button"
-        onClick={remove}
-        className="min-h-11 self-start rounded-control px-3 text-muted hover:text-ink"
-      >
+      <button type="button" onClick={remove} className="t-label link self-start">
         Remove
       </button>
     </li>

@@ -4,19 +4,17 @@ import { Suspense } from "react";
 import { getTopics } from "@/lib/data/feed";
 import { getLibrary } from "@/lib/data/library";
 import { HighlightRow, KeptRow } from "@/components/library/library-rows";
-import { CheckIcon, SearchIcon } from "@/components/ui/icons";
+import { Finish } from "@/components/ui/finish";
 
 export const metadata: Metadata = { title: "Library" };
 
 export default function LibraryPage({ searchParams }: PageProps<"/library">) {
   return (
-    <div className="max-w-4xl">
-      <h1 className="pt-2 text-2xl font-bold lg:pt-0">Library</h1>
-      <p className="mt-1 text-muted">Everything you&apos;ve kept and highlighted.</p>
+    <div className="max-w-5xl">
+      <h1 className="t-display">Library</h1>
+      <p className="mt-(--s-2)">Everything you&apos;ve kept and highlighted.</p>
       <Suspense
-        fallback={
-          <div aria-hidden="true" className="mt-6 h-64 animate-pulse rounded-card bg-surface-2" />
-        }
+        fallback={<div aria-hidden="true" className="mt-(--s-5) h-64 animate-pulse bg-tint" />}
       >
         <LibraryContent searchParams={searchParams} />
       </Suspense>
@@ -51,43 +49,39 @@ async function LibraryContent({
 
   return (
     <>
-      <form action="/library" method="get" role="search" className="mt-5 flex gap-2">
+      <form action="/library" method="get" role="search" className="mt-(--s-4)">
         {topic && <input type="hidden" name="topic" value={topic} />}
-        <label htmlFor="library-q" className="sr-only">
+        <label htmlFor="library-q" className="t-label">
           Search your library
         </label>
-        <input
-          id="library-q"
-          name="q"
-          type="search"
-          defaultValue={q}
-          placeholder="Search titles, highlights and notes"
-          className="min-h-12 flex-1 rounded-control border border-line bg-surface px-4"
-        />
-        <button
-          type="submit"
-          className="flex min-h-12 items-center gap-2 rounded-control bg-accent px-4 font-bold text-accent-ink"
-        >
-          <SearchIcon width={18} height={18} />
-          Search
-        </button>
+        <div className="flex items-end gap-(--s-3)">
+          <input
+            id="library-q"
+            name="q"
+            type="search"
+            defaultValue={q}
+            placeholder="Titles, highlights and notes"
+            className="field flex-1"
+          />
+          <button type="submit" className="link">
+            Search →
+          </button>
+        </div>
       </form>
 
       {topics.length > 0 && (
-        <nav aria-label="Filter by topic" className="mt-3">
-          <ul className="flex gap-2 overflow-x-auto pb-2">
+        <nav aria-label="Filter by topic" className="mt-(--s-2)">
+          <ul className="dots t-label overflow-x-auto">
             {[{ id: "", name: "All topics" }, ...topics].map((t) => {
               const active = (topic ?? "") === t.id;
               return (
-                <li key={t.id || "all"} className="shrink-0">
+                <li key={t.id || "all"}>
                   <Link
                     href={href({ topic: t.id || undefined })}
                     prefetch={false}
                     aria-current={active ? "page" : undefined}
-                    className={`flex min-h-11 items-center rounded-full border px-4 whitespace-nowrap ${
-                      active
-                        ? "border-ink bg-ink font-bold text-bg"
-                        : "border-line bg-surface hover:border-ink"
+                    className={`flex min-h-11 items-center whitespace-nowrap decoration-1 underline-offset-4 hover:underline ${
+                      active ? "underline" : ""
                     }`}
                   >
                     {t.name}
@@ -100,33 +94,33 @@ async function LibraryContent({
       )}
 
       {q && (
-        <p className="mt-3 text-muted" role="status">
+        <p className="mt-(--s-2) flex flex-wrap items-center gap-x-(--s-3)" role="status">
           {empty ? `Nothing matches “${q}”.` : `Results for “${q}”.`}{" "}
-          <Link href={href({ topic })} className="font-bold text-accent underline">
+          <Link href={href({ topic })} className="link">
             Clear search
           </Link>
         </p>
       )}
 
       {kept.length > 0 && (
-        <section aria-labelledby="kept-heading" className="mt-8">
-          <h2 id="kept-heading" className="text-lg font-bold">
-            Kept ({kept.length})
+        <section aria-labelledby="kept-heading" className="mt-(--s-5)">
+          <h2 id="kept-heading" className="t-label">
+            Kept · {String(kept.length).padStart(2, "0")}
           </h2>
-          <ul className="mt-3 grid gap-3 md:grid-cols-2">
-            {kept.map((item) => (
-              <KeptRow key={item.id} item={item} />
+          <ul className="mt-(--s-2) border-t border-rule">
+            {kept.map((item, i) => (
+              <KeptRow key={item.id} item={item} index={i} />
             ))}
           </ul>
         </section>
       )}
 
       {highlights.length > 0 && (
-        <section aria-labelledby="highlights-heading" className="mt-10">
-          <h2 id="highlights-heading" className="text-lg font-bold">
-            Highlights ({highlights.length})
+        <section aria-labelledby="highlights-heading" className="mt-(--s-6)">
+          <h2 id="highlights-heading" className="t-label">
+            Highlights · {String(highlights.length).padStart(2, "0")}
           </h2>
-          <ul className="mt-3 grid gap-3 md:grid-cols-2">
+          <ul className="mt-(--s-2) border-t border-rule md:columns-2 md:gap-x-(--gutter) [&>li]:break-inside-avoid">
             {highlights.map((h) => (
               <HighlightRow key={h.id} highlight={h} />
             ))}
@@ -135,31 +129,22 @@ async function LibraryContent({
       )}
 
       {empty && !q ? (
-        <section className="mt-8 rounded-card border border-line bg-surface p-6">
-          <h2 className="text-lg font-bold">Your Library starts with one Keep.</h2>
-          <p className="mt-1 text-muted">
-            Tap Keep on anything worth remembering, or highlight a passage while reading.
-          </p>
-          <Link
-            href="/today"
-            className="mt-3 inline-flex min-h-11 items-center font-bold text-accent underline"
-          >
-            Go to Today
+        <Finish label="Start" title="Your Library starts with one Keep.">
+          <p>Tap Keep on anything worth remembering, or highlight a passage while reading.</p>
+          <Link href="/today" className="link">
+            Go to Today →
           </Link>
-        </section>
+        </Finish>
       ) : !empty ? (
-        <section className="mt-8 flex items-start gap-4 rounded-card bg-keep-soft p-5">
-          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-keep text-white">
-            <CheckIcon />
-          </span>
-          <p className="self-center">
-            {limited
+        <Finish
+          title={
+            limited
               ? "That's the most recent 60. Search to find older ones."
               : q || topic
                 ? "That's everything that matches."
-                : "That's everything you've kept."}
-          </p>
-        </section>
+                : "That's everything you've kept."
+          }
+        />
       ) : null}
     </>
   );
