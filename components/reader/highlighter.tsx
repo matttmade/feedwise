@@ -79,15 +79,15 @@ export function Highlighter({ itemId }: { itemId: string }) {
 
   if (!selection) return null;
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[calc(env(safe-area-inset-bottom)+12px)]">
-      <div className="flex max-w-md items-center gap-2 rounded-card bg-ink py-1.5 pr-1.5 pl-4 text-bg shadow-card">
-        <span className="line-clamp-1 flex-1 text-sm opacity-80">“{selection}”</span>
+    <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-(--gutter) pb-[calc(env(safe-area-inset-bottom)+var(--s-3))]">
+      <div className="flex max-w-md items-center gap-(--s-3) bg-ink py-1 pr-1 pl-(--s-3) text-ground">
+        <span className="line-clamp-1 flex-1 font-display italic">“{selection}”</span>
         <button
           type="button"
           onClick={() => save({ text: selection }, "Highlighted.")}
           disabled={pending}
           aria-keyshortcuts="H"
-          className="min-h-11 shrink-0 rounded-control bg-bg px-4 font-bold text-ink"
+          className="link shrink-0 px-2"
         >
           Highlight this
         </button>

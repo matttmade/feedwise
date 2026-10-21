@@ -14,7 +14,6 @@ import { Highlighter, READER_BODY_ID } from "@/components/reader/highlighter";
 import { KeepPanel } from "@/components/reader/keep-panel";
 import { ReaderShell } from "@/components/reader/reader-shell";
 import { VideoPlayer } from "@/components/reader/video-player";
-import { ArrowLeftIcon, ExternalIcon } from "@/components/ui/icons";
 import { ToastProvider } from "@/components/ui/toast";
 
 export const metadata: Metadata = { title: "Reader" };
@@ -53,110 +52,110 @@ async function Reader({ params }: { params: PageProps<"/reader/[id]">["params"] 
       initialPosition={item.resumePosition}
       initiallyKept={item.state === "kept"}
     >
-      <header className="sticky top-0 z-20 border-b border-line bg-bg/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[960px] items-center gap-2 px-3 py-2">
+      <header className="sticky top-0 z-20 border-b border-rule bg-ground">
+        <div className="flex h-(--top) items-center gap-(--s-4) px-(--gutter)">
           <Link
             href="/today"
             aria-keyshortcuts="Escape"
-            className="flex min-h-11 items-center gap-1.5 rounded-control px-3 hover:bg-surface-2"
+            className="flex min-h-11 items-center decoration-1 underline-offset-4 hover:underline"
           >
-            <ArrowLeftIcon width={20} height={20} />
-            Back
+            ← Back
           </Link>
           <span className="flex-1" />
-          <KeepPanel itemId={item.id} variant="bar" />
           <a
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex min-h-11 items-center gap-1.5 rounded-control px-3 hover:bg-surface-2"
+            className="flex min-h-11 items-center decoration-1 underline-offset-4 hover:underline"
           >
-            Original
-            <ExternalIcon width={18} height={18} />
-            <span className="sr-only">(opens {item.sourceTitle} in a new tab)</span>
+            Original ↗<span className="sr-only">(opens {item.sourceTitle} in a new tab)</span>
           </a>
+          <KeepPanel itemId={item.id} variant="bar" />
         </div>
       </header>
 
-      <main id="main" tabIndex={-1} className="mx-auto max-w-[680px] px-4 pt-6 pb-24 sm:px-6">
-        {video ? (
-          <VideoPlayer src={video} poster={item.image?.src ?? null} title={item.title} />
-        ) : item.image ? (
-          <ViewTransition name={`card-${item.id}`} share="morph" default="none">
-            <div className="overflow-hidden rounded-card">
-              <CardImage
-                item={item}
-                ratio="native"
-                sizes="(min-width: 720px) 680px, 100vw"
-                priority
-              />
-            </div>
-          </ViewTransition>
-        ) : null}
-
-        <p className="mt-6 text-sm text-muted">
-          {item.sourceTitle}
-          {published ? ` · ${published}` : ""}
-          {cost ? ` · ${cost}` : ""}
-        </p>
-        <h1 className="mt-2 text-2xl leading-tight font-bold">{item.title}</h1>
-
-        <div id={READER_BODY_ID}>
-          {chunks.length > 0 ? (
-            chunks.map((html, i) => (
-              <section key={i} aria-label={`Part ${i + 1} of ${chunks.length}`} className="mt-8">
-                {chunks.length > 1 && (
-                  <p
-                    aria-hidden="true"
-                    className="mb-3 text-sm font-bold tracking-wide text-muted uppercase"
-                  >
-                    Part {i + 1} of {chunks.length}
-                  </p>
-                )}
-                <div className="prose-reader" dangerouslySetInnerHTML={{ __html: html }} />
-              </section>
-            ))
-          ) : item.summary ? (
-            <p className="prose-reader mt-6 whitespace-pre-line">{item.summary}</p>
+      <main
+        id="main"
+        tabIndex={-1}
+        className="px-(--gutter) pt-(--s-4) pb-(--s-6) lg:grid-12 lg:pt-(--s-5)"
+      >
+        <div className="lg:col-span-8 lg:col-start-3">
+          {video ? (
+            <VideoPlayer src={video} poster={item.image?.src ?? null} title={item.title} />
+          ) : item.image ? (
+            <ViewTransition name={`card-${item.id}`} share="morph" default="none">
+              <div className="-mx-(--gutter) sm:mx-0">
+                <CardImage
+                  item={item}
+                  ratio="native"
+                  sizes="(min-width: 1024px) 66vw, 100vw"
+                  priority
+                />
+              </div>
+            </ViewTransition>
           ) : null}
-        </div>
-        <Highlighter itemId={item.id} />
 
-        {item.type !== "video" && chunks.length === 0 && (
-          <p className="mt-6 rounded-card bg-surface-2 p-4">
-            Only a preview came through for this one.{" "}
-            <a
-              href={item.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-bold text-accent underline"
-            >
-              Read it on {item.sourceTitle}
-            </a>
-            .
+          <p className="t-label mt-(--s-4)">
+            {item.sourceTitle}
+            {published ? ` · ${published}` : ""}
+            {cost ? ` · ${cost}` : ""}
           </p>
-        )}
+          <h1 className="t-display mt-(--s-3)">{item.title}</h1>
 
-        <HighlightList highlights={item.highlights} />
+          <div id={READER_BODY_ID}>
+            {chunks.length > 0 ? (
+              chunks.map((html, i) => (
+                <section
+                  key={i}
+                  aria-label={`Part ${i + 1} of ${chunks.length}`}
+                  className="mt-(--s-5)"
+                >
+                  {chunks.length > 1 && (
+                    <p
+                      aria-hidden="true"
+                      className="t-label mb-(--s-3) border-t border-rule pt-(--s-2)"
+                    >
+                      Part {String(i + 1).padStart(2, "0")} /{" "}
+                      {String(chunks.length).padStart(2, "0")}
+                    </p>
+                  )}
+                  <div className="prose-reader" dangerouslySetInnerHTML={{ __html: html }} />
+                </section>
+              ))
+            ) : item.summary ? (
+              <p className="prose-reader mt-(--s-5) whitespace-pre-line">{item.summary}</p>
+            ) : null}
+          </div>
+          <Highlighter itemId={item.id} />
 
-        <KeepPanel itemId={item.id} variant="end" />
+          {item.type !== "video" && chunks.length === 0 && (
+            <p className="mt-(--s-4) max-w-[62ch] border-t border-rule pt-(--s-3)">
+              Only a preview came through for this one.{" "}
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-1 underline-offset-4"
+              >
+                Read it on {item.sourceTitle}
+              </a>
+              .
+            </p>
+          )}
 
-        <nav aria-label="After reading" className="mt-6 flex flex-wrap gap-3">
-          <Link
-            href="/today"
-            className="min-h-11 rounded-control border border-line px-4 py-2.5 hover:border-ink"
-          >
-            Back to Today
-          </Link>
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="min-h-11 rounded-control border border-line px-4 py-2.5 hover:border-ink"
-          >
-            Read on {item.sourceTitle} ↗
-          </a>
-        </nav>
+          <HighlightList highlights={item.highlights} />
+
+          <KeepPanel itemId={item.id} variant="end" />
+
+          <nav aria-label="After reading" className="mt-(--s-5) flex flex-wrap gap-x-(--s-4)">
+            <Link href="/today" className="link">
+              ← Back to Today
+            </Link>
+            <a href={item.url} target="_blank" rel="noopener noreferrer" className="link">
+              Read on {item.sourceTitle} ↗
+            </a>
+          </nav>
+        </div>
       </main>
     </ReaderShell>
   );
@@ -164,13 +163,15 @@ async function Reader({ params }: { params: PageProps<"/reader/[id]">["params"] 
 
 function ReaderSkeleton() {
   return (
-    <div aria-hidden="true" className="mx-auto max-w-[680px] animate-pulse px-4 pt-20">
-      <div className="aspect-video rounded-card bg-surface-2" />
-      <div className="mt-6 h-4 w-40 rounded-full bg-surface-2" />
-      <div className="mt-4 h-8 w-3/4 rounded-full bg-surface-2" />
-      {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="mt-4 h-4 rounded-full bg-surface-2" />
-      ))}
+    <div aria-hidden="true" className="animate-pulse px-(--gutter) pt-20 lg:grid-12">
+      <div className="lg:col-span-8 lg:col-start-3">
+        <div className="aspect-video bg-tint" />
+        <div className="mt-(--s-4) h-3 w-40 bg-tint" />
+        <div className="mt-(--s-3) h-12 w-3/4 bg-tint" />
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="mt-(--s-3) h-4 bg-tint" />
+        ))}
+      </div>
     </div>
   );
 }

@@ -119,7 +119,7 @@ export function ReaderShell({
     <KeptContext
       value={{ kept, setKept, keepRequest, requestKeep: () => setKeepRequest((n) => n + 1) }}
     >
-      <div className="fixed inset-x-0 top-0 z-40 h-1 bg-transparent" aria-hidden="true">
+      <div className="fixed inset-x-0 top-0 z-40 h-0.5 bg-transparent" aria-hidden="true">
         <div
           ref={barRef}
           className="h-full origin-left bg-accent"
@@ -127,23 +127,21 @@ export function ReaderShell({
         />
       </div>
       {offerResume && (
-        <div className="sticky top-2 z-30 mx-auto mt-2 flex max-w-[680px] items-center gap-2 rounded-card bg-ink py-1.5 pr-1.5 pl-4 text-bg shadow-card">
-          <span className="flex-1">You were {Math.round(initialPosition * 100)}% through.</span>
-          <button
-            type="button"
-            onClick={resume}
-            className="min-h-11 rounded-control px-3 font-bold underline underline-offset-4"
-          >
-            Jump back
-          </button>
-          <button
-            type="button"
-            onClick={() => setOfferResume(false)}
-            aria-label="Start from the top"
-            className="grid size-11 place-items-center rounded-control text-xl"
-          >
-            ×
-          </button>
+        <div className="sticky top-(--s-2) z-30 mt-(--s-2) flex justify-center px-(--gutter)">
+          <div className="flex max-w-md flex-1 items-center gap-(--s-3) bg-ink py-1 pr-1 pl-(--s-3) text-ground">
+            <span className="flex-1">You were {Math.round(initialPosition * 100)}% through.</span>
+            <button type="button" onClick={resume} className="link px-2">
+              Jump back
+            </button>
+            <button
+              type="button"
+              onClick={() => setOfferResume(false)}
+              aria-label="Start from the top"
+              className="grid size-11 place-items-center opacity-60 hover:opacity-100"
+            >
+              ×
+            </button>
+          </div>
         </div>
       )}
       <div ref={articleRef}>{children}</div>

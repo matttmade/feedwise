@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { PlayIcon } from "@/components/ui/icons";
 
 /** Poster first. Nothing loads from YouTube/Vimeo, and nothing plays, until the user presses Play. */
 export function VideoPlayer({
@@ -16,7 +15,7 @@ export function VideoPlayer({
   const [playing, setPlaying] = useState(false);
   if (playing) {
     return (
-      <div className="aspect-video overflow-hidden rounded-card bg-black">
+      <div className="aspect-video overflow-hidden bg-press">
         <iframe
           src={src}
           title={title}
@@ -31,16 +30,15 @@ export function VideoPlayer({
     <button
       type="button"
       onClick={() => setPlaying(true)}
-      className="group relative block aspect-video w-full overflow-hidden rounded-card bg-surface-2"
+      className="group relative block aspect-video w-full overflow-hidden bg-tint"
     >
       {poster && (
         // eslint-disable-next-line @next/next/no-img-element -- proxied and sized by /api/img
         <img src={poster} alt="" className="h-full w-full object-cover" fetchPriority="high" />
       )}
-      <span className="absolute inset-0 grid place-items-center bg-black/25">
-        <span className="flex items-center gap-2 rounded-full bg-white px-6 py-3 font-bold text-black shadow-card group-hover:scale-105">
-          <PlayIcon width={20} height={20} />
-          Play video
+      <span className="absolute inset-0 flex items-end bg-linear-to-b from-transparent to-black/50 p-(--s-3)">
+        <span className="t-label text-paper underline-offset-4 group-hover:underline">
+          ▶ Play video
         </span>
       </span>
     </button>
