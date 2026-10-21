@@ -38,6 +38,13 @@ About 20 minutes, once. You need accounts on Supabase, Vercel and GitHub (all fr
 
 3. Deploy. Then open the site and sign in with your email.
 
+### Previews
+
+Once the repo is connected, Vercel builds every pushed branch and posts a "Visit Preview" link on its pull request. Previews use the same environment variables (keep **Production and Preview** selected).
+
+- **Signing in on a preview:** in Supabase → **Authentication → URL Configuration → Redirect URLs**, add `https://*.vercel.app/**`. The magic link goes back to whichever address you signed in from, and Supabase only allows addresses on this list.
+- **Vercel's own login:** Hobby projects protect previews with a Vercel sign-in by default. Sign in as the project owner, or turn it off under **Settings → Deployment Protection**.
+
 ## 3. Scheduled fetch (GitHub Actions)
 
 In GitHub → **Settings → Secrets and variables → Actions**, add:
