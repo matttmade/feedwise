@@ -127,16 +127,16 @@ log("lean while scrolling:", during.toFixed(3), "→ settled:", after);
 // 4. Swipe deck: drag, keys, undo, buttons, summary.
 await p.goto(`${BASE}/explore?mode=swipe`);
 await p.waitForLoadState("networkidle");
-await p.getByText(/^1 of \d+/).waitFor();
-const deckSize = Number((await p.getByText(/^1 of \d+/).innerText()).match(/of (\d+)/)![1]);
+await p.getByText(/^01 \/ \d+/).waitFor();
+const deckSize = Number((await p.getByText(/^01 \/ \d+/).innerText()).match(/\/ (\d+)/)![1]);
 await drag(p, p.locator(".swipe-card"), 300);
 await p.getByText(/^Kept “/).waitFor();
-log("deck drag right → kept; now", await p.getByText(/^\d+ of \d+/).innerText());
+log("deck drag right → kept; now", await p.getByText(/^\d+ \/ \d+/).innerText());
 await p.keyboard.press("ArrowLeft");
 await p.getByText("Skipped.").waitFor();
 await p.getByRole("button", { name: "Undo" }).click();
 await p.getByText("Undone. It's back on top.").waitFor();
-log("← skip then Undo →", await p.getByText(/^\d+ of \d+/).innerText());
+log("← skip then Undo →", await p.getByText(/^\d+ \/ \d+/).innerText());
 await p.getByRole("button", { name: "Keep", exact: true }).click();
 for (let i = 0; i < deckSize - 2; i++) {
   await p.waitForTimeout(60);
@@ -149,6 +149,8 @@ log(
 );
 
 // 5. Watch: poster first, muted player on Play, autoplay only when switched on.
+// The deck above may have skipped the local videos; bring them back first.
+sql("delete from user_items where state in ('kept', 'skipped')");
 await p.goto(`${BASE}/explore?mode=watch`);
 await p.waitForLoadState("networkidle");
 const slides = await p.locator(".watch-slide[data-id]").count();

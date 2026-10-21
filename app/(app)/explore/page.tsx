@@ -204,7 +204,10 @@ function CaughtUp({ shown, more, filtered }: { shown: number; more: number; filt
 
 function BoardSkeleton() {
   return (
-    <div aria-hidden="true" className="board mt-(--s-5) animate-pulse">
+    <div
+      aria-hidden="true"
+      className="mt-(--s-5) animate-pulse columns-2 gap-x-(--gutter) sm:columns-3 lg:columns-4"
+    >
       {[220, 160, 260, 180, 240, 200, 170, 230].map((h, i) => (
         <div key={i} className="mb-(--s-5) bg-tint" style={{ height: h }} />
       ))}

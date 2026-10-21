@@ -62,7 +62,7 @@ log(
 await p.getByRole("button", { name: "Add a note" }).first().click();
 await p.getByLabel("Your note").fill("The point is to design for judgement.");
 await p.getByRole("button", { name: "Save note" }).click();
-await p.getByText("Note: The point is to design for judgement.").waitFor();
+await p.getByText("The point is to design for judgement.").waitFor();
 log("note saved");
 const saveImage = p.getByRole("button", { name: "Save this image" }).first();
 if (await saveImage.count()) {
@@ -88,16 +88,8 @@ log("review before due:", (await p.locator("main h2").first().innerText()).trim(
 // 4. Time travel: make everything due, check badge + Today hero
 sql("update cards set fsrs = jsonb_set(fsrs, '{due}', to_jsonb('2026-10-01T00:00:00.000Z'::text))");
 await p.goto(`${BASE}/today`);
-await p.getByRole("heading", { name: "Time to review" }).waitFor();
-log(
-  "Today hero:",
-  await p.locator("#review-hero").innerText(),
-  "|",
-  await p
-    .getByText(/cards? · about/)
-    .first()
-    .innerText(),
-);
+await p.getByRole("heading", { name: /^Time to review/ }).waitFor();
+log("Today hero:", await p.locator("#review-hero").innerText());
 log(
   "nav badge:",
   (await p.locator('nav a[href="/review"]').last().innerText()).replace(/\s+/g, " "),
@@ -106,7 +98,8 @@ log(
 // 5. Review session: reveal, rate, undo, finish
 await p.goto(`${BASE}/review`);
 await p.waitForLoadState("networkidle");
-const total = Number((await p.getByText(/Card 1 of \d+/).innerText()).match(/of (\d+)/)![1]);
+const pad = (n: number) => String(n).padStart(2, "0");
+const total = Number((await p.getByText(/Card 01 \/ \d+/).innerText()).match(/\/ (\d+)/)![1]);
 log("session cards:", total);
 await p.keyboard.press(" ");
 await p.getByText("Answer", { exact: true }).waitFor();
@@ -114,13 +107,13 @@ await p.keyboard.press("3");
 await p.getByText(/Nice\. Back/).waitFor();
 log("rated Got it →", await p.getByText(/Nice\. Back/).innerText());
 await p.getByRole("button", { name: "Undo" }).click();
-await p.getByText(`Card 1 of ${total}`).waitFor();
+await p.getByText(`Card 01 / ${pad(total)}`).waitFor();
 log("undo returned to card 1; reviews rows:", sql("select count(*) from reviews"));
 for (let i = 0; i < total; i++) {
   const show = p.getByRole("button", { name: "Show answer" });
   if (await show.isVisible()) await show.click();
   await p.getByRole("button", { name: i % 2 ? /Forgot/ : /Got it/ }).click();
-  if (i < total - 1) await p.getByText(`Card ${i + 2} of ${total}`).waitFor();
+  if (i < total - 1) await p.getByText(`Card ${pad(i + 2)} / ${pad(total)}`).waitFor();
 }
 await p.getByRole("heading", { name: "That's today's review." }).waitFor();
 log(
@@ -151,7 +144,7 @@ log(
   "with cap 2 and",
   sql("select count(*) from cards"),
   "due:",
-  await p.getByText(/Card 1 of \d+/).innerText(),
+  await p.getByText(/Card 01 \/ \d+/).innerText(),
 );
 sql("update settings set review_cap = 10");
 

@@ -217,7 +217,7 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
           aria-keyshortcuts="ArrowLeft X"
           className="deck-btn justify-start"
         >
-          ← Skip
+          <span aria-hidden="true">←</span> Skip
         </button>
         <button
           type="button"
@@ -225,7 +225,7 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
           aria-keyshortcuts="ArrowUp Enter"
           className="deck-btn justify-center"
         >
-          ↑ Open
+          <span aria-hidden="true">↑</span> Open
         </button>
         <button
           type="button"
@@ -234,7 +234,7 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
           aria-keyshortcuts="ArrowRight K"
           className="deck-btn justify-end"
         >
-          Keep →
+          Keep <span aria-hidden="true">→</span>
         </button>
       </div>
       <p className="t-label mt-(--s-3) text-muted max-sm:hidden">
