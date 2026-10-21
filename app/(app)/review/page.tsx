@@ -3,20 +3,17 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { getDaysLearned, getReview } from "@/lib/data/review";
 import { ReviewSession } from "@/components/review/review-session";
-import { CheckIcon } from "@/components/ui/icons";
+import { Finish } from "@/components/ui/finish";
 
 export const metadata: Metadata = { title: "Review" };
 
 export default function ReviewPage() {
   return (
     <>
-      <h1 className="pt-2 text-2xl font-bold lg:pt-0">Review</h1>
+      <h1 className="t-display">Review</h1>
       <Suspense
         fallback={
-          <div
-            aria-hidden="true"
-            className="mx-auto mt-6 h-80 max-w-2xl animate-pulse rounded-card bg-surface-2"
-          />
+          <div aria-hidden="true" className="mt-(--s-4) h-80 max-w-2xl animate-pulse bg-tint" />
         }
       >
         <ReviewContent />
@@ -40,22 +37,15 @@ async function ReviewContent() {
       : "Nothing to do right now.";
 
   const empty = (
-    <section className="mx-auto mt-6 flex max-w-2xl flex-col items-start gap-3 rounded-card bg-keep-soft p-6 sm:p-8">
-      <span className="grid size-12 place-items-center rounded-full bg-keep text-white">
-        <CheckIcon />
-      </span>
-      <h2 className="text-xl font-bold">{title}</h2>
+    <Finish title={title}>
       <p>{body}</p>
-      <p className="text-muted">
-        {daysLearned} {daysLearned === 1 ? "day" : "days"} learned so far.
+      <p className="t-label">
+        {daysLearned} {daysLearned === 1 ? "day" : "days"} learned so far
       </p>
-      <Link
-        href={review.hasCards ? "/today" : "/explore"}
-        className="min-h-11 py-2 font-bold text-keep underline underline-offset-4"
-      >
-        {review.hasCards ? "Back to Today" : "Find something to keep"}
+      <Link href={review.hasCards ? "/today" : "/explore"} className="link">
+        {review.hasCards ? "Back to Today" : "Find something to keep"} →
       </Link>
-    </section>
+    </Finish>
   );
   return <ReviewSession cards={review.cards} daysLearned={daysLearned} empty={empty} />;
 }
