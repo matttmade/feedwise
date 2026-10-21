@@ -258,9 +258,12 @@ h2,
 h3 {
   text-wrap: balance;
 }
-/* Buttons take the case of the label they sit in (the reset sets none). */
-button {
-  text-transform: inherit;
+/* Buttons take the case of the label they sit in (the reset sets none). In the base
+   layer so utilities like t-label still win. */
+@layer base {
+  button {
+    text-transform: inherit;
+  }
 }
 p,
 li {
