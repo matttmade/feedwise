@@ -163,7 +163,10 @@ function TopicPicker({ source, topics }: { source: SourceRow; topics: TopicRow[]
       <summary className="link cursor-pointer list-none">
         Topics{names.length ? `: ${names.join(", ")}` : ""}
       </summary>
-      <fieldset className="t-body mt-(--s-2) border-t border-rule pt-(--s-2) normal-case" disabled={pending}>
+      <fieldset
+        className="t-body mt-(--s-2) border-t border-rule pt-(--s-2) normal-case"
+        disabled={pending}
+      >
         <legend className="sr-only">Topics for {source.title}</legend>
         {topics.length > 0 && (
           <ul className="flex flex-wrap gap-x-(--s-4)">

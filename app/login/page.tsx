@@ -8,17 +8,23 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
     <main
       id="main"
-      className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-6 px-4 py-12"
+      className="flex min-h-dvh flex-col justify-center gap-(--s-5) px-(--gutter) py-(--s-5) lg:grid-12 lg:content-center"
     >
-      <div>
-        <p className="text-sm font-bold tracking-wide text-accent uppercase">Feedwise</p>
-        <h1 className="mt-2 text-2xl font-bold">Welcome back.</h1>
-        <p className="mt-2 text-muted">No password — we&apos;ll email you a link.</p>
+      <div className="lg:col-span-6">
+        <p className="font-semibold">
+          Feed<em className="font-normal">wise</em>
+        </p>
+        <h1 className="t-display mt-(--s-4)">
+          Welcome <em>back</em>.
+        </h1>
+        <p className="mt-(--s-3)">No password — we&apos;ll email you a link.</p>
       </div>
-      <Suspense fallback={null}>
-        <LinkProblem searchParams={searchParams} />
-      </Suspense>
-      <LoginForm />
+      <div className="flex flex-col gap-(--s-4) lg:col-span-4 lg:col-start-8">
+        <Suspense fallback={null}>
+          <LinkProblem searchParams={searchParams} />
+        </Suspense>
+        <LoginForm />
+      </div>
     </main>
   );
 }
@@ -31,7 +37,7 @@ async function LinkProblem({
   const { error } = await searchParams;
   if (!error) return null;
   return (
-    <p className="rounded-card bg-warn-soft p-4" role="alert">
+    <p className="border-t border-rule pt-(--s-2)" role="alert">
       That link has expired or was already used. Ask for a fresh one below.
     </p>
   );

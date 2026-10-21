@@ -28,10 +28,11 @@ export function PrefsForm({ initial }: { initial: Prefs }) {
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <p role="status" aria-live="polite" className="min-h-6 text-muted">
+    <div className="flex flex-col">
+      <p role="status" aria-live="polite" className="t-label min-h-11 pt-(--s-3)">
         {status}
       </p>
+      <div className="border-t border-rule" />
 
       <Toggle
         id="calm"
@@ -137,14 +138,25 @@ function Segmented<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <fieldset disabled={disabled} className="disabled:opacity-60">
-      <legend className="text-lg font-bold">{legend}</legend>
-      {hint && <p className="text-sm text-muted">{hint}</p>}
-      <div className="mt-2 flex flex-wrap gap-2">
+    <fieldset
+      disabled={disabled}
+      aria-describedby={hint ? `${name}-hint` : undefined}
+      className="border-b border-rule py-(--s-3) disabled:opacity-45 md:grid md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-x-(--gutter)"
+    >
+      <legend className="sr-only">{legend}</legend>
+      <div>
+        <p aria-hidden="true">{legend}</p>
+        {hint && (
+          <p id={`${name}-hint`} className="mt-(--s-1) text-muted">
+            {hint}
+          </p>
+        )}
+      </div>
+      <div className="dots mt-(--s-1) flex-wrap md:mt-0">
         {choices.map((c) => (
           <label
             key={c.value}
-            className="flex min-h-11 cursor-pointer items-center rounded-control border border-line bg-surface px-4 has-checked:border-accent has-checked:bg-accent-soft has-checked:font-bold has-checked:text-accent has-focus-visible:outline-3 has-focus-visible:outline-[var(--focus)]"
+            className="flex min-h-11 cursor-pointer items-center decoration-1 underline-offset-[6px] hover:underline has-checked:underline has-focus-visible:outline-1 has-focus-visible:outline-offset-3 has-focus-visible:outline-current"
           >
             <input
               type="radio"
@@ -178,12 +190,12 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className={`flex items-start justify-between gap-4 ${disabled ? "opacity-60" : ""}`}>
+    <div
+      className={`flex items-start justify-between gap-(--s-4) border-b border-rule py-(--s-3) md:grid md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-x-(--gutter) ${disabled ? "opacity-45" : ""}`}
+    >
       <div>
-        <label htmlFor={id} className="text-lg font-bold">
-          {label}
-        </label>
-        {hint && <p className="text-sm text-muted">{hint}</p>}
+        <label htmlFor={id}>{label}</label>
+        {hint && <p className="mt-(--s-1) text-muted">{hint}</p>}
       </div>
       <input
         id={id}
@@ -192,7 +204,7 @@ function Toggle({
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
-        className="mt-1 h-7 w-12 shrink-0 cursor-pointer appearance-none rounded-full bg-line transition-colors before:block before:size-6 before:translate-x-0.5 before:translate-y-0.5 before:rounded-full before:bg-white before:shadow before:transition-transform checked:bg-keep checked:before:translate-x-5.5"
+        className="mt-0.5 h-5 w-9 shrink-0 cursor-pointer appearance-none border border-current p-0.5 before:block before:size-3.5 before:bg-ghost before:transition-transform before:duration-(--dur-1) before:ease-calm checked:before:translate-x-4 checked:before:bg-current"
       />
     </div>
   );

@@ -10,9 +10,9 @@ export function LoginForm() {
 
   if (state.status === "sent") {
     return (
-      <div className="rounded-card bg-keep-soft p-5" role="status">
-        <p className="text-lg font-bold">Check your inbox.</p>
-        <p className="mt-1">
+      <div role="status">
+        <p className="t-lead">Check your inbox.</p>
+        <p className="mt-(--s-2)">
           If <strong>{state.email}</strong> has access, a sign-in link is on its way. It works once,
           on this device.
         </p>
@@ -21,8 +21,8 @@ export function LoginForm() {
   }
 
   return (
-    <form action={action} className="flex flex-col gap-3" noValidate>
-      <label htmlFor="email" className="font-bold">
+    <form action={action} className="flex flex-col gap-(--s-2)" noValidate>
+      <label htmlFor="email" className="t-label">
         Email
       </label>
       <input
@@ -34,19 +34,11 @@ export function LoginForm() {
         defaultValue={state.email}
         aria-invalid={state.status === "error" || undefined}
         aria-describedby={state.status === "error" ? "email-error" : undefined}
-        className="min-h-12 rounded-control border border-line bg-surface px-4 text-base"
+        className="field"
       />
-      {state.status === "error" && (
-        <p id="email-error" className="text-warn">
-          {state.message}
-        </p>
-      )}
-      <button
-        type="submit"
-        disabled={pending}
-        className="min-h-12 rounded-control bg-accent px-5 font-bold text-accent-ink disabled:opacity-60"
-      >
-        {pending ? "Sending…" : "Email me a sign-in link"}
+      {state.status === "error" && <p id="email-error">{state.message}</p>}
+      <button type="submit" disabled={pending} className="btn mt-(--s-3) self-start">
+        {pending ? "Sending…" : "Email me a sign-in link →"}
       </button>
     </form>
   );
