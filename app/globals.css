@@ -90,27 +90,6 @@
   --text-lead: var(--t-lead);
   --text-display: var(--t-display);
   --ease-calm: var(--ease);
-  --radius-none: 0;
-
-  /* Old names, mapped onto the new tokens until every screen has been restyled. */
-  --color-bg: var(--ground);
-  --color-surface: var(--ground);
-  --color-surface-2: var(--tint);
-  --color-line: var(--rule);
-  --color-accent-ink: var(--ground);
-  --color-accent-soft: transparent;
-  --color-keep: var(--fg);
-  --color-keep-soft: transparent;
-  --color-warn: var(--fg);
-  --color-warn-soft: transparent;
-  --radius-card: 0;
-  --radius-control: 0;
-  --text-sm: var(--t-body);
-  --text-base: var(--t-body);
-  --text-lg: var(--t-lead);
-  --text-xl: var(--t-lead);
-  --text-2xl: var(--t-lead);
-  --shadow-card: none;
 }
 
 /* ── Type roles (DESIGN.md §4) ─────────────────────────────────────────────── */
