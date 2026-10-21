@@ -1,6 +1,6 @@
 # Feedwise
 
-Turn the sites you already follow into a visual, swipeable learning feed. Product spec: [BRIEF.md](BRIEF.md). Build plan and gates: [PLAN.md](PLAN.md). Working rules: [CLAUDE.md](CLAUDE.md). Deviations: [DECISIONS.md](DECISIONS.md). Going live: [DEPLOY.md](DEPLOY.md).
+Turn the sites you already follow into a visual, swipeable learning feed. Product spec: [BRIEF.md](BRIEF.md). Build plan and gates: [PLAN.md](PLAN.md). Working rules: [CLAUDE.md](CLAUDE.md). Visual style: [DESIGN.md](DESIGN.md). Deviations: [DECISIONS.md](DECISIONS.md). Going live: [DEPLOY.md](DEPLOY.md).
 
 ## Status
 
@@ -8,6 +8,7 @@ Turn the sites you already follow into a visual, swipeable learning feed. Produc
 - **Phase 1 (reading loop):** built and verified locally. It's waiting on deployment (DEPLOY.md) and five days of real use.
 - **Phase 2 (learn loop):** built and verified locally. Keep and highlights become recall cards, Review shows them on an FSRS schedule capped at 10 a day, and Library holds everything kept. Its gate needs two weeks of real use.
 - **Phase 3 (rich modes and craft):** built and verified locally. It adds Swipe and Watch modes, card gestures (swipe to hide, hold to keep), the damped motion system, the mode morph and the "Make it mine" settings. Its gate is testing with 5 people.
+- **Visual style:** restyled to Quiet Editorial ([DESIGN.md](DESIGN.md)). That means few faces, few sizes, one ground, image + caption instead of cards, and index lists. Where it departs from DESIGN.md is in DECISIONS.md. Every pushed branch gets a Vercel preview (see DEPLOY.md → Previews).
 
 ## Local development
 
