@@ -8,18 +8,16 @@ export const metadata: Metadata = { title: "Sources" };
 
 export default function SourcesPage() {
   return (
-    <div className="max-w-3xl">
-      <h1 className="pt-2 text-2xl font-bold lg:pt-0">Sources</h1>
-      <p className="mt-1 text-muted">
+    <div className="max-w-5xl">
+      <h1 className="t-display">Sources</h1>
+      <p className="mt-(--s-2)">
         The sites and channels you follow. We check them every couple of hours.
       </p>
-      <div className="mt-6">
+      <div className="mt-(--s-5)">
         <AddSource />
       </div>
       <Suspense
-        fallback={
-          <div aria-hidden="true" className="mt-8 h-40 animate-pulse rounded-card bg-surface-2" />
-        }
+        fallback={<div aria-hidden="true" className="mt-(--s-5) h-40 animate-pulse bg-tint" />}
       >
         <SourceList />
       </Suspense>
@@ -30,16 +28,16 @@ export default function SourcesPage() {
 async function SourceList() {
   const [sources, topics] = await Promise.all([getSources(), getTopics()]);
   if (!sources.length) {
-    return <p className="mt-8 text-muted">No sources yet. Your first one goes in the box above.</p>;
+    return <p className="mt-(--s-5)">No sources yet. Your first one goes in the field above.</p>;
   }
   return (
-    <section aria-labelledby="following-heading" className="mt-10">
-      <h2 id="following-heading" className="text-lg font-bold">
-        Following ({sources.length})
+    <section aria-labelledby="following-heading" className="mt-(--s-6)">
+      <h2 id="following-heading" className="t-label">
+        Following · {String(sources.length).padStart(2, "0")}
       </h2>
-      <ul className="mt-3 flex flex-col gap-3">
-        {sources.map((s) => (
-          <SourceItem key={s.id} source={s} topics={topics} health={health(s)} />
+      <ul className="mt-(--s-2) border-t border-rule">
+        {sources.map((s, i) => (
+          <SourceItem key={s.id} source={s} topics={topics} health={health(s)} index={i} />
         ))}
       </ul>
     </section>

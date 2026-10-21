@@ -17,10 +17,12 @@ export function SourceItem({
   source,
   topics,
   health,
+  index,
 }: {
   source: SourceRow;
   topics: TopicRow[];
   health: Health;
+  index: number;
 }) {
   const [pending, start] = useTransition();
   const toast = useToast();
@@ -34,79 +36,65 @@ export function SourceItem({
       );
     });
 
-  const toneClass =
-    health.tone === "ok"
-      ? "bg-keep-soft text-keep"
-      : health.tone === "warn"
-        ? "bg-warn-soft text-warn"
-        : "bg-surface-2 text-muted";
-
   return (
     <li
-      className={`rounded-card border border-line bg-surface p-4 ${source.muted ? "opacity-75" : ""}`}
+      className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-(--s-3) border-b border-rule py-(--s-3) sm:grid-cols-[2.5rem_minmax(0,1fr)]"
       aria-busy={pending}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="font-bold">
-            {source.title}
-            {source.muted && <span className="ml-2 text-sm font-normal text-muted">(muted)</span>}
-          </h3>
-          <a
-            href={source.siteUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm break-all text-muted underline underline-offset-2"
-          >
-            {source.siteUrl}
-          </a>
+      <span className="t-label pt-1.5">{String(index + 1).padStart(2, "0")}</span>
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-(--s-4) gap-y-(--s-1)">
+          <div className="min-w-0">
+            <h3 className={`t-lead ${source.muted ? "text-muted" : ""}`}>
+              {source.title}
+              {source.muted && <span className="t-label ml-(--s-2)">Muted</span>}
+            </h3>
+            <a
+              href={source.siteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="t-label break-all underline-offset-4 hover:underline"
+            >
+              {source.siteUrl.replace(/^https?:\/\/(www\.)?/, "")}
+            </a>
+          </div>
+          <p className="t-label flex items-center gap-(--s-2)">
+            {health.tone === "warn" && <span aria-hidden="true" className="size-1.5 bg-accent" />}
+            {health.label}
+          </p>
         </div>
-        <p className={`rounded-full px-3 py-1 text-sm ${toneClass}`}>{health.label}</p>
-      </div>
-      {health.tone === "warn" && source.lastError && (
-        <p className="mt-2 text-sm text-muted">
-          Last problem: {source.lastError}. We&apos;ll keep trying every couple of hours.
-        </p>
-      )}
-
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={toggleMute}
-          aria-pressed={source.muted}
-          className="min-h-11 rounded-control border border-line px-4 hover:border-ink"
-        >
-          {source.muted ? "Unmute" : "Mute"}
-        </button>
-        <RenameForm source={source} />
-        <TopicPicker source={source} topics={topics} />
-        {confirmRemove ? (
-          <span className="flex flex-wrap items-center gap-2 rounded-control bg-warn-soft px-3 py-1">
-            Remove {source.title} and its posts?
-            <button
-              type="button"
-              onClick={() => start(() => removeSource(source.id))}
-              className="min-h-11 rounded-control px-3 font-bold text-warn underline"
-            >
-              Yes, remove
-            </button>
-            <button
-              type="button"
-              onClick={() => setConfirmRemove(false)}
-              className="min-h-11 rounded-control px-3"
-            >
-              Keep it
-            </button>
-          </span>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setConfirmRemove(true)}
-            className="min-h-11 rounded-control px-4 text-muted hover:text-ink"
-          >
-            Remove…
-          </button>
+        {health.tone === "warn" && source.lastError && (
+          <p className="mt-(--s-2) max-w-[62ch]">
+            Last problem: {source.lastError}. We&apos;ll keep trying every couple of hours.
+          </p>
         )}
+
+        <div className="t-label mt-(--s-1) flex flex-wrap items-center gap-x-(--s-4)">
+          <button type="button" onClick={toggleMute} aria-pressed={source.muted} className="link">
+            {source.muted ? "Unmute" : "Mute"}
+          </button>
+          <RenameForm source={source} />
+          <TopicPicker source={source} topics={topics} />
+          {confirmRemove ? (
+            <span className="flex flex-wrap items-center gap-x-(--s-3)">
+              Remove {source.title} and its posts?
+              <button
+                type="button"
+                onClick={() => start(() => removeSource(source.id))}
+                className="link"
+              >
+                Yes, remove
+              </button>
+              <button type="button" onClick={() => setConfirmRemove(false)} className="link">
+                Keep it
+              </button>
+            </span>
+          ) : (
+            <button type="button" onClick={() => setConfirmRemove(true)} className="link">
+              Remove…
+            </button>
+          )}
+        </div>
       </div>
     </li>
   );
@@ -117,18 +105,14 @@ function RenameForm({ source }: { source: SourceRow }) {
   const [pending, start] = useTransition();
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="min-h-11 rounded-control border border-line px-4 hover:border-ink"
-      >
+      <button type="button" onClick={() => setOpen(true)} className="link">
         Rename
       </button>
     );
   }
   return (
     <form
-      className="flex w-full flex-wrap gap-2 sm:w-auto"
+      className="flex w-full flex-wrap items-end gap-x-(--s-3) normal-case tracking-normal sm:w-auto"
       action={(form) =>
         start(async () => {
           await renameSource(source.id, String(form.get("title") ?? ""));
@@ -144,20 +128,12 @@ function RenameForm({ source }: { source: SourceRow }) {
         name="title"
         defaultValue={source.title}
         autoFocus
-        className="min-h-11 flex-1 rounded-control border border-line bg-bg px-3"
+        className="field t-body flex-1"
       />
-      <button
-        type="submit"
-        disabled={pending}
-        className="min-h-11 rounded-control bg-accent px-4 font-bold text-accent-ink"
-      >
+      <button type="submit" disabled={pending} className="link">
         Save
       </button>
-      <button
-        type="button"
-        onClick={() => setOpen(false)}
-        className="min-h-11 rounded-control px-3"
-      >
+      <button type="button" onClick={() => setOpen(false)} className="link">
         Cancel
       </button>
     </form>
@@ -184,21 +160,21 @@ function TopicPicker({ source, topics }: { source: SourceRow; topics: TopicRow[]
 
   return (
     <details className="group w-full sm:w-auto">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-control border border-line px-4 hover:border-ink">
+      <summary className="link cursor-pointer list-none">
         Topics{names.length ? `: ${names.join(", ")}` : ""}
       </summary>
-      <fieldset className="mt-2 rounded-control border border-line p-3" disabled={pending}>
+      <fieldset className="t-body mt-(--s-2) border-t border-rule pt-(--s-2) normal-case" disabled={pending}>
         <legend className="sr-only">Topics for {source.title}</legend>
         {topics.length > 0 && (
-          <ul className="flex flex-wrap gap-2">
+          <ul className="flex flex-wrap gap-x-(--s-4)">
             {topics.map((t) => (
               <li key={t.id}>
-                <label className="flex min-h-11 items-center gap-2 rounded-control px-2">
+                <label className="flex min-h-11 items-center gap-(--s-2)">
                   <input
                     type="checkbox"
                     checked={source.topicIds.includes(t.id)}
                     onChange={(e) => toggle(t.id, e.target.checked)}
-                    className="size-5 accent-[var(--accent)]"
+                    className="size-4 accent-current"
                   />
                   {t.name}
                 </label>
@@ -206,7 +182,7 @@ function TopicPicker({ source, topics }: { source: SourceRow; topics: TopicRow[]
             ))}
           </ul>
         )}
-        <div className="mt-2 flex gap-2">
+        <div className="mt-(--s-2) flex items-end gap-(--s-3)">
           <label htmlFor={`topic-${source.id}`} className="sr-only">
             New topic
           </label>
@@ -221,13 +197,9 @@ function TopicPicker({ source, topics }: { source: SourceRow; topics: TopicRow[]
               }
             }}
             placeholder="New topic, e.g. Motion"
-            className="min-h-11 flex-1 rounded-control border border-line bg-bg px-3"
+            className="field flex-1"
           />
-          <button
-            type="button"
-            onClick={add}
-            className="min-h-11 rounded-control border border-line px-4 hover:border-ink"
-          >
+          <button type="button" onClick={add} className="link">
             Add
           </button>
         </div>

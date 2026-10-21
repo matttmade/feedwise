@@ -35,62 +35,55 @@ export function AddSource() {
   const showChoices = found.status === "found" && added.status !== "added";
 
   return (
-    <section
-      aria-labelledby="add-heading"
-      className="rounded-card border border-line bg-surface p-5 shadow-card lg:p-6"
-    >
-      <h2 id="add-heading" className="text-lg font-bold">
+    <section aria-labelledby="add-heading">
+      <h2 id="add-heading" className="t-lead">
         Add a source
       </h2>
-      <form action={discover} className="mt-3 flex flex-col gap-2 sm:flex-row">
-        <label htmlFor="source-url" className="sr-only">
+      <form action={discover} className="mt-(--s-3)">
+        <label htmlFor="source-url" className="t-label">
           Site or YouTube channel address
         </label>
-        <input
-          ref={urlRef}
-          id="source-url"
-          name="url"
-          type="text"
-          inputMode="url"
-          autoComplete="url"
-          placeholder="smashingmagazine.com or youtube.com/@channel"
-          className="min-h-12 flex-1 rounded-control border border-line bg-bg px-4"
-        />
-        <button
-          type="submit"
-          disabled={finding}
-          className="min-h-12 rounded-control bg-accent px-5 font-bold text-accent-ink disabled:opacity-60"
-        >
-          {finding ? "Looking…" : "Find feeds"}
-        </button>
+        <div className="flex items-end gap-(--s-3)">
+          <input
+            ref={urlRef}
+            id="source-url"
+            name="url"
+            type="text"
+            inputMode="url"
+            autoComplete="url"
+            placeholder="smashingmagazine.com or youtube.com/@channel"
+            className="field flex-1"
+          />
+          <button type="submit" disabled={finding} className="link shrink-0">
+            {finding ? "Looking…" : "Find feeds →"}
+          </button>
+        </div>
       </form>
 
       <div ref={resultRef} tabIndex={-1} aria-live="polite" className="outline-none">
-        {found.status === "none" && (
-          <p className="mt-4 rounded-control bg-warn-soft p-4">{found.message}</p>
-        )}
+        {found.status === "none" && <p className="mt-(--s-3) max-w-[62ch]">{found.message}</p>}
         {showChoices && (
-          <form action={add} className="mt-4">
+          <form action={add} className="mt-(--s-4)">
             <fieldset>
-              <legend className="font-bold">
+              <legend className="t-label">
                 {found.feeds.length === 1
                   ? "We found this feed:"
                   : `We found ${found.feeds.length} feeds. Pick one:`}
               </legend>
-              <ul className="mt-2 flex flex-col gap-2">
+              <ul className="mt-(--s-2) border-t border-rule">
                 {found.feeds.map((f, i) => (
-                  <li key={f.url}>
-                    <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-control border border-line p-3 has-checked:border-accent has-checked:bg-accent-soft">
+                  <li key={f.url} className="border-b border-rule">
+                    <label className="flex min-h-12 cursor-pointer items-start gap-(--s-3) py-(--s-3)">
                       <input
                         type="radio"
                         name="feedUrl"
                         value={f.url}
                         defaultChecked={i === 0}
-                        className="mt-1 size-5 accent-[var(--accent)]"
+                        className="mt-1 size-4 accent-current"
                       />
                       <span>
-                        <span className="block font-bold">{f.title || f.url}</span>
-                        <span className="block text-sm break-all text-muted">
+                        <span className="block">{f.title || f.url}</span>
+                        <span className="t-label block break-all">
                           {f.format.toUpperCase()} · {VIA[f.via]} · {f.url}
                         </span>
                       </span>
@@ -109,13 +102,9 @@ export function AddSource() {
               />
             ))}
             <input type="hidden" name="siteUrl" value={found.siteUrl} />
-            {added.status === "error" && <p className="mt-3 text-warn">{added.message}</p>}
-            <button
-              type="submit"
-              disabled={adding}
-              className="mt-4 min-h-12 rounded-control bg-accent px-5 font-bold text-accent-ink disabled:opacity-60"
-            >
-              {adding ? "Adding and fetching the latest posts…" : "Follow this source"}
+            {added.status === "error" && <p className="mt-(--s-3)">{added.message}</p>}
+            <button type="submit" disabled={adding} className="btn mt-(--s-4)">
+              {adding ? "Adding and fetching the latest posts…" : "Follow this source →"}
             </button>
           </form>
         )}
