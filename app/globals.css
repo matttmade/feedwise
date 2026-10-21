@@ -203,13 +203,13 @@
 /* Tags and filters: mono caps separated by a middle dot. */
 @utility dots {
   display: flex;
-  & > li {
+  & > * {
     display: flex;
     align-items: center;
     flex-shrink: 0;
   }
   /* The dot trails each item, so a wrapped line never starts with one. */
-  & > li:not(:last-child)::after {
+  & > :not(:last-child)::after {
     content: "·";
     padding-inline: var(--s-2);
   }
@@ -257,6 +257,10 @@ h1,
 h2,
 h3 {
   text-wrap: balance;
+}
+/* Buttons take the case of the label they sit in (the reset sets none). */
+button {
+  text-transform: inherit;
 }
 p,
 li {

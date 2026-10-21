@@ -71,7 +71,7 @@ export function useSwipe<T extends HTMLElement>({
               : action === "skip"
                 ? [-w * 1.2, dy]
                 : [dx, -window.innerHeight];
-          setTransform(to[0], to[1], `transform ${FLY_MS}ms ease-in`);
+          setTransform(to[0], to[1], `transform ${FLY_MS}ms var(--ease)`);
           setTimeout(() => handler.current(action, via), FLY_MS);
         } else {
           handler.current(action, via);
@@ -138,13 +138,14 @@ export function useSwipe<T extends HTMLElement>({
         if (action) finish(action, "swipe", dx, dy);
         else {
           suppressClick = true;
-          setTransform(0, 0, animated ? "transform 200ms ease-out" : "none");
+          setTransform(0, 0, animated ? "transform var(--dur-1) var(--ease)" : "none");
         }
       };
 
       const onCancel = () => {
         clearTimeout(pressTimer);
-        if (mode === "drag") setTransform(0, 0, animated ? "transform 200ms ease-out" : "none");
+        if (mode === "drag")
+          setTransform(0, 0, animated ? "transform var(--dur-1) var(--ease)" : "none");
         start = null;
         mode = "idle";
       };

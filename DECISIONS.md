@@ -24,7 +24,7 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
 - **2026-10-20 · SSRF guard on every server-side fetch.** Only http(s) is allowed, private, loopback and link-local addresses are refused after DNS resolution, redirects are followed by hand so each hop is checked, and bodies are capped at 5 MB (15 MB for images).
 - **2026-10-20 · Article HTML is sanitised with DOMPurify** at ingest and again when the Reader renders it. Scripts, styles, forms, iframes and site-supplied ARIA are removed. Videos play only through our own click-to-play player, which builds the YouTube (nocookie) or Vimeo URL from the video ID.
 - **2026-10-20 · The Keep note becomes a `highlights` row** (`note`, with no text or image) linked to the item. Phase 2 turns highlights into cards.
-- **2026-10-20 · Typeface: Atkinson Hyperlegible Next**, the Braille Institute's typeface designed for legibility.
+- **2026-10-20 · Typeface: Atkinson Hyperlegible Next**, the Braille Institute's typeface designed for legibility. *(Replaced 2026-10-21 by the Quiet Editorial faces; see below.)*
 - **2026-10-20 · Toasts stay until dismissed or replaced** (no countdown) and always offer Undo for Keep, Skip and Mute. This follows rule 5: no timers.
 - **2026-10-20 · Review and Library tabs arrive in Phase 2**, so the nav shows Today, Explore and Sources. Help is in the same place on every screen (rail bottom, or top-right on phones), per WCAG 3.2.6.
 
@@ -50,6 +50,20 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
 - **2026-10-20 · Mode morph uses React 19.3's `<ViewTransition>`** (no animation library). The same card image is named on the Board, on the top card in Swipe and on the Reader hero, so it moves between them. It only animates at full motion. Browsers without the View Transitions API just switch views.
 - **2026-10-20 · Preferences apply before first paint.** They're saved to `settings` and mirrored in a small `fw_prefs` cookie, which an inline script reads to set `data-*` attributes on `<html>`. Text size, density and motion never flash. The Settings screen offers presets, but any sensible stored number is honoured (daily goal 3–5, review cap 1–50).
 - **2026-10-20 · On phones, Swipe's buttons stay just above the tab bar** so they're always in thumb reach. Board and Swipe intro text and length chips appear on Board only, to keep one thing in view.
+
+- **2026-10-21 · Quiet Editorial (DESIGN.md) replaces the earlier style** (Matt's call, on branch `claude/quiet-editorial`). It covers tokens, type, surfaces, components and motion feel. Behaviour, routes and data are unchanged. Where it differs from DESIGN.md:
+  - **Free faces.** Newsreader, Inter Tight and Geist Mono (Google Fonts via `next/font`) stand in for Flecha M, GT Standard and GT Standard Mono; there's no licence for the paid faces.
+  - **Ground follows the OS:** paper in light, press in dark. Watch is the one inverted (press) section on its page.
+  - **Body is 15–17px**, not 13–15 (Matt's call). **Reader prose is 17–20px** (`--t-reader`), the one documented exception to the four sizes. **Labels are 11px**, not 9: mono caps at 9px were too small to carry source names and times, which are now essential and in full ink.
+  - **`--muted` (45%) is only for non-essential text:** summaries, hints, "recall first" lines. Source, time, progress and counts stay in full ink. On paper, 45% measures about 2.8:1, so muted text never carries something you need.
+  - **Accent does one job: progress and live state.** That covers the progress meters, the Reader's reading bar, the due-count square and a source that couldn't be reached.
+  - **Touch targets stay ≥ 44px.** Text buttons and mono-label actions get the height from padding, so they look small but aren't.
+  - **Reduced motion keeps CLAUDE.md's rule** (all non-essential motion off, fades included). That's stricter than DESIGN.md's "keep fades".
+  - **Navigation.** On desktop there's a top bar: wordmark, then Today / Explore / Review / Library, then Sources / Settings / Help as labels. Phones keep a text-only bottom tab bar, because the tabs are the primary way around. Settings and Help sit top-right on every screen.
+  - **Cards become image + caption** on the grid: a numbered label, a serif title, and Keep / Skip as labels. Continue, Library and Sources are numbered index lists with hairlines. Every list or deck still ends on a finish block (a hairline, a label and one sentence).
+  - **Icons are gone;** words and arrows replace them. Toggles in Settings are a 1px box with a sliding square.
+  - **Focus is a 1px ink outline, offset 3px** (DESIGN.md §11).
+  - **The swipe gesture's fly-out and spring-back use `--ease`** like everything else, so there's one curve across the product.
 
 ## Waiting on Matt
 

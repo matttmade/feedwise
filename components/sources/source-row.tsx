@@ -159,7 +159,7 @@ function TopicPicker({ source, topics }: { source: SourceRow; topics: TopicRow[]
   const names = topics.filter((t) => source.topicIds.includes(t.id)).map((t) => t.name);
 
   return (
-    <details className="group w-full sm:w-auto">
+    <details className="group open:w-full">
       <summary className="link cursor-pointer list-none">
         Topics{names.length ? `: ${names.join(", ")}` : ""}
       </summary>

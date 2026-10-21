@@ -156,7 +156,7 @@ function Segmented<T extends string>({
         {choices.map((c) => (
           <label
             key={c.value}
-            className="flex min-h-11 cursor-pointer items-center decoration-1 underline-offset-[6px] hover:underline has-checked:underline has-focus-visible:outline-1 has-focus-visible:outline-offset-3 has-focus-visible:outline-current"
+            className="group flex min-h-11 cursor-pointer items-center has-focus-visible:outline-1 has-focus-visible:outline-offset-3 has-focus-visible:outline-current"
           >
             <input
               type="radio"
@@ -166,7 +166,9 @@ function Segmented<T extends string>({
               onChange={() => onChange(c.value)}
               className="sr-only"
             />
-            {c.label}
+            <span className="decoration-1 underline-offset-[6px] group-hover:underline group-has-checked:underline">
+              {c.label}
+            </span>
           </label>
         ))}
       </div>
