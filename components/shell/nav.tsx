@@ -2,147 +2,109 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ComponentType, ReactNode, SVGProps } from "react";
-import {
-  BookmarkIcon,
-  CardsIcon,
-  DialsIcon,
-  GridIcon,
-  HelpIcon,
-  RssIcon,
-  SunIcon,
-} from "@/components/ui/icons";
+import type { ReactNode } from "react";
 
-type Tab = { href: string; label: string; icon: ComponentType<SVGProps<SVGSVGElement>> };
+type Tab = { href: string; label: string };
 
 export const TABS: Tab[] = [
-  { href: "/today", label: "Today", icon: SunIcon },
-  { href: "/explore", label: "Explore", icon: GridIcon },
-  { href: "/review", label: "Review", icon: CardsIcon },
-  { href: "/library", label: "Library", icon: BookmarkIcon },
-  { href: "/sources", label: "Sources", icon: RssIcon },
+  { href: "/today", label: "Today" },
+  { href: "/explore", label: "Explore" },
+  { href: "/review", label: "Review" },
+  { href: "/library", label: "Library" },
+  { href: "/sources", label: "Sources" },
 ];
 
-/** The due-count badge streams in from the server; the nav itself is static. */
+/** Settings and Help sit top-right on every screen size: same place every page. */
+const UTILITY: Tab[] = [
+  { href: "/settings", label: "Settings" },
+  { href: "/help", label: "Help" },
+];
+
+/** The due count streams in from the server; the nav itself is static. */
 type NavProps = { reviewBadge?: ReactNode };
 
 const isActive = (path: string, href: string) => path === href || path.startsWith(`${href}/`);
 
-/** Left rail ≥ 1024px. */
-export function Rail({ reviewBadge }: NavProps) {
+const tabClass = (active: boolean) =>
+  `flex min-h-11 items-center gap-1.5 underline-offset-[6px] decoration-1 transition-[text-underline-offset] duration-(--dur-1) ease-calm hover:underline ${
+    active ? "underline" : ""
+  }`;
+
+/** Wordmark left, the main tabs (≥ 1024px), Sources, Settings and Help as small labels right. */
+export function TopBar({ reviewBadge }: NavProps) {
   const path = usePathname();
   return (
-    <nav
-      aria-label="Main"
-      className="fixed inset-y-0 left-0 z-30 hidden w-[var(--rail)] flex-col items-center border-r border-line bg-surface py-4 lg:flex"
-    >
-      <Link
-        href="/today"
-        className="mb-6 grid size-11 place-items-center rounded-control bg-accent text-lg font-bold text-accent-ink"
-        aria-label="Feedwise home"
-      >
-        F
-      </Link>
-      <ul className="flex flex-1 flex-col gap-2">
-        {TABS.map(({ href, label, icon: Icon }) => {
-          const active = isActive(path, href);
-          return (
-            <li key={href}>
-              <Link
-                href={href}
-                aria-current={active ? "page" : undefined}
-                className={`flex w-18 flex-col items-center gap-1 rounded-control px-1 py-2 text-sm ${
-                  active
-                    ? "bg-accent-soft font-bold text-accent"
-                    : "text-muted hover:bg-surface-2 hover:text-ink"
-                }`}
-              >
-                <span className="relative">
-                  <Icon />
-                  {href === "/review" && reviewBadge}
-                </span>
-                {label}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-      <Link
-        href="/settings"
-        aria-current={isActive(path, "/settings") ? "page" : undefined}
-        className="flex w-18 flex-col items-center gap-1 rounded-control px-1 py-2 text-sm text-muted hover:bg-surface-2 hover:text-ink"
-      >
-        <DialsIcon />
-        Settings
-      </Link>
-      <Link
-        href="/help"
-        aria-current={isActive(path, "/help") ? "page" : undefined}
-        className="flex w-18 flex-col items-center gap-1 rounded-control px-1 py-2 text-sm text-muted hover:bg-surface-2 hover:text-ink"
-      >
-        <HelpIcon />
-        Help
-      </Link>
-    </nav>
+    <header className="sticky top-0 z-30 bg-ground">
+      <div className="flex h-(--top) items-center gap-(--s-4) px-(--gutter)">
+        <Link href="/today" className="flex min-h-11 items-center font-semibold">
+          Feed<em className="font-normal">wise</em>
+        </Link>
+        <nav aria-label="Main" className="hidden flex-1 justify-center lg:flex">
+          <ul className="flex gap-(--s-4)">
+            {TABS.slice(0, 4).map(({ href, label }) => {
+              const active = isActive(path, href);
+              return (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    aria-current={active ? "page" : undefined}
+                    className={tabClass(active)}
+                  >
+                    {label}
+                    {href === "/review" && reviewBadge}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+        <span className="flex-1 lg:hidden" />
+        <ul className="flex gap-(--s-3)">
+          {[TABS[4], ...UTILITY].map(({ href, label }) => {
+            const active = isActive(path, href);
+            return (
+              <li key={href} className={href === "/sources" ? "hidden lg:block" : undefined}>
+                <Link
+                  href={href}
+                  aria-current={active ? "page" : undefined}
+                  className={`t-label ${tabClass(active)}`}
+                >
+                  {label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </header>
   );
 }
 
-/** Bottom tab bar < 1024px. */
+/** Bottom tab bar < 1024px: five words, the current one underlined. */
 export function BottomBar({ reviewBadge }: NavProps) {
   const path = usePathname();
   return (
     <nav
       aria-label="Main"
-      className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface lg:hidden"
+      className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-rule bg-ground lg:hidden"
     >
-      <ul className="mx-auto grid h-[var(--bar)] max-w-lg grid-cols-5">
-        {TABS.map(({ href, label, icon: Icon }) => {
+      <ul className="mx-auto grid h-(--bar) max-w-lg grid-cols-5 px-2">
+        {TABS.map(({ href, label }) => {
           const active = isActive(path, href);
           return (
             <li key={href} className="flex">
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-sm ${
-                  active ? "font-bold text-accent" : "text-muted"
-                }`}
+                className={`${tabClass(active)} flex-1 justify-center`}
               >
-                <span className="relative">
-                  <Icon />
-                  {href === "/review" && reviewBadge}
-                </span>
                 {label}
+                {href === "/review" && reviewBadge}
               </Link>
             </li>
           );
         })}
       </ul>
     </nav>
-  );
-}
-
-/** Help sits top-right on small screens and bottom of the rail on large ones: same place every page. */
-export function MobileHeader() {
-  return (
-    <header className="flex h-14 items-center justify-between px-4 lg:hidden">
-      <Link href="/today" className="text-lg font-bold">
-        Feedwise
-      </Link>
-      <span className="flex-1" />
-      <Link
-        href="/settings"
-        className="flex min-h-11 items-center gap-1.5 rounded-control px-3 text-muted hover:text-ink"
-      >
-        <DialsIcon width={20} height={20} />
-        Settings
-      </Link>
-      <Link
-        href="/help"
-        className="flex min-h-11 items-center gap-1.5 rounded-control px-3 text-muted hover:text-ink"
-      >
-        <HelpIcon width={20} height={20} />
-        Help
-      </Link>
-    </header>
   );
 }

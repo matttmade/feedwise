@@ -56,7 +56,6 @@
   --tap: 44px;
   --top: 56px;
   --bar: 56px;
-  --rail: 88px;
 
   color-scheme: light;
 }
@@ -317,6 +316,14 @@ html[data-motion="full"]:not([data-calm])
   transition:
     filter var(--dur-1) var(--ease),
     opacity var(--dur-1) var(--ease);
+}
+
+/* Enter: fade and a short rise. Under reduced motion or Calm mode the global rules above cut it. */
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
 }
 
 /* Cards you can swipe: keep vertical scrolling native, no text selection or image menu on hold. */

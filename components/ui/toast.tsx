@@ -43,12 +43,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <div
         role="status"
         aria-live="polite"
-        className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--bar)+env(safe-area-inset-bottom)+12px)] z-40 flex justify-center px-4 lg:bottom-6 lg:pl-[var(--rail)]"
+        className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--bar)+env(safe-area-inset-bottom)+12px)] z-40 flex justify-center px-4 lg:bottom-(--s-4)"
       >
         {toast && (
           <div
             key={toast.id}
-            className="pointer-events-auto flex min-h-12 max-w-md items-center gap-2 rounded-card bg-ink py-1.5 pr-1.5 pl-4 text-bg shadow-card"
+            className="pointer-events-auto flex min-h-12 max-w-md items-center gap-(--s-3) bg-ink py-1 pr-1 pl-(--s-3) text-ground motion-safe:animate-[enter_var(--dur-2)_var(--ease)]"
           >
             <span className="flex-1">{toast.message}</span>
             {toast.undo && (
@@ -56,7 +56,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={undo}
                 disabled={pending}
-                className="min-h-11 rounded-control px-3 font-bold underline underline-offset-4 hover:bg-white/10"
+                className="min-h-11 px-2 underline underline-offset-4"
               >
                 Undo
               </button>
@@ -65,7 +65,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               type="button"
               onClick={() => setToast(null)}
               aria-label="Dismiss"
-              className="grid size-11 place-items-center rounded-control text-xl hover:bg-white/10"
+              className="grid size-11 place-items-center opacity-60 transition-opacity duration-(--dur-1) ease-calm hover:opacity-100"
             >
               ×
             </button>
