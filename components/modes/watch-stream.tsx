@@ -7,7 +7,7 @@ import { costLabel } from "@/lib/feed/select";
 import type { WatchItem } from "@/lib/data/feed";
 import { useMotion } from "@/lib/motion/use-motion";
 import { useToast } from "@/components/ui/toast";
-import { BookmarkIcon, CheckIcon, PlayIcon, SkipIcon } from "@/components/ui/icons";
+import { Finish } from "@/components/ui/finish";
 
 export const WATCH_SESSION = 8;
 
@@ -46,10 +46,9 @@ export function WatchStream({ items, autoplay }: { items: WatchItem[]; autoplay:
 
   if (!items.length) {
     return (
-      <section className="mt-6 flex max-w-xl flex-col items-start gap-3 rounded-card bg-keep-soft p-6">
-        <h2 className="text-xl font-bold">No new videos right now.</h2>
+      <Finish title="No new videos right now.">
         <p>When your sources post videos they&apos;ll show up here, one at a time.</p>
-      </section>
+      </Finish>
     );
   }
 
@@ -68,29 +67,26 @@ export function WatchStream({ items, autoplay }: { items: WatchItem[]; autoplay:
           go(-1);
         }
       }}
-      className="watch-stream mt-4 -mx-4 snap-y snap-mandatory overflow-y-auto overscroll-contain sm:mx-0 sm:rounded-card"
+      className="watch-stream mt-(--s-4) -mx-(--gutter) snap-y snap-mandatory overflow-y-auto overscroll-contain bg-press text-paper antialiased"
     >
       {items.slice(0, WATCH_SESSION).map((item, i) => (
         <WatchSlide
           key={item.id}
           item={item}
-          position={`${i + 1} of ${Math.min(items.length, WATCH_SESSION)}`}
+          position={`${pad(i + 1)} / ${pad(Math.min(items.length, WATCH_SESSION))}`}
           autoplay={autoplay && visible === item.id}
         />
       ))}
-      <section className="watch-slide flex snap-start flex-col items-center justify-center gap-3 bg-keep-soft p-6 text-center">
-        <span className="grid size-14 place-items-center rounded-full bg-keep text-white">
-          <CheckIcon />
-        </span>
-        <h2 className="text-2xl font-bold">Nice session. Time for a breather.</h2>
-        <p className="max-w-sm">
+      <section className="watch-slide flex snap-start flex-col justify-end gap-(--s-3) p-(--gutter) pb-(--s-5)">
+        <p className="t-label">End</p>
+        <h2 className="t-display max-w-[14ch]">
+          Nice session. Time for a <em>breather</em>.
+        </h2>
+        <p className="max-w-[62ch]">
           That&apos;s {Math.min(items.length, WATCH_SESSION)} videos. Kept ones come back in Review.
         </p>
-        <Link
-          href="/today"
-          className="min-h-12 rounded-control bg-keep px-5 py-3 font-bold text-white"
-        >
-          Back to Today
+        <Link href="/today" className="link self-start">
+          Back to Today →
         </Link>
       </section>
     </div>
@@ -127,72 +123,68 @@ function WatchSlide({
     <section
       data-id={item.id}
       aria-labelledby={`w-${item.id}`}
-      className="watch-slide flex snap-start flex-col bg-black text-white"
+      className="watch-slide flex snap-start flex-col"
     >
-      <div className="relative flex flex-1 items-center justify-center">
+      <div className="relative flex min-h-0 flex-1 items-center justify-center">
         {playing ? (
           <iframe
             src={item.player!}
             title={item.title}
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
             allowFullScreen
-            className="aspect-video w-full"
+            className="aspect-video max-h-full w-full lg:h-full lg:w-auto lg:max-w-full"
           />
         ) : (
           <button
             type="button"
             onClick={() => setClicked(true)}
-            className="group relative block aspect-video w-full"
+            className="group relative block aspect-video max-h-full w-full lg:h-full lg:w-auto lg:max-w-full"
             aria-label={`Play ${item.title} (starts muted)`}
           >
             {item.poster && (
               // eslint-disable-next-line @next/next/no-img-element -- proxied poster
               <img src={item.poster} alt="" loading="lazy" className="h-full w-full object-cover" />
             )}
-            <span className="absolute inset-0 grid place-items-center bg-black/30">
-              <span className="flex items-center gap-2 rounded-full bg-white px-6 py-3 font-bold text-black">
-                <PlayIcon width={20} height={20} />
-                Play
+            <span className="absolute inset-0 flex items-end bg-linear-to-b from-transparent to-black/50 p-(--gutter)">
+              <span className="t-label text-paper underline-offset-4 group-hover:underline">
+                ▶ Play, muted
               </span>
             </span>
           </button>
         )}
       </div>
-      <div className="flex flex-col gap-2 bg-black/90 p-4">
-        <p className="text-sm text-white/70">
+      <div className="flex flex-col gap-(--s-1) px-(--gutter) pt-(--s-3) pb-(--s-2)">
+        <p className="t-label">
           {position} · {item.sourceTitle}
           {cost ? ` · ${cost}` : ""}
         </p>
-        <h2 id={`w-${item.id}`} className="line-clamp-2 text-lg font-bold">
+        <h2 id={`w-${item.id}`} className="t-lead line-clamp-2">
           {item.title}
         </h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-x-(--s-4)">
           <button
             type="button"
             onClick={() => act("kept")}
             disabled={pending || state !== "none"}
-            className="flex min-h-11 items-center gap-1.5 rounded-control bg-white px-4 font-bold text-black disabled:opacity-60"
+            className="link"
           >
-            <BookmarkIcon width={18} height={18} />
             {state === "kept" ? "Kept" : "Keep"}
           </button>
           <button
             type="button"
             onClick={() => act("skipped")}
             disabled={pending || state !== "none"}
-            className="flex min-h-11 items-center gap-1.5 rounded-control px-4 text-white/80 ring-1 ring-white/30 disabled:opacity-60"
+            className="link"
           >
-            <SkipIcon width={18} height={18} />
             {state === "skipped" ? "Skipped" : "Skip"}
           </button>
-          <Link
-            href={`/reader/${item.id}`}
-            className="flex min-h-11 items-center rounded-control px-4 text-white/80 underline underline-offset-4"
-          >
-            Details
+          <Link href={`/reader/${item.id}`} className="link">
+            Details →
           </Link>
         </div>
       </div>
     </section>
   );
 }
+
+const pad = (n: number) => String(n).padStart(2, "0");

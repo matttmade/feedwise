@@ -14,13 +14,13 @@ export function HeroCard({ item, resuming }: { item: CardItem; resuming: boolean
       itemId={item.id}
       title={item.title}
       labelledBy="hero-title"
-      className="card lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
+      className="card lg:grid-12 gap-y-(--s-3)"
     >
       <Link
         href={`/reader/${item.id}`}
         tabIndex={-1}
         aria-hidden="true"
-        className="block lg:min-h-80"
+        className="-mx-(--gutter) block sm:mx-0 lg:col-span-7 lg:min-h-96"
       >
         <CardImage
           item={item}
@@ -30,38 +30,29 @@ export function HeroCard({ item, resuming }: { item: CardItem; resuming: boolean
           fillOnLarge
         />
       </Link>
-      <div className="flex flex-col gap-3 p-5 lg:justify-center lg:p-8">
-        <p className="text-sm font-bold tracking-wide text-accent uppercase">
-          {resuming ? "Pick up where you left off" : "Your next one"}
-        </p>
-        <h2 id="hero-title" className="text-xl leading-tight font-bold">
+      <div className="mt-(--s-3) flex flex-col gap-(--s-3) lg:col-span-5 lg:mt-0 lg:justify-end">
+        <p className="t-label">{resuming ? "Pick up where you left off" : "Your next one"}</p>
+        <h2 id="hero-title" className="t-lead">
           {item.title}
         </h2>
-        <p className="text-muted">
+        <p className="t-label">
           {item.sourceTitle}
           {cost ? ` · ${cost}` : ""}
           {resuming && item.resumePosition > 0
             ? ` · ${Math.round(item.resumePosition * 100)}% done`
             : ""}
         </p>
-        {item.summary && !resuming && <p className="line-clamp-3">{item.summary}</p>}
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Link
-            href={`/reader/${item.id}`}
-            className="flex min-h-12 items-center justify-center rounded-control bg-accent px-6 font-bold text-accent-ink hover:brightness-110"
-          >
-            {resuming ? `Continue ${verb.toLowerCase()}ing` : verb}
+        {item.summary && !resuming && (
+          <p className="line-clamp-3 max-w-[62ch] text-muted">{item.summary}</p>
+        )}
+        <div className="flex flex-wrap items-center gap-x-(--s-4) gap-y-(--s-2)">
+          <Link href={`/reader/${item.id}`} className="btn">
+            {resuming ? `Continue ${verb.toLowerCase()}ing` : verb} →
           </Link>
           {!resuming && (
             <>
-              <KeepButton
-                label="Keep for later"
-                className="flex min-h-12 items-center gap-1.5 rounded-control px-4 font-bold text-keep hover:bg-keep-soft"
-              />
-              <SkipButton
-                label="Not today"
-                className="flex min-h-12 items-center gap-1.5 rounded-control px-4 text-muted hover:bg-surface-2 hover:text-ink"
-              />
+              <KeepButton label="Keep for later" className="link" />
+              <SkipButton label="Not today" className="link" />
             </>
           )}
         </div>

@@ -83,6 +83,8 @@
   --color-rule: var(--rule);
   --color-accent: var(--accent);
   --color-tint: var(--tint);
+  --color-press: var(--press);
+  --color-paper: var(--paper);
   --text-label: var(--t-label);
   --text-body: var(--t-body);
   --text-lead: var(--t-lead);
@@ -147,11 +149,97 @@
 
 /* Repeated card pieces as named utilities: the Board renders dozens of items, and short
    class names keep the streamed HTML (and React's copy of it) small. */
+/* Feed items are image + caption, no box. The class marks them for the board's hover rules. */
 @utility card {
-  @apply overflow-hidden;
+  position: relative;
 }
 @utility card-btn {
-  @apply flex min-h-11 min-w-0 items-center gap-1.5 pr-3 text-ink underline-offset-4 hover:underline;
+  @apply t-label flex min-h-11 min-w-0 items-center pr-(--s-3) underline-offset-4 hover:underline disabled:opacity-45;
+}
+
+/* ── Components (DESIGN.md §7) ─────────────────────────────────────────────── */
+/* A button that needs a container: 1px border, no fill, body type. */
+@utility btn {
+  display: inline-flex;
+  min-height: var(--tap);
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  padding-inline: var(--s-3);
+  border: 1px solid currentColor;
+  transition: opacity var(--dur-1) var(--ease);
+  &:hover {
+    opacity: 0.7;
+  }
+  &:disabled {
+    opacity: 0.45;
+  }
+}
+/* Text button or link: underline whose offset opens on hover. */
+@utility link {
+  display: inline-flex;
+  min-height: var(--tap);
+  align-items: center;
+  gap: var(--s-2);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-underline-offset var(--dur-1) var(--ease);
+  &:hover {
+    text-underline-offset: 7px;
+  }
+  &:disabled {
+    opacity: 0.45;
+  }
+}
+/* Inputs: bottom border only. */
+@utility field {
+  width: 100%;
+  min-height: var(--tap);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  padding: var(--s-2) 0;
+  border-radius: 0;
+  &::placeholder {
+    color: var(--ghost);
+  }
+}
+/* Progress: a 2px line, the accent's one job. */
+@utility meter {
+  appearance: none;
+  height: 2px;
+  border: 0;
+  background: var(--rule);
+  &::-webkit-progress-bar {
+    background: var(--rule);
+  }
+  &::-webkit-progress-value {
+    background: var(--accent);
+  }
+  &::-moz-progress-bar {
+    background: var(--accent);
+  }
+}
+/* Tags and filters: mono caps separated by a middle dot. */
+@utility dots {
+  display: flex;
+  & > li {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  /* The dot trails each item, so a wrapped line never starts with one. */
+  & > li:not(:last-child)::after {
+    content: "·";
+    padding-inline: var(--s-2);
+  }
+}
+/* 12-column page grid on large screens. */
+@utility grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
 }
 @utility img-frame {
   @apply relative aspect-(--ar) overflow-hidden bg-tint;
@@ -163,7 +251,7 @@
   @apply absolute inset-0 h-full w-full scale-110 object-cover blur-lg;
 }
 @utility art {
-  @apply absolute inset-0 flex flex-col justify-between p-4 text-white;
+  @apply absolute inset-0 flex flex-col justify-between p-(--s-3);
 }
 
 html {
@@ -249,7 +337,7 @@ html[data-text="xl"] {
 
 /* Board columns by density: spacious 1/2/3/4 · comfortable 2/3/4/5 · compact 3/4/5/6. */
 .board {
-  column-gap: 1rem;
+  column-gap: var(--gutter);
   column-count: 2;
 }
 @media (min-width: 640px) {
@@ -272,7 +360,6 @@ html[data-density="spacious"] .board {
 }
 html[data-density="compact"] .board {
   column-count: 3;
-  column-gap: 0.75rem;
 }
 @media (min-width: 640px) {
   html[data-density="spacious"] .board {
@@ -298,8 +385,8 @@ html[data-density="compact"] .board {
     column-count: 6;
   }
 }
-html[data-density="compact"] .board .card-btn {
-  font-size: var(--t-label);
+html[data-density="compact"] .board h3 {
+  font-size: var(--t-body);
 }
 
 /* ── Motion: lean and gray-at-rest (both off at reduced/off motion and in Calm mode) ── */
@@ -345,11 +432,11 @@ html[data-motion="full"]:not([data-calm])
 }
 /* Gray at rest: cards waiting behind the top one are desaturated until they come up. */
 .deck-behind {
-  filter: saturate(0.3);
-  opacity: 0.85;
+  filter: saturate(0);
+  opacity: 0.5;
 }
 @utility deck-btn {
-  @apply flex min-h-16 flex-col items-center justify-center gap-1 rounded-control font-bold disabled:opacity-60;
+  @apply flex min-h-14 items-center underline-offset-4 hover:underline disabled:opacity-45;
 }
 
 /* Mode morph: the same card moves between Board, Swipe and the Reader. Only at full motion. */
@@ -380,13 +467,13 @@ html[data-calm]::view-transition-new(*) {
 
 /* Watch stream: its own snap-scrolling area sized to the screen between header and tab bar. */
 .watch-stream {
-  /* Screen minus mobile header, page title, view switch, filter row and tab bar. */
-  height: calc(100dvh - 14.5rem - var(--bar) - env(safe-area-inset-bottom));
+  /* Screen minus top bar, page title, view switch, filter row and tab bar. */
+  height: calc(100dvh - 15.5rem - var(--bar) - env(safe-area-inset-bottom));
   min-height: 22rem;
 }
 @media (min-width: 1024px) {
   .watch-stream {
-    height: calc(100dvh - 13rem);
+    height: calc(100dvh - 19rem);
   }
 }
 .watch-slide {

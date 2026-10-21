@@ -8,7 +8,7 @@ import type { CardItem } from "@/lib/data/feed";
 import { costLabel } from "@/lib/feed/select";
 import { CardImage } from "@/components/cards/card-image";
 import { useSwipe } from "@/components/motion/use-swipe";
-import { ArrowUpIcon, BookmarkIcon, CheckIcon, SkipIcon } from "@/components/ui/icons";
+import { Finish } from "@/components/ui/finish";
 
 export const DECK_SIZE = 10;
 
@@ -106,11 +106,8 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
   if (!queue.length) {
     return (
       <Summary title="Nothing new to swipe. You're caught up." done={[]}>
-        <Link
-          href="/today"
-          className="min-h-12 rounded-control bg-keep px-5 py-3 font-bold text-white"
-        >
-          Back to Today
+        <Link href="/today" className="link">
+          Back to Today →
         </Link>
       </Summary>
     );
@@ -127,15 +124,12 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
               setWantNext(true);
               router.refresh();
             }}
-            className="min-h-12 rounded-control bg-keep px-5 font-bold text-white"
+            className="btn"
           >
-            Another set
+            Another set →
           </button>
         )}
-        <Link
-          href="/today"
-          className="flex min-h-12 items-center rounded-control px-4 font-bold text-keep underline underline-offset-4"
-        >
+        <Link href="/today" className="link">
           Back to Today
         </Link>
       </Summary>
@@ -146,28 +140,23 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
   const cost = costLabel(card);
 
   return (
-    <section aria-labelledby="deck-title" className="mx-auto mt-4 flex max-w-md flex-col gap-3">
-      <div className="flex items-center gap-3 text-sm text-muted">
+    <section aria-labelledby="deck-title" className="mx-auto mt-(--s-4) flex max-w-md flex-col">
+      <div className="t-label flex items-center gap-(--s-3)">
+        <span>
+          {pad(index + 1)} / {pad(queue.length)}
+        </span>
         <progress
           value={index}
           max={queue.length}
           aria-label="Set progress"
-          className="h-2 flex-1 overflow-hidden rounded-full [&::-moz-progress-bar]:bg-accent [&::-webkit-progress-bar]:bg-surface-2 [&::-webkit-progress-value]:bg-accent"
+          className="meter flex-1"
         />
-        <span>
-          {index + 1} of {queue.length}
-          <span className="sm:hidden"> · swipe, hold or tap</span>
-        </span>
+        <span className="sm:hidden">Swipe, hold or tap</span>
       </div>
-      <p role="status" aria-live="polite" className="flex min-h-11 items-center gap-2 text-muted">
+      <p role="status" aria-live="polite" className="flex min-h-11 items-center gap-(--s-3)">
         {message}
         {message && done.at(-1)?.snapshot && message !== "Undone. It's back on top." && (
-          <button
-            type="button"
-            onClick={undo}
-            disabled={undoing}
-            className="min-h-11 rounded-control px-2 font-bold text-accent underline underline-offset-4"
-          >
+          <button type="button" onClick={undo} disabled={undoing} className="link">
             Undo
           </button>
         )}
@@ -179,7 +168,7 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
             <div
               key={b.id}
               aria-hidden="true"
-              className="deck-behind card absolute inset-x-0 top-0"
+              className="deck-behind absolute inset-x-0 top-0"
               style={{
                 transform: `translateY(${(i + 1) * 10}px) scale(${1 - (i + 1) * 0.04})`,
                 zIndex: 2 - i,
@@ -189,7 +178,7 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
             </div>
           ))
           .reverse()}
-        <div key={card.id} ref={swipeRef} className="swipe-card card relative z-10">
+        <div key={card.id} ref={swipeRef} className="swipe-card relative z-10 bg-ground">
           <ViewTransition name={`card-${card.id}`} share="morph" default="none">
             <div>
               <CardImage
@@ -200,12 +189,12 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
               />
             </div>
           </ViewTransition>
-          <div className="flex flex-col gap-2 p-4">
-            <p className="text-sm text-muted">
+          <div className="flex flex-col gap-(--s-2) pt-(--s-3) pb-(--s-2)">
+            <p className="t-label">
               {card.sourceTitle}
               {cost ? ` · ${cost}` : ""}
             </p>
-            <h2 id="deck-title" className="line-clamp-3 text-xl leading-snug font-bold">
+            <h2 id="deck-title" className="t-lead line-clamp-3">
               {card.title}
             </h2>
             {card.summary && (
@@ -217,7 +206,7 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
 
       {/* On phones the buttons stay just above the tab bar, in thumb reach, whatever the card's height. */}
       <div
-        className="sticky bottom-[calc(var(--bar)+env(safe-area-inset-bottom)+8px)] z-20 mt-3 grid grid-cols-3 gap-2 rounded-card bg-bg/90 p-1 backdrop-blur lg:static lg:bg-transparent lg:p-0"
+        className="sticky bottom-[calc(var(--bar)+env(safe-area-inset-bottom))] z-20 grid grid-cols-3 border-y border-rule bg-ground lg:static"
         role="group"
         aria-label="What to do with this card"
       >
@@ -226,32 +215,29 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
           onClick={() => act("skip")}
           disabled={undoing}
           aria-keyshortcuts="ArrowLeft X"
-          className="deck-btn bg-surface-2 text-muted"
+          className="deck-btn justify-start"
         >
-          <SkipIcon className="rotate-180" />
-          Skip
+          ← Skip
         </button>
         <button
           type="button"
           onClick={() => act("open")}
           aria-keyshortcuts="ArrowUp Enter"
-          className="deck-btn bg-accent-soft text-accent"
+          className="deck-btn justify-center"
         >
-          <ArrowUpIcon />
-          Open
+          ↑ Open
         </button>
         <button
           type="button"
           onClick={() => act("keep")}
           disabled={undoing}
           aria-keyshortcuts="ArrowRight K"
-          className="deck-btn bg-keep text-white"
+          className="deck-btn justify-end"
         >
-          <BookmarkIcon />
-          Keep
+          Keep →
         </button>
       </div>
-      <p className="text-center text-sm text-muted max-sm:hidden">
+      <p className="t-label mt-(--s-3) text-muted max-sm:hidden">
         Swipe right to keep, left to skip, up to open — or hold to keep. Keys: ← → ↑
       </p>
     </section>
@@ -274,15 +260,12 @@ function Summary({
     count("open") && `${count("open")} opened`,
   ].filter(Boolean);
   return (
-    <section className="mx-auto mt-6 flex max-w-md flex-col items-start gap-3 rounded-card bg-keep-soft p-6">
-      <span className="grid size-12 place-items-center rounded-full bg-keep text-white">
-        <CheckIcon />
-      </span>
-      <h2 className="text-xl font-bold">{title}</h2>
+    <Finish title={title}>
       {parts.length > 0 && <p>{parts.join(" · ")}. Kept ones will come back in Review.</p>}
-      <div className="flex flex-wrap gap-2">{children}</div>
-    </section>
+      <div className="flex flex-wrap items-center gap-x-(--s-4)">{children}</div>
+    </Finish>
   );
 }
 
+const pad = (n: number) => String(n).padStart(2, "0");
 const short = (t: string) => (t.length > 40 ? `${t.slice(0, 38)}…` : t);

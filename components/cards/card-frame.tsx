@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import { BookmarkIcon, SkipIcon } from "@/components/ui/icons";
 import { useSwipe } from "@/components/motion/use-swipe";
 import { shortcutHandler, useItemActions } from "./use-item-actions";
 
@@ -58,7 +57,6 @@ export function KeepButton({ className, label = "Keep" }: { className: string; l
       aria-keyshortcuts="K"
       className={className}
     >
-      <BookmarkIcon width={18} height={18} />
       {label}
     </button>
   );
@@ -74,7 +72,6 @@ export function SkipButton({ className, label = "Skip" }: { className: string; l
       aria-keyshortcuts="X"
       className={className}
     >
-      <SkipIcon width={18} height={18} />
       {label}
     </button>
   );

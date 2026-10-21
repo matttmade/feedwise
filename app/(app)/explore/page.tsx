@@ -9,14 +9,14 @@ import { ItemCard } from "@/components/cards/item-card";
 import { LeanBoard } from "@/components/motion/lean-board";
 import { SwipeDeck } from "@/components/modes/swipe-deck";
 import { WatchStream } from "@/components/modes/watch-stream";
-import { CheckIcon } from "@/components/ui/icons";
+import { Finish } from "@/components/ui/finish";
 
 export const metadata: Metadata = { title: "Explore" };
 
 export default function ExplorePage({ searchParams }: PageProps<"/explore">) {
   return (
     <>
-      <h1 className="pt-2 text-2xl font-bold lg:pt-0">Explore</h1>
+      <h1 className="t-display">Explore</h1>
       <Suspense fallback={<BoardSkeleton />}>
         <Board searchParams={searchParams} />
       </Suspense>
@@ -83,15 +83,15 @@ async function Board({ searchParams }: { searchParams: PageProps<"/explore">["se
 
   return (
     <>
-      <nav aria-label="View" className="mt-4">
-        <ul className="inline-flex rounded-control bg-surface-2 p-1">
+      <nav aria-label="View" className="mt-(--s-3)">
+        <ul className="flex gap-(--s-4)">
           {MODES.map((m) => (
             <li key={m.id}>
               <Link
                 href={href({ topic, source, time, mode: m.id })}
                 aria-current={mode === m.id ? "page" : undefined}
-                className={`flex min-h-11 items-center rounded-control px-4 ${
-                  mode === m.id ? "bg-surface font-bold shadow-card" : "text-muted hover:text-ink"
+                className={`flex min-h-11 items-center decoration-1 underline-offset-[6px] hover:underline ${
+                  mode === m.id ? "underline" : ""
                 }`}
               >
                 {m.label}
@@ -100,48 +100,32 @@ async function Board({ searchParams }: { searchParams: PageProps<"/explore">["se
           ))}
         </ul>
       </nav>
-      <nav aria-label="Filter by topic or source" className="mt-3">
-        <ul className="flex gap-2 overflow-x-auto pb-2">
-          {tabs.map((t) => (
-            <li key={t.key} className="shrink-0">
-              <Link
-                href={t.href}
-                prefetch={false}
-                aria-current={t.active ? "page" : undefined}
-                className={`flex min-h-11 items-center rounded-full border px-4 whitespace-nowrap ${
-                  t.active
-                    ? "border-ink bg-ink font-bold text-bg"
-                    : "border-line bg-surface hover:border-ink"
-                }`}
-              >
-                {t.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-      {mode !== "watch" && (
-        <nav aria-label="Filter by time" className="mt-2">
-          <ul className="flex flex-wrap gap-2">
-            {TIME_CHIPS.map((c) => (
-              <li key={c.id}>
-                <Link
-                  href={href({ topic, source, time: c.id })}
-                  prefetch={false}
-                  aria-current={time === c.id ? "page" : undefined}
-                  className={`flex min-h-11 items-center rounded-control px-3 text-sm ${
-                    time === c.id
-                      ? "bg-accent-soft font-bold text-accent"
-                      : "text-muted hover:bg-surface-2"
-                  }`}
-                >
-                  {c.label}
-                </Link>
+      <div className="border-y border-rule">
+        <nav aria-label="Filter by topic or source">
+          <ul className="dots t-label -mx-(--gutter) overflow-x-auto px-(--gutter)">
+            {tabs.map((t) => (
+              <li key={t.key}>
+                <FilterLink href={t.href} active={t.active}>
+                  {t.label}
+                </FilterLink>
               </li>
             ))}
           </ul>
         </nav>
-      )}
+        {mode !== "watch" && (
+          <nav aria-label="Filter by time" className="border-t border-rule">
+            <ul className="dots t-label flex-wrap">
+              {TIME_CHIPS.map((c) => (
+                <li key={c.id}>
+                  <FilterLink href={href({ topic, source, time: c.id })} active={time === c.id}>
+                    {c.label}
+                  </FilterLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </div>
 
       {mode === "swipe" ? (
         <SwipeDeck items={items} more={more} />
@@ -150,11 +134,12 @@ async function Board({ searchParams }: { searchParams: PageProps<"/explore">["se
       ) : (
         <>
           <h2 className="sr-only">Posts</h2>
-          <LeanBoard className="board mt-6">
+          <LeanBoard className="board mt-(--s-5)">
             {items.map((item, i) => (
               <ItemCard
                 key={item.id}
                 item={item}
+                index={i}
                 priority={eager.has(i)}
                 morph
                 sizes="(min-width: 1536px) 18vw, (min-width: 1024px) 21vw, (min-width: 640px) 30vw, 44vw"
@@ -169,6 +154,29 @@ async function Board({ searchParams }: { searchParams: PageProps<"/explore">["se
         </>
       )}
     </>
+  );
+}
+
+function FilterLink({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      prefetch={false}
+      aria-current={active ? "page" : undefined}
+      className={`flex min-h-11 items-center whitespace-nowrap decoration-1 underline-offset-4 hover:underline ${
+        active ? "underline" : ""
+      }`}
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -188,26 +196,17 @@ function CaughtUp({ shown, more, filtered }: { shown: number; more: number; filt
         ? `${more} more are waiting. Pick a topic or length to see different ones — there's no rush.`
         : "That's everything new from your sources. Fresh posts arrive through the day.";
   return (
-    <section className="mt-4 flex items-start gap-4 rounded-card bg-keep-soft p-6">
-      <span className="grid size-11 shrink-0 place-items-center rounded-full bg-keep text-white">
-        <CheckIcon />
-      </span>
-      <div>
-        <h2 className="text-lg font-bold">{title}</h2>
-        <p className="mt-1">{body}</p>
-      </div>
-    </section>
+    <Finish title={title}>
+      <p>{body}</p>
+    </Finish>
   );
 }
 
 function BoardSkeleton() {
   return (
-    <div
-      aria-hidden="true"
-      className="mt-6 animate-pulse columns-2 gap-4 sm:columns-3 lg:columns-4"
-    >
+    <div aria-hidden="true" className="board mt-(--s-5) animate-pulse">
       {[220, 160, 260, 180, 240, 200, 170, 230].map((h, i) => (
-        <div key={i} className="mb-4 rounded-card bg-surface-2" style={{ height: h }} />
+        <div key={i} className="mb-(--s-5) bg-tint" style={{ height: h }} />
       ))}
     </div>
   );

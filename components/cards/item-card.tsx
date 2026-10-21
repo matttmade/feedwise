@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ViewTransition } from "react";
 import type { CardItem } from "@/lib/data/feed";
 import { costLabel } from "@/lib/feed/select";
-import { PlayIcon } from "@/components/ui/icons";
 import { CardFrame, KeepButton, SkipButton } from "./card-frame";
 import { CardImage } from "./card-image";
 
@@ -14,18 +13,22 @@ type Props = {
   priority?: boolean;
   /** Name the image so it morphs into the same card in Swipe or the Reader. Unique per page. */
   morph?: boolean;
+  /** Position in the set, shown zero-padded like a catalogue number. */
+  index?: number;
 };
 
-/** A feed item: image first, a short label, the cost, and Keep / Skip. */
+/** A feed item: image first, then a caption: number, source and cost, title, Keep / Skip. */
 export function ItemCard({
   item,
   sizes,
   layout = "board",
   priority = false,
   morph = false,
+  index,
 }: Props) {
   const href = `/reader/${item.id}`;
   const cost = costLabel(item);
+  const meta = item.type === "video" && cost && cost !== "Video" ? `Video ${cost}` : cost;
   const titleId = `t-${item.id}`;
 
   return (
@@ -35,8 +38,8 @@ export function ItemCard({
       labelledBy={titleId}
       className={
         layout === "board"
-          ? "card relative mb-4 break-inside-avoid"
-          : "card relative grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:block"
+          ? "card relative mb-(--s-5) break-inside-avoid"
+          : "card relative grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-x-(--s-3) sm:block"
       }
     >
       <div className="relative">
@@ -54,27 +57,27 @@ export function ItemCard({
             priority={priority}
           />
         )}
-        {item.type === "video" && (
-          <span className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-1 text-sm text-white">
-            <PlayIcon width={14} height={14} />
-            {cost ?? "Video"}
-          </span>
-        )}
       </div>
-      <div className="flex flex-col gap-2 p-3 sm:p-4">
-        <p className="text-sm text-muted">
+      <div className="flex flex-col pt-(--s-2) sm:pt-(--s-3)">
+        <p className="t-label">
+          {index !== undefined && (
+            <span className="mr-(--s-2)">{String(index + 1).padStart(2, "0")}</span>
+          )}
           {item.sourceTitle}
-          {cost && item.type !== "video" ? ` · ${cost}` : ""}
+          {meta ? ` · ${meta}` : ""}
         </p>
-        <h3 id={titleId} className="line-clamp-3 text-base leading-snug font-bold">
+        <h3 id={titleId} className="t-lead mt-(--s-1) line-clamp-3">
           {/* One link per card, stretched over the whole card; the buttons sit above it. */}
-          <Link href={href} className="after:absolute after:inset-0 hover:underline">
+          <Link
+            href={href}
+            className="decoration-1 underline-offset-4 after:absolute after:inset-0 hover:underline"
+          >
             {item.title}
           </Link>
         </h3>
-        <div className="relative z-10 mt-1 flex gap-2">
-          <KeepButton className="card-btn bg-keep-soft font-bold text-keep" />
-          <SkipButton className="card-btn bg-surface-2 text-muted hover:text-ink" />
+        <div className="relative z-10 flex">
+          <KeepButton className="card-btn" />
+          <SkipButton className="card-btn" />
         </div>
       </div>
     </CardFrame>
