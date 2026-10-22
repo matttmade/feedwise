@@ -47,6 +47,24 @@ async function hold(el: Locator, ms = 700) {
   }, ms);
 }
 
+/** Wait for any view transition to end: the page is a snapshot (not tappable) meanwhile. */
+const settle = (page: Page) =>
+  page
+    .waitForFunction(
+      () =>
+        !(document as Document & { activeViewTransition?: unknown }).activeViewTransition &&
+        !document
+          .getAnimations()
+          .some(
+            (a) =>
+              a.playState === "running" &&
+              String((a as CSSAnimation).animationName ?? "").includes("view-transition"),
+          ),
+      null,
+      { timeout: 5000 },
+    )
+    .then(() => page.waitForTimeout(100));
+
 const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
 const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
 await ctx.addCookies(cookies);
@@ -94,6 +112,7 @@ await p.getByText("Saved.").waitFor();
 // 2. Board gestures: drag left hides, press-and-hold keeps; both undoable.
 await p.goto(`${BASE}/explore`);
 await p.waitForLoadState("networkidle");
+await settle(p);
 const first = p.locator(".board article").first();
 const t1 = await first.locator("h3").innerText();
 await drag(p, first, -260);
@@ -127,6 +146,7 @@ log("lean while scrolling:", during.toFixed(3), "→ settled:", after);
 // 4. Swipe deck: drag, keys, undo, buttons, summary.
 await p.goto(`${BASE}/explore?mode=swipe`);
 await p.waitForLoadState("networkidle");
+await settle(p);
 await p.getByText(/^01 \/ \d+/).waitFor();
 const deckSize = Number((await p.getByText(/^01 \/ \d+/).innerText()).match(/\/ (\d+)/)![1]);
 await drag(p, p.locator(".swipe-card"), 300);
@@ -153,6 +173,7 @@ log(
 sql("delete from user_items where state in ('kept', 'skipped')");
 await p.goto(`${BASE}/explore?mode=watch`);
 await p.waitForLoadState("networkidle");
+await settle(p);
 const slides = await p.locator(".watch-slide[data-id]").count();
 log(
   "watch slides:",
@@ -191,6 +212,7 @@ log(
 
 await p.goto(`${BASE}/explore?mode=swipe`);
 await p.waitForLoadState("networkidle");
+await settle(p);
 await p.screenshot({ path: "audit-output/p3-swipe-390.png" });
 await p.goto(`${BASE}/settings`);
 await p.screenshot({ path: "audit-output/p3-settings-390.png", fullPage: true });

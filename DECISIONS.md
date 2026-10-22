@@ -88,6 +88,33 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
 
     It's full motion only. Otherwise, or without WebGL, the `<img>` shows as before. The Reader's image is now edge to edge so the dive lands on it.
 
+- **2026-10-22 · Third pass: a richer home, depth and transitions** (Matt: more content, the dynamic sections, intros and outros between pages, tiles that don't all move as one).
+  - **Limits raised:** fresh means the last 30 days (was 14), and the board shows 24 (was 16). The daily set stays 3–5.
+  - **The home deals a pool of up to 150 fresh items into sections, each engaged differently:**
+    - count-up stats
+    - Recall
+    - the lead story
+    - the rest of today's set
+    - an inline keep-or-skip stack (swipe or tap, undoable)
+    - quick reads and videos to swipe
+    - "From your sources" (newest from each, as an index)
+    - a resurfaced highlight that changes daily
+    - topic tabs
+    - long reads for later
+    - Continue
+    - a finish
+
+    No item appears in two of the main sections (`lib/feed/home.ts`, tested).
+  - **Per-tile scroll depth** (`components/motion/depth-stage.tsx`) follows the GSAP ScrollSmoother `data-speed` / `data-lag` and Codrops "Elastic Grid Scroll" patterns, but on native scroll: tiles get their own parallax speed and lag via `translate`.
+    - Explore's columns use "auto" lag, so edges trail the centre (measured: about 60px at the centre, 120px at the edges mid-scroll).
+    - Index rows cascade.
+    - Full motion only.
+  - **Transitions:** pages exit (lift, blur) and enter (rise) through React `<ViewTransition>`. Loading placeholders sink as content rises. No Next config is needed.
+    - The view transitions stay at 450ms or less, because the page is a snapshot and can't be tapped while they run. An earlier 900ms version blocked drags right after load.
+    - The longer intro runs on the live page afterwards: the masthead rising out of a mask, staggered rises, and WebGL image wipes.
+  - **Images inside rotated or dragged cards** (the keep-or-skip stack, the Swipe deck) stay plain `<img>`. The WebGL layer can't follow their rotation.
+  - **Axe on Explore** can flag contrast on cards still flying in at the bottom edge, because they're partly transparent mid-animation. They settle at full ink.
+
 ## Waiting on Matt
 
 - A source of YouTube durations (Data API key or a watch-page fetch). Cards show "Video" until then.

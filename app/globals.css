@@ -525,12 +525,15 @@ html[data-motion="full"]:not([data-calm])
   animation-timing-function: var(--ease);
 }
 
+/* While a view transition runs the page is a snapshot and can't be tapped, so the
+   transitions themselves stay short (≤ 450ms). The longer, richer intro (masked titles,
+   staggered rises, image wipes) runs on the live page afterwards and never blocks input. */
 /* Page outro and intro: the old page lifts away and blurs, the new one rises in. */
 ::view-transition-old(.page-out) {
-  animation: page-out var(--dur-2) var(--ease) both;
+  animation: page-out var(--dur-1) var(--ease) both;
 }
 ::view-transition-new(.page-in) {
-  animation: page-in var(--dur-3) var(--ease) both;
+  animation: page-in var(--dur-2) var(--ease) both;
 }
 @keyframes page-out {
   to {
@@ -551,7 +554,7 @@ html[data-motion="full"]:not([data-calm])
   animation: load-out var(--dur-1) var(--ease) both;
 }
 ::view-transition-new(.load-in) {
-  animation: page-in var(--dur-3) var(--ease) both;
+  animation: page-in var(--dur-2) var(--ease) both;
 }
 @keyframes load-out {
   to {

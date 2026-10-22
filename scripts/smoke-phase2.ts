@@ -167,7 +167,7 @@ log(
 );
 await p.goto(`${BASE}/library`);
 const keptBefore = await p.getByRole("heading", { name: /^Kept/ }).innerText();
-await p.locator("main li").first().getByRole("button", { name: "Remove" }).click();
+await p.locator("main section li").first().getByRole("button", { name: "Remove" }).click();
 await p.getByRole("status").getByText("Removed from your Library.").waitFor();
 await p.getByRole("button", { name: "Undo" }).click();
 await p.getByRole("status").getByText("Undone.").waitFor();
