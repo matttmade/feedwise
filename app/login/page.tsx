@@ -63,5 +63,10 @@ function guestProblem(reason: string): string {
       "Supabase is asking for a captcha. Turn off CAPTCHA protection under Authentication → Attack Protection.",
     over_request_rate_limit: "Too many guest sessions from this network. Try again in an hour.",
   };
-  return `The guest preview didn't start. ${fix[reason] ?? `Supabase said: ${reason || "unknown error"}.`}`;
+  let project = "unknown";
+  try {
+    project = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname.split(".")[0];
+  } catch {}
+  const why = fix[reason] ?? `Supabase said: ${reason || "unknown error"}.`;
+  return `The guest preview didn't start. ${why} Supabase project in use: ${project}.`;
 }
