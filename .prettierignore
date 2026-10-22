@@ -3,3 +3,5 @@ tests/fixtures/
 spike-output/
 .next/
 *.md
+lib/supabase/database.types.ts
+audit-output/

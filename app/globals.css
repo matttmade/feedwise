@@ -1,26 +1,593 @@
 @import "tailwindcss";
 
+/* ── Design tokens (DESIGN.md §3, Quiet Editorial) ──────────────────────────
+   Few families, few sizes, one ground, one ink, one accent. Ground follows the OS:
+   paper in light, press in dark. Grays are opacity of the ink, never new hues. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Color — warm, never pure #000/#fff */
+  --press: #0b0a09;
+  --ink: #1a1917;
+  --paper: #f3f1ea;
+  --muted: color-mix(in srgb, currentColor 45%, transparent); /* non-essential text only */
+  --ghost: color-mix(in srgb, currentColor 20%, transparent);
+  --rule: color-mix(in srgb, currentColor 14%, transparent);
+  --accent: #c53633; /* one job: progress and live state */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* The page's ground and the ink on it. */
+  --ground: var(--paper);
+  --fg: var(--ink);
+  /* Media waiting to load: a faint tint of the ink. */
+  --tint: color-mix(in srgb, var(--fg) 7%, var(--ground));
+
+  /* Type scale — 4 steps + label. Body runs 15–17px (larger than DESIGN's 13–15, see
+     DECISIONS.md); the Reader's prose is larger still. */
+  --t-label: 0.6875rem;
+  --t-body: clamp(0.9375rem, 0.9rem + 0.15vw, 1.0625rem);
+  --t-lead: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  --t-display: clamp(2.25rem, 1.2rem + 4.5vw, 5.5rem);
+  --t-reader: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+
+  --lh-tight: 0.92;
+  --lh-snug: 1.1;
+  --lh-text: 1.32;
+  --lh-reader: 1.55;
+  --tr-display: -0.02em;
+  --tr-text: -0.005em;
+  --tr-label: 0.2em;
+
+  /* Space — 4px base, used sparingly at large steps */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 16px;
+  --s-4: 24px;
+  --s-5: 48px;
+  --s-6: 96px;
+  --s-7: 160px;
+  --gutter: clamp(16px, 2.5vw, 32px);
+
+  /* Shape & motion */
+  --radius: 0;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-1: 200ms;
+  --dur-2: 450ms;
+  --dur-3: 900ms;
+
+  /* Chrome */
+  --tap: 44px;
+  --top: 56px;
+  --bar: 56px;
+
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --ground: var(--press);
+    --fg: var(--paper);
+    color-scheme: dark;
   }
 }
 
+@theme {
+  --font-display: var(--font-newsreader), "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-text: var(--font-inter-tight), "Inter Tight", ui-sans-serif, -apple-system, sans-serif;
+  --font-sans: var(--font-inter-tight), "Inter Tight", ui-sans-serif, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, Menlo, monospace;
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-ink: var(--fg);
+  --color-muted: var(--muted);
+  --color-ghost: var(--ghost);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+  --color-tint: var(--tint);
+  --color-press: var(--press);
+  --color-paper: var(--paper);
+  --text-label: var(--t-label);
+  --text-body: var(--t-body);
+  --text-lead: var(--t-lead);
+  --text-display: var(--t-display);
+  --ease-calm: var(--ease);
+}
+
+/* ── Type roles (DESIGN.md §4) ─────────────────────────────────────────────── */
+@utility t-display {
+  font-family: var(--font-display);
+  font-size: var(--t-display);
+  font-weight: 300;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-display);
+  text-wrap: balance;
+}
+@utility t-lead {
+  font-family: var(--font-display);
+  font-size: var(--t-lead);
+  font-weight: 350;
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tr-text);
+  text-wrap: balance;
+}
+@utility t-body {
+  font-family: var(--font-text);
+  font-size: var(--t-body);
+  font-weight: 400;
+  line-height: var(--lh-text);
+  letter-spacing: var(--tr-text);
+}
+@utility t-label {
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 400;
+  line-height: var(--lh-text);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Repeated card pieces as named utilities: the Board renders dozens of items, and short
+   class names keep the streamed HTML (and React's copy of it) small. */
+/* Feed items are image + caption, no box. The class marks them for the board's hover rules. */
+@utility card {
+  position: relative;
+}
+@utility card-btn {
+  @apply t-label flex min-h-11 min-w-0 items-center pr-(--s-3) underline-offset-4 hover:underline disabled:opacity-45;
+}
+
+/* ── Components (DESIGN.md §7) ─────────────────────────────────────────────── */
+/* A button that needs a container: 1px border, no fill, body type. */
+@utility btn {
+  display: inline-flex;
+  min-height: var(--tap);
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  padding-inline: var(--s-3);
+  border: 1px solid currentColor;
+  transition: opacity var(--dur-1) var(--ease);
+  &:hover {
+    opacity: 0.7;
+  }
+  &:disabled {
+    opacity: 0.45;
+  }
+}
+/* Text button or link: underline whose offset opens on hover. */
+@utility link {
+  display: inline-flex;
+  min-height: var(--tap);
+  align-items: center;
+  gap: var(--s-2);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-underline-offset var(--dur-1) var(--ease);
+  &:hover {
+    text-underline-offset: 7px;
+  }
+  &:disabled {
+    opacity: 0.45;
+  }
+}
+/* Inputs: bottom border only. */
+@utility field {
+  width: 100%;
+  min-height: var(--tap);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  padding: var(--s-2) 0;
+  border-radius: 0;
+  &::placeholder {
+    color: var(--ghost);
+  }
+}
+/* Progress: a 2px line, the accent's one job. */
+@utility meter {
+  appearance: none;
+  height: 2px;
+  border: 0;
+  background: var(--rule);
+  &::-webkit-progress-bar {
+    background: var(--rule);
+  }
+  &::-webkit-progress-value {
+    background: var(--accent);
+  }
+  &::-moz-progress-bar {
+    background: var(--accent);
+  }
+}
+/* Tags and filters: mono caps separated by a middle dot. */
+@utility dots {
+  display: flex;
+  & > * {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  /* The dot trails each item, so a wrapped line never starts with one. */
+  & > :not(:last-child)::after {
+    content: "·";
+    padding-inline: var(--s-2);
+  }
+}
+/* 12-column page grid on large screens. */
+@utility grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+}
+@utility img-frame {
+  @apply relative aspect-(--ar) overflow-hidden bg-tint;
+}
+@utility img-fill {
+  @apply absolute inset-0 h-full w-full object-cover;
+}
+@utility img-blur {
+  @apply absolute inset-0 h-full w-full scale-110 object-cover blur-lg;
+}
+@utility art {
+  @apply absolute inset-0 flex flex-col justify-between p-(--s-3);
+}
+
+html {
+  /* Keep focused or scrolled-to elements clear of the fixed tab bar / sticky reader header (WCAG 2.4.11). */
+  scroll-padding-top: 72px;
+  scroll-padding-bottom: calc(var(--bar) + env(safe-area-inset-bottom) + 16px);
+  background: var(--ground);
+  color: var(--fg);
+  -webkit-text-size-adjust: 100%;
+  hanging-punctuation: first;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ground);
+  color: var(--fg);
+  font-family: var(--font-text);
+  font-size: var(--t-body);
+  line-height: var(--lh-text);
+  letter-spacing: var(--tr-text);
+  font-optical-sizing: auto;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+/* Buttons take the case of the label they sit in (the reset sets none). In the base
+   layer so utilities like t-label still win. */
+@layer base {
+  button {
+    text-transform: inherit;
+  }
+}
+p,
+li {
+  text-wrap: pretty;
+}
+em {
+  font-family: var(--font-display);
+  font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Visible, consistent focus everywhere: 1px of ink, set off from the element. */
+:focus-visible {
+  outline: 1px solid var(--fg);
+  outline-offset: 3px;
+}
+
+/* Non-essential motion only runs when the user hasn't asked for less (OS or Calm mode). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+html[data-calm] *,
+html[data-calm] *::before,
+html[data-calm] *::after,
+html[data-motion="off"] *,
+html[data-motion="off"] *::before,
+html[data-motion="off"] *::after {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ── Dials from Settings (data-* set on <html> before paint) ───────────────── */
+
+/* Text size scales everything sized in rem, which is everything. */
+html[data-text="sm"] {
+  font-size: 93.75%;
+}
+html[data-text="lg"] {
+  font-size: 112.5%;
+}
+html[data-text="xl"] {
+  font-size: 125%;
+}
+
+/* Board columns by density: spacious 1/2/3/4 · comfortable 2/3/4/5 · compact 3/4/5/6. */
+.board {
+  column-gap: var(--gutter);
+  column-count: 2;
+}
+@media (min-width: 640px) {
+  .board {
+    column-count: 3;
+  }
+}
+@media (min-width: 1024px) {
+  .board {
+    column-count: 4;
+  }
+}
+@media (min-width: 1536px) {
+  .board {
+    column-count: 5;
+  }
+}
+html[data-density="spacious"] .board {
+  column-count: 1;
+}
+html[data-density="compact"] .board {
+  column-count: 3;
+}
+@media (min-width: 640px) {
+  html[data-density="spacious"] .board {
+    column-count: 2;
+  }
+  html[data-density="compact"] .board {
+    column-count: 4;
+  }
+}
+@media (min-width: 1024px) {
+  html[data-density="spacious"] .board {
+    column-count: 3;
+  }
+  html[data-density="compact"] .board {
+    column-count: 5;
+  }
+}
+@media (min-width: 1536px) {
+  html[data-density="spacious"] .board {
+    column-count: 4;
+  }
+  html[data-density="compact"] .board {
+    column-count: 6;
+  }
+}
+html[data-density="compact"] .board h3 {
+  font-size: var(--t-body);
+}
+
+/* ── Motion: lean and gray-at-rest (both off at reduced/off motion and in Calm mode) ── */
+.board > * {
+  transform: skewY(calc(var(--lean, 0) * 1.5deg));
+}
+html[data-motion="full"]:not([data-calm])
+  .board:has(.card:hover, .card:focus-within)
+  .card:not(:hover, :focus-within) {
+  filter: saturate(0.55);
+  opacity: 0.7;
+}
+.board .card {
+  transition:
+    filter var(--dur-1) var(--ease),
+    opacity var(--dur-1) var(--ease);
+}
+
+/* Enter: fade and a short rise. Under reduced motion or Calm mode the global rules above cut it. */
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* Cards you can swipe: keep vertical scrolling native, no text selection or image menu on hold. */
+.swipeable {
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* Swipe deck */
+.swipe-card {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+  cursor: grab;
+}
+.swipe-card:active {
+  cursor: grabbing;
+}
+/* Gray at rest: cards waiting behind the top one are desaturated until they come up. */
+.deck-behind {
+  filter: saturate(0);
+  opacity: 0.5;
+}
+@utility deck-btn {
+  @apply flex min-h-14 items-center underline-offset-4 hover:underline disabled:opacity-45;
+}
+
+/* Mode morph: the same card moves between Board, Swipe and the Reader. Only at full motion. */
+::view-transition-group(.morph) {
+  animation-duration: var(--dur-2);
+  animation-timing-function: var(--ease);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--dur-1);
+  animation-timing-function: var(--ease);
+}
+html:not([data-motion="full"])::view-transition-group(*),
+html:not([data-motion="full"])::view-transition-old(*),
+html:not([data-motion="full"])::view-transition-new(*),
+html[data-calm]::view-transition-group(*),
+html[data-calm]::view-transition-old(*),
+html[data-calm]::view-transition-new(*) {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Watch stream: its own snap-scrolling area sized to the screen between header and tab bar. */
+.watch-stream {
+  /* Screen minus top bar, page title, view switch, filter row and tab bar. */
+  height: calc(100dvh - 15.5rem - var(--bar) - env(safe-area-inset-bottom));
+  min-height: 22rem;
+}
+@media (min-width: 1024px) {
+  .watch-stream {
+    height: calc(100dvh - 19rem);
+  }
+}
+.watch-slide {
+  height: 100%;
+  scroll-snap-stop: always;
+}
+
+/* Reader typography for sanitised article HTML: the one place body type runs larger. */
+.prose-reader {
+  font-size: var(--t-reader);
+  line-height: var(--lh-reader);
+  overflow-wrap: anywhere;
+  max-width: 62ch;
+}
+.prose-reader > * + * {
+  margin-top: 1em;
+}
+.prose-reader h1,
+.prose-reader h2,
+.prose-reader h3,
+.prose-reader h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tr-text);
+  margin-top: 2em;
+}
+.prose-reader h2,
+.prose-reader h1 {
+  font-size: var(--t-lead);
+}
+.prose-reader h3,
+.prose-reader h4 {
+  font-size: 1em;
+  font-family: var(--font-text);
+  font-weight: 600;
+}
+.prose-reader strong,
+.prose-reader b {
+  font-weight: 600;
+}
+.prose-reader a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.prose-reader img,
+.prose-reader video,
+.prose-reader iframe {
+  max-width: 100%;
+  height: auto;
+}
+.prose-reader figcaption {
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  margin-top: 0.75em;
+}
+.prose-reader blockquote {
+  font-family: var(--font-display);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: var(--lh-snug);
+  padding-left: 1em;
+  border-left: 1px solid var(--rule);
+}
+.prose-reader pre {
+  font-family: var(--font-mono);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 1em 0;
+  overflow-x: auto;
+  font-size: 0.8em;
+}
+.prose-reader code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+.prose-reader ul,
+.prose-reader ol {
+  padding-left: 1.4em;
+}
+.prose-reader ul {
+  list-style: disc;
+}
+.prose-reader ol {
+  list-style: decimal;
+}
+.prose-reader li::marker {
+  font-variant-numeric: tabular-nums;
+}
+.prose-reader table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: var(--t-body);
+  font-variant-numeric: tabular-nums;
+}
+.prose-reader td,
+.prose-reader th {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5em 1em 0.5em 0;
+  text-align: left;
+}
+
+@media (min-width: 1024px) {
+  html {
+    scroll-padding-bottom: 16px;
+  }
+}
+
+/* Added under article images by the Reader's highlighter. */
+.prose-reader .save-image {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--dur-1) var(--ease);
+}
+.prose-reader .save-image:hover {
+  text-decoration: underline;
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
 }

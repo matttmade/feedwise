@@ -9,7 +9,7 @@ Read `BRIEF.md` first. Build phase by phase. **Do not start a phase until the pr
 | Framework | Next.js (App Router) + TypeScript (strict) |
 | Styling | Tailwind CSS + CSS custom-property design tokens |
 | Database / auth / storage | Supabase (Postgres, RLS, Storage) |
-| Hosting + jobs | Vercel; Vercel Cron hits a protected `/api/cron/fetch` route |
+| Hosting + jobs | Vercel; GitHub Actions schedule hits a protected `/api/cron/fetch` route (see DECISIONS.md) |
 | Users | Single user (Matt) in v1; still use Supabase auth (magic link) and RLS so multi-user is a later switch, not a rewrite |
 | Keep action | One tap saves; optional "one thing to remember" note |
 | Spaced repetition | FSRS via `ts-fsrs` |
@@ -51,37 +51,37 @@ RLS on every user table: `user_id = auth.uid()`. Map review buttons: Got it → 
 
 ## Phase 1 — Personal MVP (reading loop)
 
-- [ ] Auth (magic link), app shell, design tokens (light + dark), responsive nav (bottom bar < 1024px, left rail above)
-- [ ] **Sources** screen: add by URL → show detected feeds → confirm; list with health status, mute, rename, topic tags
-- [ ] Cron route: fetch due sources every 2h, enrich, store; per-source error capture; never let one failing feed stop the run
-- [ ] **Today**: hero = one next action; Continue rail; today's batch of 3–5 new items; finish card
-- [ ] **Explore → Board**: 2/3/4–5 column masonry, native aspect ratios, lazy images, topic/source tabs, time chips, "caught up" card
-- [ ] **Reader**: lead image, chunked body, progress bar, resume position saved on scroll (debounced), "Keep" action, link to original
-- [ ] Keep / Skip with one-tap undo toast
-- [ ] Image proxy/resizing for thumbnails; blurred placeholder; branded fallback when no image
-- [ ] Deploy to Vercel
+- [x] Auth (magic link), app shell, design tokens (light + dark), responsive nav (bottom bar < 1024px, left rail above)
+- [x] **Sources** screen: add by URL → show detected feeds → confirm; list with health status, mute, rename, topic tags
+- [x] Cron route: fetch due sources every 2h, enrich, store; per-source error capture; never let one failing feed stop the run
+- [x] **Today**: hero = one next action; Continue rail; today's batch of 3–5 new items; finish card
+- [x] **Explore → Board**: 2/3/4–5 column masonry, native aspect ratios, lazy images, topic/source tabs, time chips, "caught up" card
+- [x] **Reader**: lead image, chunked body, progress bar, resume position saved on scroll (debounced), "Keep" action, link to original
+- [x] Keep / Skip with one-tap undo toast
+- [x] Image proxy/resizing for thumbnails; blurred placeholder; branded fallback when no image
+- [ ] Deploy to Vercel (ready: follow DEPLOY.md; needs Matt's Supabase + Vercel accounts)
 
 **Exit gate:** Matt uses it 5 days in a row. Lighthouse mobile ≥ 90 performance and accessibility. Axe: zero critical issues.
 
 ## Phase 2 — Learn loop
 
-- [ ] Highlight text or image in Reader → creates highlight (+ optional note)
-- [ ] Highlight → card (prompt = cloze or "What was the key idea of …?", answer = highlight/note)
-- [ ] **Review** tab: due-count badge (capped display), recall-first card (prompt → tap reveal → Got it / Shaky / Forgot), FSRS scheduling, finish screen
-- [ ] Today hero switches to "Time to review" when cards are due
-- [ ] **Library**: kept items, highlights, filter by topic, search
-- [ ] Cumulative "days learned" from `activity` (never a streak)
+- [x] Highlight text or image in Reader → creates highlight (+ optional note)
+- [x] Highlight → card (prompt = cloze or "What was the key idea of …?", answer = highlight/note)
+- [x] **Review** tab: due-count badge (capped display), recall-first card (prompt → tap reveal → Got it / Shaky / Forgot), FSRS scheduling, finish screen
+- [x] Today hero switches to "Time to review" when cards are due
+- [x] **Library**: kept items, highlights, filter by topic, search
+- [x] Cumulative "days learned" from `activity` (never a streak)
 
 **Exit gate:** cards return on schedule over 2 weeks; queue never exceeds the cap; nothing in the UI uses loss framing.
 
 ## Phase 3 — Rich modes + craft
 
-- [ ] **Swipe** mode: gesture deck, visible Keep/Skip/Open buttons, keyboard shortcuts, batch of 10 → summary
-- [ ] **Watch** mode: CSS scroll-snap vertical stream, click-to-play embeds (poster first), muted by default, session break card
-- [ ] Mode morph: shared card objects animate between Board/Swipe/Reader layouts
-- [ ] Damped motion system (fast + slow follower lean; gray-at-rest/color-on-focus); loop stops when settled
-- [ ] **Settings "Make it mine"**: density, motion, autoplay, captions, text size, daily goal, review cap, Calm mode
-- [ ] `prefers-reduced-motion` and Calm mode disable all non-essential motion
+- [x] **Swipe** mode: gesture deck, visible Keep/Skip/Open buttons, keyboard shortcuts, batch of 10 → summary
+- [x] **Watch** mode: CSS scroll-snap vertical stream, click-to-play embeds (poster first), muted by default, session break card
+- [x] Mode morph: shared card objects animate between Board/Swipe/Reader layouts
+- [x] Damped motion system (fast + slow follower lean; gray-at-rest/color-on-focus); loop stops when settled
+- [x] **Settings "Make it mine"**: density, motion, autoplay, captions, text size, daily goal, review cap, Calm mode
+- [x] `prefers-reduced-motion` and Calm mode disable all non-essential motion
 
 **Exit gate:** test with 5 people who identify with ADHD, anxiety or memory struggles using W3C COGA test questions; fix top 5 issues.
 

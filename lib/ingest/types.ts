@@ -87,6 +87,8 @@ export type EnrichedItem = {
   type: ItemType;
   leadImageUrl: string | null;
   leadImageSource: "feed" | "og" | "content" | "oembed" | null;
+  /** Fallbacks after leadImageUrl, best first. */
+  leadImageCandidates: { url: string; source: "feed" | "og" | "content" | "oembed" }[];
   media: MediaRef[];
   embedHtml: string | null;
   bodyHtml: string | null;

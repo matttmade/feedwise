@@ -2,6 +2,8 @@
 
 Visual, swipeable learning feed built from RSS. Product spec: `BRIEF.md`. Build order and acceptance gates: `PLAN.md`.
 
+Visual style: @DESIGN.md (Quiet Editorial). It replaces the earlier style direction: tokens, type, cards, corners, icons, surfaces and motion feel. The UX rules, accessibility constraints and hard constraints below still apply.
+
 ## How to work
 
 - Work one phase at a time, in `PLAN.md` order. Tick checkboxes as tasks land.

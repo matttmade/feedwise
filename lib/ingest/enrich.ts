@@ -92,7 +92,8 @@ export async function enrichItem(item: RawItem, opts: Options = {}): Promise<Enr
     meta = { ...meta, image: undefined };
     notes.push("og:image is the site default");
   }
-  const lead = pickLeadImage(item.media, meta, images, oembed);
+  const candidates = leadImageCandidates(item.media, meta, images, oembed);
+  const lead = candidates[0];
 
   return {
     guid: item.guid,
@@ -102,6 +103,7 @@ export async function enrichItem(item: RawItem, opts: Options = {}): Promise<Enr
     type,
     leadImageUrl: lead?.url ?? null,
     leadImageSource: lead?.source ?? null,
+    leadImageCandidates: candidates,
     media: item.media,
     embedHtml,
     bodyHtml: type === "video" ? feedHtml || null : bodyHtml,
@@ -147,20 +149,37 @@ export function pickLeadImage(
   images: { url: string; width?: number; height?: number }[],
   oembed: OEmbed | null,
 ): Lead | null {
-  const feedImages = media
+  return leadImageCandidates(media, meta, images, oembed)[0] ?? null;
+}
+
+/**
+ * Every usable lead image in priority order, so the ingest job can fall back when the first
+ * one turns out to be broken (e.g. a feed image that 403s while og:image works).
+ */
+export function leadImageCandidates(
+  media: MediaRef[],
+  meta: PageMeta,
+  images: { url: string; width?: number; height?: number }[],
+  oembed: OEmbed | null,
+): Lead[] {
+  const out: Lead[] = [];
+  const add = (url: string | undefined, source: Lead["source"]) => {
+    if (url && !out.some((l) => l.url === url)) out.push({ url, source });
+  };
+  media
     .filter((m) => m.kind === "image" && isUsefulImage(m.url, m.width, m.height))
-    .sort((a, b) => (b.width ?? 0) - (a.width ?? 0));
-  if (feedImages[0]) return { url: feedImages[0].url, source: "feed" };
+    .sort((a, b) => (b.width ?? 0) - (a.width ?? 0))
+    .forEach((m) => add(m.url, "feed"));
   if (
     meta.image &&
     !isGenericImage(meta.image) &&
     isUsefulImage(meta.image, meta.imageWidth, meta.imageHeight)
   ) {
-    return { url: meta.image, source: "og" };
+    add(meta.image, "og");
   }
-  if (images[0]) return { url: images[0].url, source: "content" };
-  if (oembed?.thumbnail_url) return { url: oembed.thumbnail_url, source: "oembed" };
-  return null;
+  images.slice(0, 3).forEach((i) => add(i.url, "content"));
+  add(oembed?.thumbnail_url, "oembed");
+  return out;
 }
 
 export function oembedEndpoint(videoUrl: string): string | undefined {

@@ -45,3 +45,6 @@ next-env.d.ts
 
 # spike output
 /spike-output/
+
+# local audit output
+/audit-output/
