@@ -1,9 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { guestAllowed } from "@/lib/guest";
 
 const PUBLIC_PATHS = ["/login", "/auth/", "/help"];
 
-/** Refreshes the Supabase session cookie on every page request and sends guests to /login. */
+/**
+ * Refreshes the Supabase session cookie on every page request. Without a session: previews
+ * start a guest session, everywhere else goes to /login.
+ */
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -27,8 +31,13 @@ export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   if (!data?.claims && !PUBLIC_PATHS.some((p) => path.startsWith(p))) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
     url.search = "";
+    if (guestAllowed()) {
+      url.pathname = "/auth/guest";
+      url.searchParams.set("next", path + request.nextUrl.search);
+    } else {
+      url.pathname = "/login";
+    }
     return NextResponse.redirect(url);
   }
   return response;

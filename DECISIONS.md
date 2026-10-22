@@ -65,6 +65,9 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
   - **Focus is a 1px ink outline, offset 3px** (DESIGN.md §11).
   - **The swipe gesture's fly-out and spring-back use `--ease`** like everything else, so there's one curve across the product.
 
+- **2026-10-22 · Guest previews** (Matt's call; email links weren't arriving on the preview). On Vercel preview deployments, or anywhere `ALLOW_GUEST=true`, a visitor with no session gets a Supabase anonymous session instead of the sign-in page. The session lives in cookies like any other, and their data sits under that anonymous user, so row-level security is unchanged. The sign-in page also offers "Preview without an account". Production stays email-only unless `ALLOW_GUEST` is set there.
+- **2026-10-22 · The wordmark is plain text,** "Feedwise" at body size with no weight or italic change.
+
 ## Waiting on Matt
 
 - A source of YouTube durations (Data API key or a watch-page fetch). Cards show "Video" until then.

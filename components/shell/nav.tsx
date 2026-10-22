@@ -36,8 +36,8 @@ export function TopBar({ reviewBadge }: NavProps) {
   return (
     <header className="sticky top-0 z-30 bg-ground">
       <div className="flex h-(--top) items-center gap-(--s-4) px-(--gutter)">
-        <Link href="/today" className="flex min-h-11 items-center font-semibold">
-          Feed<em className="font-normal">wise</em>
+        <Link href="/today" className="flex min-h-11 items-center">
+          Feedwise
         </Link>
         <nav aria-label="Main" className="hidden flex-1 justify-center lg:flex">
           <ul className="flex gap-(--s-4)">
