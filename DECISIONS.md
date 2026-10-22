@@ -68,6 +68,8 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
 - **2026-10-22 · Guest previews** (Matt's call; email links weren't arriving on the preview). On Vercel preview deployments, or anywhere `ALLOW_GUEST=true`, a visitor with no session gets a Supabase anonymous session instead of the sign-in page. The session lives in cookies like any other, and their data sits under that anonymous user, so row-level security is unchanged. The sign-in page also offers "Preview without an account". Production stays email-only unless `ALLOW_GUEST` is set there.
 - **2026-10-22 · The wordmark is plain text,** "Feedwise" at body size with no weight or italic change.
 
+- **2026-10-22 · jsdom pinned to 26.x.** jsdom 30 loads ten ES-module-only dependencies with `require()` (parse5 8, @asamuzakjp/css-color and others). That needs Node's `require(esm)` support, and Vercel's functions fail it with `ERR_REQUIRE_ESM`, which broke every signed-in page. jsdom 26 supports Node 18, so all its dependencies load the classic way. Revisit when moving to jsdom ≥ 27.
+
 ## Waiting on Matt
 
 - A source of YouTube durations (Data API key or a watch-page fetch). Cards show "Video" until then.
