@@ -3,7 +3,7 @@ import { clampRatio } from "@/lib/feed/masonry";
 import { FallbackArt } from "./fallback-art";
 
 type Props = {
-  item: Pick<CardItem, "image" | "type" | "sourceTitle" | "sourceId">;
+  item: Pick<CardItem, "id" | "image" | "type" | "sourceTitle" | "sourceId">;
   sizes: string;
   /** Clamp very tall or very wide images so one card can't dominate the board. */
   ratio?: "native" | "wide" | "cinema";
@@ -36,6 +36,8 @@ export function CardImage({
 
   return (
     <div
+      // The WebGL layer (components/gl) draws framed images by this id when it's running.
+      data-gl={image ? item.id : undefined}
       className={fillOnLarge ? "img-frame lg:aspect-auto lg:h-full" : "img-frame"}
       style={{ "--ar": aspect } as React.CSSProperties}
     >

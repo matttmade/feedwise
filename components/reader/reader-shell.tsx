@@ -58,6 +58,14 @@ export function ReaderShell({
     markOpened(itemId).catch(() => {});
   }, [itemId]);
 
+  // The light ground while this item is showing. An effect (not a CSS :has) because Next
+  // keeps a visited page mounted but hidden, and its cleanup runs when it's hidden.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add("ground-light");
+    return () => root.classList.remove("ground-light");
+  }, []);
+
   useEffect(() => {
     let frame = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -144,9 +152,7 @@ export function ReaderShell({
           </div>
         </div>
       )}
-      <div ref={articleRef} className="ground-light">
-        {children}
-      </div>
+      <div ref={articleRef}>{children}</div>
     </KeptContext>
   );
 }

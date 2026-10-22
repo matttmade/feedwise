@@ -64,9 +64,9 @@
   color-scheme: dark;
 }
 
-/* Inside an item the whole page turns light: the "flip on open". The Reader marks itself
-   with .ground-light and the tokens flip for everything, toasts included. */
-html:has(.ground-light) {
+/* Inside an item the whole page turns light: the "flip on open". The Reader adds this class
+   to <html> while it's showing, so the tokens flip for everything, toasts included. */
+html.ground-light {
   --ground: var(--stone);
   --fg: var(--ink);
   color-scheme: light;
@@ -407,6 +407,35 @@ html[data-motion="full"]:not([data-calm])
     opacity: 0;
     transform: translateY(12px);
   }
+}
+
+/* ── WebGL image layer (components/gl/gl-stage.tsx) ───────────────────────────
+   The canvas sits behind the page (above the root ground) and draws each framed image
+   once its texture is ready; until then, and whenever it's off, the <img> shows. While an
+   item dives in or pulls back, the canvas rises above everything. */
+.gl-stage {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+.gl-on .gl-stage {
+  display: block;
+}
+.gl-on body {
+  background: transparent;
+}
+.gl-on.gl-dive .gl-stage {
+  z-index: 60;
+}
+.gl-on [data-gl-ready] {
+  background: transparent;
+}
+.gl-on [data-gl-ready] > * {
+  visibility: hidden;
 }
 
 /* ── Fly-in: items rise and settle as they scroll into view ───────────────────

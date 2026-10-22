@@ -79,28 +79,23 @@ async function Reader({ params }: { params: PageProps<"/reader/[id]">["params"] 
         tabIndex={-1}
         className="px-(--gutter) pt-(--s-4) pb-(--s-6) lg:grid-12 lg:pt-(--s-5)"
       >
+        {/* Edge to edge, so diving in from a card lands on the same full-width image. */}
+        {!video && item.image && (
+          <ViewTransition name={`card-${item.id}`} share="morph" default="none">
+            <div className="-mx-(--gutter) -mt-(--s-4) mb-(--s-4) lg:col-span-12 lg:-mt-(--s-5)">
+              <CardImage item={item} ratio="cinema" sizes="100vw" priority />
+            </div>
+          </ViewTransition>
+        )}
         <div className="lg:col-span-8 lg:col-start-3">
-          {video ? (
-            <VideoPlayer src={video} poster={item.image?.src ?? null} title={item.title} />
-          ) : item.image ? (
-            <ViewTransition name={`card-${item.id}`} share="morph" default="none">
-              <div className="-mx-(--gutter) sm:mx-0">
-                <CardImage
-                  item={item}
-                  ratio="native"
-                  sizes="(min-width: 1024px) 66vw, 100vw"
-                  priority
-                />
-              </div>
-            </ViewTransition>
-          ) : null}
+          {video && <VideoPlayer src={video} poster={item.image?.src ?? null} title={item.title} />}
 
           <p className="t-label mt-(--s-4)">
             {item.sourceTitle}
             {published ? ` · ${published}` : ""}
             {cost ? ` · ${cost}` : ""}
           </p>
-          <h1 className="t-display mt-(--s-3)">{item.title}</h1>
+          <h1 className="t-headline mt-(--s-3)">{item.title}</h1>
 
           <div id={READER_BODY_ID}>
             {chunks.length > 0 ? (
