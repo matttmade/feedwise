@@ -24,11 +24,12 @@ export function LeadStory({
   const cost = costLabel(item);
   const verb = item.type === "video" ? "Watch" : "Read";
   const href = `/reader/${item.id}`;
+  const pct = Math.round(item.resumePosition * 100);
   const facts: [string, string, string][] = [
     ["A", "Source", item.sourceTitle],
     ["B", "Length", cost ?? "—"],
     ["C", "Published", date(item.sortAt)],
-    ["D", "Status", resuming ? `${Math.round(item.resumePosition * 100)}% read` : "New"],
+    ["D", "Status", !resuming ? "New" : pct > 0 ? `${pct}% read` : "Started"],
   ];
 
   return (
