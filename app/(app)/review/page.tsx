@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { getDaysLearned, getReview } from "@/lib/data/review";
+import { getReview } from "@/lib/data/review";
 import { ReviewSession } from "@/components/review/review-session";
 import { Finish } from "@/components/ui/finish";
 
@@ -23,7 +23,7 @@ export default function ReviewPage() {
 }
 
 async function ReviewContent() {
-  const [review, daysLearned] = await Promise.all([getReview(), getDaysLearned()]);
+  const review = await getReview();
 
   const title = !review.hasCards
     ? "Nothing to review yet."
@@ -39,13 +39,10 @@ async function ReviewContent() {
   const empty = (
     <Finish title={title}>
       <p>{body}</p>
-      <p className="t-label">
-        {daysLearned} {daysLearned === 1 ? "day" : "days"} learned so far
-      </p>
       <Link href={review.hasCards ? "/today" : "/explore"} className="link">
         {review.hasCards ? "Back to Today" : "Find something to keep"} →
       </Link>
     </Finish>
   );
-  return <ReviewSession cards={review.cards} daysLearned={daysLearned} empty={empty} />;
+  return <ReviewSession cards={review.cards} empty={empty} />;
 }

@@ -20,11 +20,9 @@ type Done = { rating: ReviewRating; undo: RatingUndo };
  */
 export function ReviewSession({
   cards,
-  daysLearned,
   empty,
 }: {
   cards: ReviewCard[];
-  daysLearned: number;
   /** Shown when there was nothing to review on arrival. */
   empty: ReactNode;
 }) {
@@ -94,7 +92,7 @@ export function ReviewSession({
   };
 
   if (!queue.length) return empty;
-  if (!card) return <Summary done={done} daysLearned={daysLearned} />;
+  if (!card) return <Summary done={done} />;
 
   return (
     <section aria-labelledby="card-prompt" className="mt-(--s-3) max-w-2xl lg:mt-(--s-4)">
@@ -202,7 +200,7 @@ export function ReviewSession({
   );
 }
 
-function Summary({ done, daysLearned }: { done: Done[]; daysLearned: number }) {
+function Summary({ done }: { done: Done[] }) {
   const strong = done.filter((d) => d.rating === "good").length;
   const sooner = done.length - strong;
   return (
@@ -214,9 +212,6 @@ function Summary({ done, daysLearned }: { done: Done[]; daysLearned: number }) {
           ? ` · ${sooner} coming back sooner to help ${sooner === 1 ? "it" : "them"} stick`
           : ""}
         .
-      </p>
-      <p className="t-label">
-        {daysLearned} {daysLearned === 1 ? "day" : "days"} learned so far
       </p>
       <Link href="/today" className="link">
         Back to Today →

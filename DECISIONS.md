@@ -115,6 +115,33 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
   - **Images inside rotated or dragged cards** (the keep-or-skip stack, the Swipe deck) stay plain `<img>`. The WebGL layer can't follow their rotation.
   - **Axe on Explore** can flag contrast on cards still flying in at the bottom edge, because they're partly transparent mid-animation. They settle at full ink.
 
+- **2026-10-22 · No tracking: Today is a ranked feed that keeps refreshing** (Matt's call: "less like a tracker or chore"). This reverses UX rule 3's "visible progress" and PLAN's daily set of 3–5.
+  - **Removed:**
+    - days learned (the activity rows are still written, just never shown)
+    - the stats strip
+    - the "02 / 05 done" daily quota
+    - the nav's due-count badge and the Recall due count
+    - the "Today's set" setting (the column stays in `settings`, so no data change)
+  - **Ranking** (`lib/feed/rank.ts`, tested) has three parts:
+    - **Freshness:** a 4-day half-life feel.
+    - **Affinity to the post's source and topics,** from the last 120 days of what you did. Opened counts +1, read past half +1, kept +2, skipped −1, squashed to −1…1.
+    - **Variety:** a seeded nudge that reshuffles every 10 minutes, or straight away with "Shuffle".
+  - **Home order:**
+    1. the lead story
+    2. For you (8)
+    3. Still reading
+    4. Keep or skip (it teaches the feed)
+    5. quick reads
+    6. from your sources
+    7. a resurfaced highlight
+    8. topics
+    9. Watch
+    10. Recall (a quiet link, not a count)
+    11. long reads
+    12. a finish with Shuffle and Explore
+
+    It still always ends.
+
 ## Waiting on Matt
 
 - A source of YouTube durations (Data API key or a watch-page fetch). Cards show "Video" until then.

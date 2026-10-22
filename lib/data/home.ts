@@ -1,23 +1,27 @@
 import "server-only";
 import { requireUser } from "@/lib/auth";
+import type { Signal } from "@/lib/feed/rank";
 import { createClient } from "@/lib/supabase/server";
 import { CARD_COLUMNS, UNHANDLED, freshSince, toCard, type CardItem } from "./feed";
 
 export type HomeQuote = { text: string; itemId: string; itemTitle: string; sourceTitle: string };
 
 export type HomeData = {
-  /** Fresh, untouched items, newest first, for dealing into the home's sections. */
+  /** Fresh, untouched items, newest first, for ranking and dealing into sections. */
   pool: CardItem[];
-  stats: { kept: number; highlights: number; sources: number };
+  /** What you've opened, read, kept or skipped lately: the ranking's taste signals. */
+  signals: Signal[];
   quotes: HomeQuote[];
 };
 
 const POOL = 150;
+const SIGNAL_DAYS = 120;
 
 export async function getHome(): Promise<HomeData> {
   const user = await requireUser();
   const supabase = await createClient();
-  const [pool, kept, highlights, sources, quotes] = await Promise.all([
+  const since = new Date(Date.now() - SIGNAL_DAYS * 86_400_000).toISOString();
+  const [pool, engaged, quotes] = await Promise.all([
     supabase
       .from("feed_items")
       .select(CARD_COLUMNS)
@@ -27,16 +31,11 @@ export async function getHome(): Promise<HomeData> {
       .order("sort_at", { ascending: false })
       .limit(POOL),
     supabase
-      .from("user_items")
-      .select("item_id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .eq("state", "kept"),
-    supabase
-      .from("highlights")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .or("text.not.is.null,image_url.not.is.null"),
-    supabase.from("sources").select("id", { count: "exact", head: true }),
+      .from("feed_items")
+      .select("source_id, topic_ids, state, last_opened_at, resume_position")
+      .or("state.in.(kept,skipped,read),last_opened_at.not.is.null")
+      .gte("sort_at", since)
+      .limit(400),
     supabase
       .from("highlights")
       .select("text, items!inner(id, title, sources!inner(title))")
@@ -47,11 +46,14 @@ export async function getHome(): Promise<HomeData> {
   ]);
   return {
     pool: (pool.data ?? []).map(toCard),
-    stats: {
-      kept: kept.count ?? 0,
-      highlights: highlights.count ?? 0,
-      sources: sources.count ?? 0,
-    },
+    signals: (engaged.data ?? []).map((r) => ({
+      sourceId: r.source_id ?? "",
+      topicIds: r.topic_ids ?? [],
+      opened: Boolean(r.last_opened_at) || r.state === "read",
+      progress: r.state === "read" ? 1 : (r.resume_position ?? 0),
+      kept: r.state === "kept",
+      skipped: r.state === "skipped",
+    })),
     quotes: (quotes.data ?? [])
       .filter((q) => q.text && q.text.length > 20)
       .map((q) => ({

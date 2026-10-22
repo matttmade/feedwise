@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { savePrefs } from "@/app/actions/settings";
-import { applyPrefsToDocument, REVIEW_CAPS, DAILY_GOALS, type Prefs } from "@/lib/prefs";
+import { applyPrefsToDocument, REVIEW_CAPS, type Prefs } from "@/lib/prefs";
 
 type Choice<T> = { value: T; label: string; hint?: string };
 
@@ -97,15 +97,6 @@ export function PrefsForm({ initial }: { initial: Prefs }) {
         hint="Turns captions on where YouTube or Vimeo has them."
         checked={prefs.captions}
         onChange={(v) => update("captions", v)}
-      />
-
-      <Segmented
-        name="dailyGoal"
-        legend="Today's set"
-        hint="How many fresh posts Today offers."
-        value={String(prefs.dailyGoal)}
-        choices={DAILY_GOALS.map((n) => ({ value: String(n), label: `${n} a day` }))}
-        onChange={(v) => update("dailyGoal", Number(v))}
       />
 
       <Segmented
