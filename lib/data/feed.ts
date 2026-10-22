@@ -32,6 +32,7 @@ export type CardItem = {
   sortAt: string;
   sourceId: string;
   sourceTitle: string;
+  topicIds: string[];
   state: ItemState | null;
   resumePosition: number;
 };
@@ -59,6 +60,7 @@ export function toCard(row: Partial<FeedRow>): CardItem {
     sortAt: row.sort_at ?? new Date(0).toISOString(),
     sourceId: row.source_id!,
     sourceTitle: row.source_title ?? hostOf(row.source_site_url ?? row.url ?? ""),
+    topicIds: row.topic_ids ?? [],
     state: row.state ?? null,
     resumePosition: row.resume_position ?? 0,
   };
@@ -73,7 +75,7 @@ const hostOf = (url: string) => {
 };
 
 const timeZone = () => process.env.APP_TIMEZONE || "UTC";
-const freshSince = () => new Date(Date.now() - FRESH_DAYS * 86_400_000).toISOString();
+export const freshSince = () => new Date(Date.now() - FRESH_DAYS * 86_400_000).toISOString();
 
 export type Settings = Prefs;
 
@@ -107,7 +109,7 @@ export type TodayData = {
 };
 
 /** Unhandled = never touched: no state yet, or 'new' and never opened. */
-const UNHANDLED = "state.is.null,and(state.eq.new,last_opened_at.is.null)";
+export const UNHANDLED = "state.is.null,and(state.eq.new,last_opened_at.is.null)";
 
 export async function getToday(): Promise<TodayData> {
   const user = await requireUser();

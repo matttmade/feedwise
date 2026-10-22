@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { BottomBar, TopBar } from "@/components/shell/nav";
 import { GlStage } from "@/components/gl/gl-stage";
+import { DepthStage } from "@/components/motion/depth-stage";
 import { ToastProvider } from "@/components/ui/toast";
 import { getReview } from "@/lib/data/review";
 
@@ -13,6 +14,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
     <ToastProvider>
       <GlStage />
+      <DepthStage />
       <TopBar reviewBadge={badge} />
       <main
         id="main"

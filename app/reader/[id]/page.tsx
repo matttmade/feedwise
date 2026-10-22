@@ -21,9 +21,23 @@ export const metadata: Metadata = { title: "Reader" };
 export default function ReaderPage({ params }: PageProps<"/reader/[id]">) {
   return (
     <ToastProvider>
-      <Suspense fallback={<ReaderSkeleton />}>
-        <Reader params={params} />
-      </Suspense>
+      <ViewTransition enter="page-in" exit="page-out" default="none">
+        <div>
+          <Suspense
+            fallback={
+              <ViewTransition exit="load-out" default="none">
+                <ReaderSkeleton />
+              </ViewTransition>
+            }
+          >
+            <ViewTransition enter="load-in" default="none">
+              <div>
+                <Reader params={params} />
+              </div>
+            </ViewTransition>
+          </Suspense>
+        </div>
+      </ViewTransition>
     </ToastProvider>
   );
 }

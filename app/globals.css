@@ -524,6 +524,78 @@ html[data-motion="full"]:not([data-calm])
   animation-duration: var(--dur-1);
   animation-timing-function: var(--ease);
 }
+
+/* Page outro and intro: the old page lifts away and blurs, the new one rises in. */
+::view-transition-old(.page-out) {
+  animation: page-out var(--dur-2) var(--ease) both;
+}
+::view-transition-new(.page-in) {
+  animation: page-in var(--dur-3) var(--ease) both;
+}
+@keyframes page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-5vh) scale(0.985);
+    filter: blur(6px);
+  }
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(7vh);
+  }
+}
+
+/* Content replacing its loading placeholder: the placeholder sinks away, content rises. */
+::view-transition-old(.load-out) {
+  animation: load-out var(--dur-1) var(--ease) both;
+}
+::view-transition-new(.load-in) {
+  animation: page-in var(--dur-3) var(--ease) both;
+}
+@keyframes load-out {
+  to {
+    opacity: 0;
+    transform: translateY(3vh);
+  }
+}
+
+/* In-page intro, once per page load: labels and blocks rise in sequence (--i staggers);
+   a big title rises out of a mask. Full motion only. */
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+@keyframes mask-rise {
+  from {
+    transform: translateY(110%);
+  }
+}
+.intro-mask {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.1em 0.14em;
+  margin-block: -0.1em -0.14em;
+}
+.intro-mask > span {
+  display: inline-block;
+}
+html[data-motion="full"]:not([data-calm]) .intro {
+  animation: intro-rise var(--dur-3) var(--ease) both;
+  animation-delay: calc(250ms + var(--i, 0) * 90ms);
+}
+html[data-motion="full"]:not([data-calm]) .intro-mask > span {
+  animation: mask-rise 1.1s var(--ease) both;
+  animation-delay: 120ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro,
+  .intro-mask > span {
+    animation: none !important;
+  }
+}
 html:not([data-motion="full"])::view-transition-group(*),
 html:not([data-motion="full"])::view-transition-old(*),
 html:not([data-motion="full"])::view-transition-new(*),

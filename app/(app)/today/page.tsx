@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
-import { getExplore, getToday } from "@/lib/data/feed";
+import { Suspense, ViewTransition } from "react";
+import { getToday, getTopics } from "@/lib/data/feed";
+import { getHome } from "@/lib/data/home";
+import { dealHome, pickOfTheDay } from "@/lib/feed/home";
 import { getDaysLearned, getReview } from "@/lib/data/review";
 import { sessionMinutes } from "@/lib/srs/queue";
 import { ContinueRail } from "@/components/today/continue-rail";
@@ -9,6 +11,10 @@ import { EditorialGrid } from "@/components/home/editorial-grid";
 import { LeadStory } from "@/components/home/lead-story";
 import { Section } from "@/components/home/section";
 import { SwipeRow } from "@/components/home/swipe-row";
+import { CountUp } from "@/components/home/count-up";
+import { IndexList } from "@/components/home/index-list";
+import { SortStack } from "@/components/home/sort-stack";
+import { TopicTabs } from "@/components/home/topic-tabs";
 import { Finish } from "@/components/ui/finish";
 
 export const metadata: Metadata = { title: "Today" };
@@ -23,8 +29,18 @@ const dateline = () =>
 
 export default function TodayPage() {
   return (
-    <Suspense fallback={<TodaySkeleton />}>
-      <TodayContent />
+    <Suspense
+      fallback={
+        <ViewTransition exit="load-out" default="none">
+          <TodaySkeleton />
+        </ViewTransition>
+      }
+    >
+      <ViewTransition enter="load-in" default="none">
+        <div>
+          <TodayContent />
+        </div>
+      </ViewTransition>
     </Suspense>
   );
 }
@@ -37,12 +53,12 @@ const pad = (n: number) => String(n).padStart(2, "0");
  * swipe through, and what's in progress. Every section ends; the page ends on a finish.
  */
 async function TodayContent() {
-  const [today, review, daysLearned, quick, videos] = await Promise.all([
+  const [today, review, daysLearned, home, topics] = await Promise.all([
     getToday(),
     getReview(),
     getDaysLearned(),
-    getExplore({ time: "quick" }),
-    getExplore({ time: "video" }),
+    getHome(),
+    getTopics(),
   ]);
   const { sourceCount, goal, doneToday, batch, continueItems } = today;
   const reviewDue = review.cards.length;
@@ -50,7 +66,7 @@ async function TodayContent() {
 
   const masthead = (
     <header className="flex flex-col gap-(--s-3)">
-      <p className="t-label flex flex-wrap items-center gap-x-(--s-3) gap-y-(--s-1)">
+      <p className="t-label intro flex flex-wrap items-center gap-x-(--s-3) gap-y-(--s-1)">
         <span>{dateline()}</span>
         {sourceCount > 0 && (
           <>
@@ -58,12 +74,13 @@ async function TodayContent() {
             <progress value={done} max={goal} aria-label="Today's set" className="meter w-16" />
             <span>
               {pad(done)} / {pad(goal)} done
-              {daysLearned > 0 && ` · ${daysLearned} ${daysLearned === 1 ? "day" : "days"} learned`}
             </span>
           </>
         )}
       </p>
-      <h1 className="t-display">Today</h1>
+      <h1 className="t-display intro-mask">
+        <span>Today</span>
+      </h1>
     </header>
   );
 
@@ -71,7 +88,7 @@ async function TodayContent() {
     return (
       <>
         {masthead}
-        <section className="mt-(--s-5) max-w-[62ch]">
+        <section className="intro mt-(--s-5) max-w-[62ch]">
           <h2 className="t-lead">Let&apos;s start with one site you already like.</h2>
           <p className="mt-(--s-2)">
             Paste its address and Feedwise turns new posts into a short daily set.
@@ -88,15 +105,32 @@ async function TodayContent() {
   const resume = !lead ? continueItems[0] : undefined;
   const leadItem = lead ?? resume;
   const shown = new Set([...batch, ...continueItems].map((i) => i.id));
-  const quickItems = quick.items.filter((i) => !shown.has(i.id)).slice(0, 10);
-  quickItems.forEach((i) => shown.add(i.id));
-  const videoItems = videos.items.filter((i) => !shown.has(i.id)).slice(0, 8);
+  const deal = dealHome(home.pool, shown);
+  const quote = pickOfTheDay(home.quotes, new Date().toISOString().slice(0, 10));
+  const topicTabs = topics.filter((t) => (deal.byTopic[t.id]?.length ?? 0) > 0);
   const railItems = continueItems.filter((i) => i.id !== resume?.id);
+  const stats: [string, number][] = [
+    ["Days learned", daysLearned],
+    ["Kept", home.stats.kept],
+    ["Highlights", home.stats.highlights],
+    ["Sources", home.stats.sources],
+  ];
   let n = 0;
 
   return (
     <>
       {masthead}
+
+      <dl className="intro mt-(--s-5) grid grid-cols-2 gap-y-(--s-4) border-t border-rule pt-(--s-3) lg:grid-cols-4">
+        {stats.map(([label, value]) => (
+          <div key={label} className="flex flex-col-reverse gap-(--s-1)">
+            <dt className="t-label">{label}</dt>
+            <dd className="t-headline">
+              <CountUp value={value} />
+            </dd>
+          </div>
+        ))}
+      </dl>
 
       {reviewDue > 0 && (
         <Section id="recall" number={++n} label="Recall" aside={<span>{pad(reviewDue)} due</span>}>
@@ -133,7 +167,13 @@ async function TodayContent() {
 
       {!leadItem && <FinishCard reachedGoal={doneToday >= goal} goal={goal} />}
 
-      {quickItems.length > 0 && (
+      {deal.sort.length > 0 && (
+        <Section id="sort" number={++n} label="Keep or skip" aside={<span>Swipe or tap</span>}>
+          <SortStack items={deal.sort} />
+        </Section>
+      )}
+
+      {deal.quick.length > 0 && (
         <Section
           id="quick"
           number={++n}
@@ -141,7 +181,7 @@ async function TodayContent() {
           aside={<span>Under 5 min</span>}
         >
           <SwipeRow
-            items={quickItems}
+            items={deal.quick}
             label="Quick reads"
             end={
               <Link href="/explore?time=quick" className="link">
@@ -152,15 +192,76 @@ async function TodayContent() {
         </Section>
       )}
 
-      {videoItems.length > 0 && (
+      {deal.bySource.length > 1 && (
+        <Section
+          id="sources"
+          number={++n}
+          label="From your sources"
+          aside={<span>Newest from each</span>}
+        >
+          <IndexList items={deal.bySource} lead="source" />
+        </Section>
+      )}
+
+      {quote && (
+        <Section
+          id="quote"
+          number={++n}
+          label="Resurfaced"
+          aside={<span>From your highlights</span>}
+        >
+          <figure className="fly-in lg:grid-12">
+            <blockquote className="t-headline max-w-[22ch] italic lg:col-span-10">
+              “{quote.text.length > 180 ? `${quote.text.slice(0, 178)}…` : quote.text}”
+            </blockquote>
+            <figcaption className="t-label mt-(--s-4) flex flex-wrap gap-x-(--s-3) lg:col-span-12">
+              <span>
+                {quote.sourceTitle} · {quote.itemTitle}
+              </span>
+              <Link href={`/reader/${quote.itemId}`} className="underline underline-offset-4">
+                Open
+              </Link>
+            </figcaption>
+          </figure>
+        </Section>
+      )}
+
+      {topicTabs.length > 0 && (
+        <Section
+          id="topics"
+          number={++n}
+          label="By topic"
+          aside={<span>{pad(topicTabs.length)} topics</span>}
+        >
+          <TopicTabs
+            tabs={topicTabs.map((t) => ({
+              id: t.id,
+              name: t.name,
+              panel: (
+                <SwipeRow
+                  items={deal.byTopic[t.id]}
+                  label={t.name}
+                  end={
+                    <Link href={`/explore?topic=${t.id}`} className="link">
+                      All {t.name} →
+                    </Link>
+                  }
+                />
+              ),
+            }))}
+          />
+        </Section>
+      )}
+
+      {deal.videos.length > 0 && (
         <Section
           id="watch"
           number={++n}
           label="Watch"
-          aside={<span>{pad(videoItems.length)} videos</span>}
+          aside={<span>{pad(deal.videos.length)} videos</span>}
         >
           <SwipeRow
-            items={videoItems}
+            items={deal.videos}
             label="Videos"
             end={
               <Link href="/explore?mode=watch" className="link">
@@ -168,6 +269,12 @@ async function TodayContent() {
               </Link>
             }
           />
+        </Section>
+      )}
+
+      {deal.long.length > 0 && (
+        <Section id="long" number={++n} label="Long reads for later" aside={<span>15+ min</span>}>
+          <IndexList items={deal.long} lead="title" />
         </Section>
       )}
 

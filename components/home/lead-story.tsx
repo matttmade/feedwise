@@ -34,13 +34,20 @@ export function LeadStory({
 
   return (
     <CardFrame itemId={item.id} title={item.title} labelledBy="lead-title" className="card">
-      <Link href={href} tabIndex={-1} aria-hidden="true" className="-mx-(--gutter) block">
+      <Link
+        href={href}
+        tabIndex={-1}
+        aria-hidden="true"
+        className="-mx-(--gutter) block"
+        data-speed="0.9"
+      >
         <CardImage item={item} ratio="cinema" sizes="100vw" priority />
       </Link>
       <div className="lg:grid-12">
         <h2
           id="lead-title"
           className="t-headline relative z-10 -mt-[0.6em] max-w-[18ch] text-paper mix-blend-difference lg:col-span-10"
+          data-speed="1.06"
         >
           <Link href={href} className="decoration-1 underline-offset-8 hover:underline">
             {item.title}

@@ -8,7 +8,8 @@ import { coverScale, easeOutExpo, lerpRect, nearViewport, type Rect } from "@/li
 
 const DIVE_KEY = "fw-dive";
 const DIVE_MS = 650;
-const BEND_PX = 48;
+const BEND_PX = 26;
+const REVEAL_MS = 1100;
 
 const VERTEX = /* glsl */ `
 attribute vec3 position;
@@ -29,8 +30,11 @@ precision highp float;
 uniform sampler2D tMap;
 uniform vec2 uCover;
 uniform float uColor;
+uniform float uReveal;
 varying vec2 vUv;
 void main() {
+  // Wipe in from the top the first time the image is seen.
+  if (vUv.y < 1.0 - uReveal) discard;
   vec4 c = texture2D(tMap, (vUv - 0.5) * uCover + 0.5);
   float g = dot(c.rgb, vec3(0.299, 0.587, 0.114));
   gl_FragColor = vec4(mix(vec3(g) * 0.82, c.rgb, uColor), 1.0);
@@ -92,6 +96,8 @@ export function GlStage() {
         texture: InstanceType<typeof Texture>;
         ready: boolean;
         color: number;
+        lastY?: number;
+        revealStart?: number;
         anim?: Anim;
       };
       const entries = new Map<HTMLElement, Entry>();
@@ -125,6 +131,7 @@ export function GlStage() {
             uBend: { value: 0 },
             uCover: { value: [1, 1] },
             uColor: { value: 0 },
+            uReveal: { value: 0 },
           },
         });
         const mesh = new Mesh(gl, { geometry, program });
@@ -196,6 +203,9 @@ export function GlStage() {
         for (const e of entries.values()) {
           load(e);
           let rect = rectOf(e.el);
+          // Tiles with their own scroll depth keep moving after the page stops; keep drawing.
+          if (e.lastY !== undefined && Math.abs(e.lastY - rect.y) > 0.1) busy = true;
+          e.lastY = rect.y;
           if (e.anim) {
             const p = Math.min(1, (t - e.anim.start) / DIVE_MS);
             rect = lerpRect(e.anim.from, e.anim.to, easeOutExpo(p));
@@ -218,6 +228,16 @@ export function GlStage() {
           u.uViewport.value = [vw, vh];
           u.uBend.value = e.anim ? 0 : bend;
           u.uColor.value = e.color;
+          // Start the wipe once the image is actually on screen, not in the preload margin.
+          if (e.revealStart === undefined && rect.y < vh * 0.92 && rect.y + rect.h > 0)
+            e.revealStart = t;
+          const reveal = e.anim
+            ? 1
+            : e.revealStart === undefined
+              ? 0
+              : easeOutExpo(Math.min(1, (t - e.revealStart) / REVEAL_MS));
+          if (reveal < 1) busy = true;
+          u.uReveal.value = reveal;
           const c = coverScale(rect, { w: e.img.naturalWidth, h: e.img.naturalHeight });
           u.uCover.value = [c.x, c.y];
           e.mesh.renderOrder = e.anim ? 1 : 0;

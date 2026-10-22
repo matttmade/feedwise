@@ -14,6 +14,8 @@ type Props = {
   className?: string;
   /** Show the summary under the title (wide editorial placements). */
   withSummary?: boolean;
+  /** Scroll depth: its own speed and lag (see components/motion/depth-stage.tsx). */
+  depth?: { speed?: number; lag?: number | "auto" };
   /** Above-the-fold cards load eagerly so the largest image isn't held back by lazy loading. */
   priority?: boolean;
   /** Name the image so it morphs into the same card in Swipe or the Reader. Unique per page. */
@@ -32,6 +34,7 @@ export function ItemCard({
   index,
   className = "",
   withSummary = false,
+  depth,
 }: Props) {
   const href = `/reader/${item.id}`;
   const cost = costLabel(item);
@@ -43,6 +46,7 @@ export function ItemCard({
       itemId={item.id}
       title={item.title}
       labelledBy={titleId}
+      depth={depth}
       className={`${
         layout === "board"
           ? "card relative mb-(--s-5) break-inside-avoid"
