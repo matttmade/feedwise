@@ -6,7 +6,7 @@ type Props = {
   item: Pick<CardItem, "image" | "type" | "sourceTitle" | "sourceId">;
   sizes: string;
   /** Clamp very tall or very wide images so one card can't dominate the board. */
-  ratio?: "native" | "wide";
+  ratio?: "native" | "wide" | "cinema";
   priority?: boolean;
   /** Fill the parent's height from 1024px up (hero beside its text). */
   fillOnLarge?: boolean;
@@ -25,7 +25,14 @@ export function CardImage({
   fillOnLarge = false,
 }: Props) {
   const image = item.image;
-  const aspect = ratio === "wide" ? 16 / 9 : image ? clampRatio(image.width / image.height) : 4 / 3;
+  const aspect =
+    ratio === "cinema"
+      ? 2.2
+      : ratio === "wide"
+        ? 16 / 9
+        : image
+          ? clampRatio(image.width / image.height)
+          : 4 / 3;
 
   return (
     <div

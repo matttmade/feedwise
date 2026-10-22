@@ -140,6 +140,7 @@ async function Board({ searchParams }: { searchParams: PageProps<"/explore">["se
                 key={item.id}
                 item={item}
                 index={i}
+                className="fly-in"
                 priority={eager.has(i)}
                 morph
                 sizes="(min-width: 1536px) 18vw, (min-width: 1024px) 21vw, (min-width: 640px) 30vw, 44vw"

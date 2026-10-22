@@ -8,7 +8,12 @@ import { CardImage } from "./card-image";
 type Props = {
   item: CardItem;
   sizes: string;
-  layout?: "board" | "row";
+  /** board: masonry column · row: compact · editorial: placed on the home grid by `className`. */
+  layout?: "board" | "row" | "editorial";
+  /** Extra classes for the card itself (grid placement, fly-in). */
+  className?: string;
+  /** Show the summary under the title (wide editorial placements). */
+  withSummary?: boolean;
   /** Above-the-fold cards load eagerly so the largest image isn't held back by lazy loading. */
   priority?: boolean;
   /** Name the image so it morphs into the same card in Swipe or the Reader. Unique per page. */
@@ -25,6 +30,8 @@ export function ItemCard({
   priority = false,
   morph = false,
   index,
+  className = "",
+  withSummary = false,
 }: Props) {
   const href = `/reader/${item.id}`;
   const cost = costLabel(item);
@@ -36,11 +43,13 @@ export function ItemCard({
       itemId={item.id}
       title={item.title}
       labelledBy={titleId}
-      className={
+      className={`${
         layout === "board"
           ? "card relative mb-(--s-5) break-inside-avoid"
-          : "card relative grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-x-(--s-3) sm:block"
-      }
+          : layout === "editorial"
+            ? "card relative"
+            : "card relative grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-x-(--s-3) sm:block"
+      } ${className}`}
     >
       <div className="relative">
         {morph ? (
@@ -75,6 +84,9 @@ export function ItemCard({
             {item.title}
           </Link>
         </h3>
+        {withSummary && item.summary && (
+          <p className="mt-(--s-2) line-clamp-3 max-w-[52ch] text-muted">{item.summary}</p>
+        )}
         <div className="relative z-10 flex">
           <KeepButton className="card-btn" />
           <SkipButton className="card-btn" />

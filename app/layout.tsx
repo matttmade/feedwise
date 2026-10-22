@@ -30,6 +30,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      // Full motion until the prefs script (or the OS setting) says otherwise.
+      data-motion="full"
       className={`${display.variable} ${text.variable} ${mono.variable} h-full`}
       // The prefs script below sets data-* attributes before React hydrates.
       suppressHydrationWarning
