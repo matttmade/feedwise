@@ -70,6 +70,24 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
 
 - **2026-10-22 · jsdom pinned to 26.x.** jsdom 30 loads ten ES-module-only dependencies with `require()` (parse5 8, @asamuzakjp/css-color and others). That needs Node's `require(esm)` support, and Vercel's functions fail it with `ERR_REQUIRE_ESM`, which broke every signed-in page. jsdom 26 supports Node 18, so all its dependencies load the classic way. Revisit when moving to jsdom ≥ 27.
 
+- **2026-10-22 · Second design pass after studying aristidebenoist.com and zajno.com** (Matt's direction: keep the serif, an editorial layout with several items per view, cards that fly in, diving into an item and back, sections you engage with differently, one WebGL layer, dark ground that flips on open).
+  - **Ground:** near-black (`--press` #121110) everywhere, ignoring the OS setting. The Reader flips the page to light stone (#dddbd5) while it's showing. This replaces "ground follows the OS".
+  - **Type:** the serif stays. `--t-display` grows to 52–168px for page titles. Long titles (the lead story, the Reader) use `--t-headline` (36–88px, the old display step) so they don't run to six lines. That's a documented fifth step alongside the Reader prose size.
+  - **Today is a sectioned home:** masthead (date, progress), then numbered sections:
+    - Recall (when cards are due, and then it's the primary action)
+    - the lead story: edge-to-edge 2.2:1 image, the title overlapping it, an A/B/C/D fact table
+    - the rest of today's set as an offset magazine spread
+    - quick reads and videos as sideways swipe rows (their own scrollers)
+    - Continue
+    - a finish
+  - **Fly-in:** items rise and settle as they enter the viewport, using a CSS view timeline. It reads scroll position and never moves the page. It's full motion only and off under Calm mode or reduced motion. Explore's board uses it too.
+  - **WebGL layer** (`components/gl/gl-stage.tsx`, OGL, MIT, about 25 KB): one canvas behind the page draws each framed image in place. Three effects:
+    - grayscale at rest, colour on hover or focus (on touch, the item nearest the middle)
+    - a slight bend from scroll velocity (the existing fast/slow followers)
+    - opening an item grows its image to fill the screen, and coming back shrinks it into place
+
+    It's full motion only. Otherwise, or without WebGL, the `<img>` shows as before. The Reader's image is now edge to edge so the dive lands on it.
+
 ## Waiting on Matt
 
 - A source of YouTube durations (Data API key or a watch-page fetch). Cards show "Video" until then.
