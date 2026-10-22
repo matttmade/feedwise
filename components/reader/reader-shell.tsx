@@ -144,7 +144,9 @@ export function ReaderShell({
           </div>
         </div>
       )}
-      <div ref={articleRef}>{children}</div>
+      <div ref={articleRef} className="ground-light">
+        {children}
+      </div>
     </KeptContext>
   );
 }
