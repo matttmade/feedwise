@@ -26,9 +26,9 @@
   --t-label: 0.6875rem;
   --t-body: clamp(0.9375rem, 0.9rem + 0.15vw, 1.0625rem);
   --t-lead: clamp(1.375rem, 1rem + 1.4vw, 2.25rem);
-  --t-display: clamp(3.25rem, 0.75rem + 9.5vw, 10.5rem);
+  --t-display: calc(clamp(3.25rem, 0.75rem + 9.5vw, 10.5rem) * var(--k-display, 1));
   /* Long titles set big (the lead story): display's face and leading, one step down. */
-  --t-headline: clamp(2.25rem, 1rem + 4.5vw, 5.5rem);
+  --t-headline: calc(clamp(2.25rem, 1rem + 4.5vw, 5.5rem) * var(--k-headline, 1));
   --t-reader: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
 
   --lh-tight: 0.92;
@@ -37,7 +37,7 @@
   --lh-reader: 1.55;
   --tr-display: -0.02em;
   --tr-text: -0.005em;
-  --tr-label: 0.2em;
+  --tr-label: calc(var(--k-tracking, 0.2) * 1em);
 
   /* Space — 4px base, used sparingly at large steps */
   --s-1: 4px;
@@ -47,14 +47,19 @@
   --s-5: 48px;
   --s-6: 96px;
   --s-7: 160px;
-  --gutter: clamp(16px, 2.5vw, 32px);
+  /* Tune's "Page margin" (--k-gutter, px at 1280 wide) scales the whole clamp. */
+  --gutter: clamp(
+    min(16px, calc(var(--k-gutter, 32) * 1px)),
+    calc(var(--k-gutter, 32) * 0.078125vw),
+    calc(var(--k-gutter, 32) * 1px)
+  );
 
   /* Shape & motion */
   --radius: 0;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --dur-1: 200ms;
-  --dur-2: 450ms;
-  --dur-3: 900ms;
+  --dur-1: calc(200ms * var(--k-dur, 1));
+  --dur-2: calc(450ms * var(--k-dur, 1));
+  --dur-3: calc(900ms * var(--k-dur, 1));
 
   /* Chrome */
   --tap: 44px;
@@ -100,7 +105,7 @@ html.ground-light {
 @utility t-display {
   font-family: var(--font-display);
   font-size: var(--t-display);
-  font-weight: 300;
+  font-weight: var(--w-display, 300);
   line-height: var(--lh-tight);
   letter-spacing: var(--tr-display);
   text-wrap: balance;
@@ -108,7 +113,7 @@ html.ground-light {
 @utility t-headline {
   font-family: var(--font-display);
   font-size: var(--t-headline);
-  font-weight: 300;
+  font-weight: var(--w-display, 300);
   line-height: var(--lh-tight);
   letter-spacing: var(--tr-display);
   text-wrap: balance;
@@ -444,7 +449,8 @@ html[data-motion="full"]:not([data-calm])
 @keyframes fly-in {
   from {
     opacity: 0;
-    transform: translate3d(var(--fly-x, 0), 22vh, 0) rotate(var(--fly-r, 1.5deg)) scale(0.94);
+    transform: translate3d(var(--fly-x, 0), calc(var(--k-fly, 22) * 1vh), 0)
+      rotate(var(--fly-r, 1.5deg)) scale(0.94);
   }
 }
 @supports (animation-timeline: view()) {
@@ -789,7 +795,7 @@ html[data-press] .press-furniture {
 .press-grain {
   position: absolute;
   inset: 0;
-  opacity: 0.07;
+  opacity: var(--k-grain, 0.07);
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
@@ -797,7 +803,7 @@ html[data-press] .press-furniture {
   position: absolute;
   width: 34px;
   height: 34px;
-  opacity: 0.42;
+  opacity: var(--k-marks, 0.42);
 }
 .press-mark svg {
   width: 100%;
@@ -908,4 +914,76 @@ html[data-press] .press-only {
   html[data-press] :is(.t-display, .t-headline, .t-lead) {
     --misreg: 0;
   }
+}
+
+/* ── Tune: layout dials (lib/tune.ts, components/tune) ───────────────────────
+   Data attributes switch the For you layout, summaries and image shape; the default of each
+   leaves the attribute off, so these rules only apply when a dial has moved. */
+.card-summary[data-optional] {
+  display: none;
+}
+html[data-summaries="all"] .card-summary[data-optional] {
+  display: -webkit-box;
+}
+html[data-summaries="none"] .card-summary {
+  display: none;
+}
+html:is([data-grid="even"], [data-grid="list"]) .editorial-grid > * {
+  margin-inline: 0;
+  translate: none !important;
+}
+@media (min-width: 1024px) {
+  html[data-grid="even"] .editorial-grid > * {
+    grid-column: auto / span 4;
+    margin-top: 0;
+  }
+  html[data-grid="list"] .editorial-grid > * {
+    grid-column: 3 / span 8;
+    margin-top: 0;
+  }
+}
+html[data-ratio] .editorial-grid .img-frame {
+  aspect-ratio: var(--ar-tune) !important;
+}
+html[data-ratio="landscape"] {
+  --ar-tune: 3 / 2;
+}
+html[data-ratio="square"] {
+  --ar-tune: 1;
+}
+html[data-ratio="portrait"] {
+  --ar-tune: 4 / 5;
+}
+
+/* Tune panel sliders: a 1px track and a small square thumb in the ink, full tap height. */
+.tune-range {
+  appearance: none;
+  width: 100%;
+  height: var(--tap);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.tune-range::-webkit-slider-runnable-track {
+  height: 1px;
+  background: currentColor;
+}
+.tune-range::-moz-range-track {
+  height: 1px;
+  background: currentColor;
+}
+.tune-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -5.5px;
+  background: currentColor;
+  border: 0;
+}
+.tune-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: currentColor;
+  border: 0;
+  border-radius: 0;
 }

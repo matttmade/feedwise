@@ -15,7 +15,7 @@ const PLACEMENTS = [
     lag: 0.08,
   },
   {
-    cls: "lg:col-span-4 lg:col-start-9 lg:mt-(--s-7)",
+    cls: "lg:col-span-4 lg:col-start-9 lg:mt-[calc(var(--s-7)*var(--k-stagger,1))]",
     sizes: "(min-width: 1024px) 33vw, 85vw",
     speed: 1.14,
     lag: 0.38,
@@ -27,7 +27,7 @@ const PLACEMENTS = [
     lag: 0.22,
   },
   {
-    cls: "lg:col-span-5 lg:col-start-8 lg:mt-(--s-6)",
+    cls: "lg:col-span-5 lg:col-start-8 lg:mt-[calc(var(--s-6)*var(--k-stagger,1))]",
     sizes: "(min-width: 1024px) 42vw, 85vw",
     speed: 1.08,
     lag: 0.45,
@@ -44,7 +44,7 @@ const INSETS = ["mr-[12%]", "ml-[12%]"];
 
 export function EditorialGrid({ items, start = 0 }: { items: CardItem[]; start?: number }) {
   return (
-    <div className="flex flex-col gap-(--s-6) lg:grid-12 lg:gap-y-(--s-6)">
+    <div className="editorial-grid flex flex-col gap-[calc(var(--s-6)*var(--k-gap,1))] lg:grid-12 lg:gap-y-[calc(var(--s-6)*var(--k-gap,1))]">
       {items.map((item, i) => {
         const p = PLACEMENTS[i % PLACEMENTS.length];
         return (

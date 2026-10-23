@@ -12,6 +12,7 @@ const SHORTCUTS = [
   ["1 / 2 / 3", "Forgot / Shaky / Got it in Review"],
   ["→ / ← / ↑", "Keep / Skip / Open the top card in Swipe"],
   ["↓ / ↑", "Next / previous video in Watch"],
+  ["T", "Open or close Tune (layout and effects)"],
   ["Tab / Shift+Tab", "Move between cards and buttons"],
 ];
 

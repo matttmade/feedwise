@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import { tuneValue } from "@/lib/tune";
 import { stepFollowers, type Followers } from "@/lib/motion/followers";
+import { FRAME_ORDER, cancelFrame, nextFrame } from "@/lib/motion/frame";
 import { useMotion } from "@/lib/motion/use-motion";
-
-const MAX_PX = 2.2;
 
 /**
  * Offset misprint: while you scroll, the cyan and magenta plates drift out of register by
@@ -26,17 +26,17 @@ export function PressMotion() {
       last = t;
       const step = stepFollowers(f, window.scrollY, dt);
       f = step;
-      root.style.setProperty("--misreg", (step.lean * MAX_PX).toFixed(2));
-      if (!step.settled) frame = requestAnimationFrame(tick);
+      root.style.setProperty("--misreg", (step.lean * tuneValue("misprint")).toFixed(2));
+      if (!step.settled) frame = nextFrame(tick, FRAME_ORDER.press);
       else last = 0;
     };
     const onScroll = () => {
-      if ("press" in root.dataset && !frame) frame = requestAnimationFrame(tick);
+      if ("press" in root.dataset && !frame) frame = nextFrame(tick, FRAME_ORDER.press);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(frame);
+      cancelFrame(tick);
       root.style.removeProperty("--misreg");
     };
   }, [motion]);

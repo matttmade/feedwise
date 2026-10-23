@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter_Tight, Newsreader } from "next/font/google";
 import { PREFS_SCRIPT } from "@/lib/prefs";
 import { PRESS_SCRIPT } from "@/lib/press";
+import { TUNE_SCRIPT } from "@/lib/tune";
 import { PressOverlay } from "@/components/press/press-overlay";
 import "./globals.css";
 
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: PREFS_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: PRESS_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: TUNE_SCRIPT }} />
       </head>
       <body className="min-h-full">
         <a

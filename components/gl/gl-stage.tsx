@@ -3,12 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { stepFollowers, type Followers } from "@/lib/motion/followers";
+import { FRAME_ORDER, cancelFrame, nextFrame } from "@/lib/motion/frame";
 import { useMotion } from "@/lib/motion/use-motion";
+import { TUNE_EVENT, tuneValue } from "@/lib/tune";
 import { coverScale, easeOutExpo, lerpRect, nearViewport, type Rect } from "@/lib/gl/rect";
 
 const DIVE_KEY = "fw-dive";
 const DIVE_MS = 650;
-const BEND_PX = 26;
 const REVEAL_MS = 1100;
 
 const VERTEX = /* glsl */ `
@@ -35,6 +36,7 @@ uniform float uReveal;
 uniform float uPress;
 uniform float uMis;
 uniform float uDot;
+uniform float uHalftone;
 uniform vec2 uSize;
 varying vec2 vUv;
 
@@ -64,7 +66,7 @@ void main() {
   // filter): the image stays readable, the dots show up close.
   vec3 tone = mix(PAPER, INK, clamp((1.0 - g) * 0.92, 0.0, 1.0));
   vec3 dots = mix(PAPER, INK, screen(g * 1.04, gl_FragCoord.xy));
-  vec3 press = mix(tone, dots, 0.45);
+  vec3 press = mix(tone, dots, uHalftone);
   // On hover the image's own colour comes through, faintly, like a second spot ink.
   press *= mix(vec3(1.0), c.rgb / max(g, 0.05), 0.28 * uColor);
   // Cyan and magenta plates a little out of register, more while scrolling.
@@ -172,6 +174,7 @@ export function GlStage() {
             uPress: { value: 0 },
             uMis: { value: 0 },
             uDot: { value: 4 },
+            uHalftone: { value: 0.45 },
             uSize: { value: [1, 1] },
           },
         });
@@ -237,7 +240,9 @@ export function GlStage() {
         last = t;
         const step = stepFollowers(follow, window.scrollY, dt);
         follow = step;
-        const bend = step.lean * BEND_PX;
+        // Tune dials: bend, colour at rest, halftone and dot size.
+        const bend = step.lean * tuneValue("bend");
+        const rest = tuneValue("colour");
         const active = activeCard();
         let busy = !step.settled;
         // Press edition fades in and out; the plate drift follows --misreg (press-motion).
@@ -275,7 +280,7 @@ export function GlStage() {
           u.uRect.value = [rect.x, rect.y, rect.w, rect.h];
           u.uViewport.value = [vw, vh];
           u.uBend.value = e.anim ? 0 : bend;
-          u.uColor.value = e.color;
+          u.uColor.value = rest + (1 - rest) * e.color;
           // Start the wipe once the image is actually on screen, not in the preload margin.
           if (e.revealStart === undefined && rect.y < vh * 0.92 && rect.y + rect.h > 0)
             e.revealStart = t;
@@ -288,7 +293,8 @@ export function GlStage() {
           u.uReveal.value = reveal;
           u.uPress.value = press;
           u.uMis.value = mis;
-          u.uDot.value = 3 * renderer.dpr;
+          u.uDot.value = tuneValue("dot") * renderer.dpr;
+          u.uHalftone.value = tuneValue("halftone");
           u.uSize.value = [rect.w, rect.h];
           const c = coverScale(rect, { w: e.img.naturalWidth, h: e.img.naturalHeight });
           u.uCover.value = [c.x, c.y];
@@ -299,7 +305,7 @@ export function GlStage() {
       };
 
       function wake() {
-        if (!frame) frame = requestAnimationFrame(tick);
+        if (!frame) frame = nextFrame(tick, FRAME_ORDER.gl);
       }
 
       /** Grow the item's plane to fill the screen, then open it. */
@@ -371,6 +377,7 @@ export function GlStage() {
       const pressMo = new MutationObserver(wake);
       pressMo.observe(root, { attributes: true, attributeFilter: ["data-press", "style"] });
       window.addEventListener("resize", resize);
+      window.addEventListener(TUNE_EVENT, wake);
       window.addEventListener("scroll", wake, { passive: true });
       document.addEventListener("scroll", wake, { passive: true, capture: true });
       document.addEventListener("pointerover", onOver);
@@ -382,10 +389,11 @@ export function GlStage() {
       pullBack();
 
       stop = () => {
-        cancelAnimationFrame(frame);
+        cancelFrame(tick);
         mo.disconnect();
         pressMo.disconnect();
         window.removeEventListener("resize", resize);
+        window.removeEventListener(TUNE_EVENT, wake);
         window.removeEventListener("scroll", wake);
         document.removeEventListener("scroll", wake, { capture: true });
         document.removeEventListener("pointerover", onOver);

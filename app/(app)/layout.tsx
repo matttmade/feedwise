@@ -1,12 +1,14 @@
 import { BottomBar, TopBar } from "@/components/shell/nav";
 import { GlStage } from "@/components/gl/gl-stage";
 import { DepthStage } from "@/components/motion/depth-stage";
+import { SmoothScroll } from "@/components/motion/smooth-scroll";
 import { PressMotion } from "@/components/press/press-motion";
 import { ToastProvider } from "@/components/ui/toast";
 
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
     <ToastProvider>
+      <SmoothScroll />
       <GlStage />
       <DepthStage />
       <PressMotion />

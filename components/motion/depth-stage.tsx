@@ -3,7 +3,9 @@
 import { useEffect } from "react";
 import { damp } from "@/lib/motion/damp";
 import { autoLag, lagK, lagOffset, parallaxOffset } from "@/lib/motion/depth";
+import { FRAME_ORDER, cancelFrame, nextFrame } from "@/lib/motion/frame";
 import { useMotion } from "@/lib/motion/use-motion";
+import { TUNE_EVENT, tuneValue } from "@/lib/tune";
 
 type Entry = {
   el: HTMLElement;
@@ -79,6 +81,8 @@ export function DepthStage() {
       const dt = last ? Math.min(64, t - last) : 16.67;
       last = t;
       const y = window.scrollY;
+      // Tune's "Depth" dial scales how far speed and lag pull tiles from the page.
+      const k = tuneValue("depth");
       let moving = false;
       for (const e of entries.values()) {
         const centerY = e.top + e.height / 2 - y;
@@ -90,8 +94,8 @@ export function DepthStage() {
           }
           continue;
         }
-        const lag = e.lag === "auto" ? autoLag(e.centerX, vw) : e.lag;
-        let offset = parallaxOffset(centerY, vh, e.speed);
+        const lag = (e.lag === "auto" ? autoLag(e.centerX, vw) : e.lag) * k;
+        let offset = parallaxOffset(centerY, vh, 1 + (e.speed - 1) * k);
         if (lag > 0) {
           e.follower = damp(e.follower, y, lagK(lag), dt);
           if (Math.abs(e.follower - y) < 0.3) e.follower = y;
@@ -110,7 +114,7 @@ export function DepthStage() {
     };
 
     function wake() {
-      if (!frame) frame = requestAnimationFrame(tick);
+      if (!frame) frame = nextFrame(tick, FRAME_ORDER.depth);
     }
 
     const mo = new MutationObserver(scan);
@@ -119,14 +123,16 @@ export function DepthStage() {
     ro.observe(document.body);
     window.addEventListener("scroll", wake, { passive: true });
     window.addEventListener("resize", remeasure);
+    window.addEventListener(TUNE_EVENT, wake);
     scan();
 
     return () => {
-      cancelAnimationFrame(frame);
+      cancelFrame(tick);
       mo.disconnect();
       ro.disconnect();
       window.removeEventListener("scroll", wake);
       window.removeEventListener("resize", remeasure);
+      window.removeEventListener(TUNE_EVENT, wake);
       entries.forEach((e) => (e.el.style.translate = ""));
     };
   }, [motion]);

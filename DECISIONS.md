@@ -154,6 +154,11 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
 
 - **2026-10-23 · The app is called The Me Times** (Matt renamed the Vercel project to `themetimes`). The wordmark, page titles, sign-in page, welcome and Help say "The Me Times". The repo, package name, cookies and the fetcher's User-Agent keep "feedwise".
 
+- **2026-10-23 · Tune panel and smoother motion** (Matt wants live dials, to pick the defaults from, and said motion felt glitchy).
+  - **Tune:** "Tune" in the top bar (or T) opens a panel of 23 dials across type, layout, images, motion and Press, applied live. Each dial is a CSS variable or `data-` attribute on `<html>` (`lib/tune.ts`), set before paint from localStorage, so it's per browser; no data-model change. "Copy settings" copies the changed dials as JSON, which become `DEFAULT_TUNE` once Matt picks a look.
+  - **One frame loop:** depth, Press drift and the WebGL layer each ran their own requestAnimationFrame, in no fixed order, so images could be drawn a frame behind their tiles. They now share one ordered frame (`lib/motion/frame.ts`): scroll → depth → Press → WebGL.
+  - **Smooth wheel scroll on Today only** (Lenis 1.3, MIT). Native scrolling runs on the compositor a frame ahead of anything drawn in JS, so the WebGL images trailed the text. Lenis scrolls the page on the same frame. Keyboard, scrollbar and touch stay native; it's off with motion off/reduced, Calm mode, or Tune → Smooth scroll off; never in the Reader or the Board (hard constraint).
+
 ## Waiting on Matt
 
 - A source of YouTube durations (Data API key or a watch-page fetch). Cards show "Video" until then.
