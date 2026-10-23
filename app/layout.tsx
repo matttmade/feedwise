@@ -17,7 +17,7 @@ const text = Inter_Tight({ variable: "--font-inter-tight", subsets: ["latin"], d
 const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "Feedwise", template: "%s · Feedwise" },
+  title: { default: "The Me Times", template: "%s · The Me Times" },
   description: "Your sites, as a visual learning feed.",
 };
 

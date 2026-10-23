@@ -34,7 +34,7 @@ export function TopBar() {
     <header className="sticky top-0 z-30 bg-ground">
       <div className="flex h-(--top) items-center gap-(--s-4) px-(--gutter)">
         <Link href="/today" className="wordmark flex min-h-11 items-center">
-          Feedwise
+          The Me Times
         </Link>
         <nav aria-label="Main" className="hidden flex-1 justify-center lg:flex">
           <ul className="flex gap-(--s-4)">
