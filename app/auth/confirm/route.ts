@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
+import { safeNext } from "@/lib/guest";
 import { createClient } from "@/lib/supabase/server";
 
-/** Magic-link landing: supports both the PKCE `code` and the `token_hash` email template. */
+/** Sign-in landing for Google (PKCE `code`) and email links (`code` or `token_hash`). */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const supabase = await createClient();
@@ -16,5 +17,6 @@ export async function GET(request: NextRequest) {
   else if (tokenHash && type)
     ok = !(await supabase.auth.verifyOtp({ token_hash: tokenHash, type })).error;
 
-  return NextResponse.redirect(new URL(ok ? "/today" : "/login?error=link", origin));
+  const next = safeNext(searchParams.get("next"));
+  return NextResponse.redirect(new URL(ok ? next : "/login?error=link", origin));
 }

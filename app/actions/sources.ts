@@ -7,6 +7,7 @@ import { errorMessage } from "@/lib/ingest/http";
 import { runIngest } from "@/lib/ingest/run";
 import { supabaseIngestStore } from "@/lib/ingest/supabase-store";
 import type { DiscoveredFeed } from "@/lib/ingest/types";
+import { pickStarters } from "@/lib/starters";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -80,6 +81,42 @@ export async function addSource(_prev: AddState, form: FormData): Promise<AddSta
       ? `Added. ${added} new ${added === 1 ? "post is" : "posts are"} waiting in Explore.`
       : "Added. New posts will appear after the next check.",
   };
+}
+
+export type StartState = { status: "idle" | "error"; message?: string };
+
+/** Welcome step: follow the picked starter feeds and fill them now, so Today isn't empty. */
+export async function startWith(_prev: StartState, form: FormData): Promise<StartState> {
+  const user = await requireUser();
+  const picked = pickStarters(form.getAll("starter").map(String));
+  if (!picked.length) return { status: "error", message: "Pick at least one to start." };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("sources")
+    .upsert(
+      picked.map((s) => ({
+        user_id: user.id,
+        site_url: s.siteUrl,
+        feed_url: s.feedUrl,
+        feed_type: s.feedType,
+        title: s.title,
+      })),
+      { onConflict: "user_id,feed_url", ignoreDuplicates: true },
+    )
+    .select("id");
+  if (error) return { status: "error", message: "That didn't save. Try again?" };
+
+  const store = supabaseIngestStore(createAdminClient());
+  await Promise.all(
+    (data ?? []).map((row) =>
+      runIngest(store, { sourceId: row.id, maxNewPerSource: 8, budgetMs: 20_000 }).catch(
+        () => null,
+      ),
+    ),
+  );
+  refresh();
+  return { status: "idle" };
 }
 
 function parseMeta(value: FormDataEntryValue | null): { format: string; title: string } {
