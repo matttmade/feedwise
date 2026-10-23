@@ -18,7 +18,7 @@ export function Welcome() {
           Welcome. Pick a few to start.
         </h2>
         <p className="mt-(--s-2) max-w-[44ch]">
-          Feedwise turns sites you like into one visual feed, ranked by what you open, keep and
+          The Me Times turns sites you like into one visual feed, ranked by what you open, keep and
           skip. Start with some of these; add your own any time.
         </p>
       </div>

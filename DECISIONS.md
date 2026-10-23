@@ -152,6 +152,8 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
 
 - **2026-10-23 · Google sign-in, open sign-ups.** "Continue with Google" is the sign-in, and anyone with a Google account can create their own account; this replaces the single-user email gate. The email link stays only where `ALLOWED_EMAILS` is set (owner, local Mailpit audits). New accounts get a welcome step on Today that follows a few picked starter feeds (`lib/starters.ts`) and fetches them straight away, so the first Today isn't empty. Data model unchanged: every table was already per-user under RLS.
 
+- **2026-10-23 · The app is called The Me Times** (Matt renamed the Vercel project to `themetimes`). The wordmark, page titles, sign-in page, welcome and Help say "The Me Times". The repo, package name, cookies and the fetcher's User-Agent keep "feedwise".
+
 ## Waiting on Matt
 
 - A source of YouTube durations (Data API key or a watch-page fetch). Cards show "Video" until then.

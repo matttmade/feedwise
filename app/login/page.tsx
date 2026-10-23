@@ -14,7 +14,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
       className="flex min-h-dvh flex-col justify-center gap-(--s-5) px-(--gutter) py-(--s-5) lg:grid-12 lg:content-center"
     >
       <div className="lg:col-span-6">
-        <p>Feedwise</p>
+        <p>The Me Times</p>
         <h1 className="t-display mt-(--s-4)">
           Read what <em>you</em> like.
         </h1>

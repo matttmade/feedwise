@@ -22,7 +22,7 @@ export default function HelpPage() {
 
       <section aria-labelledby="how" className="mt-(--s-5) lg:grid-12">
         <h2 id="how" className="t-label lg:col-span-3 lg:pt-1">
-          How Feedwise works
+          How The Me Times works
         </h2>
         <ul className="mt-(--s-2) flex max-w-[62ch] flex-col gap-(--s-2) lg:col-span-9 lg:mt-0">
           <li>
