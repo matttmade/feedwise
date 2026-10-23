@@ -31,13 +31,49 @@ uniform sampler2D tMap;
 uniform vec2 uCover;
 uniform float uColor;
 uniform float uReveal;
+// Press edition: 0–1 blend into newsprint halftone; uMis = plate drift in px; uDot = cell px.
+uniform float uPress;
+uniform float uMis;
+uniform float uDot;
+uniform vec2 uSize;
 varying vec2 vUv;
+
+const vec3 PAPER = vec3(0.922, 0.898, 0.831);
+const vec3 INK = vec3(0.110, 0.102, 0.086);
+
+// Ink coverage (0–1) of a 45° dot screen at this pixel for a given tone.
+float screen(float lum, vec2 frag) {
+  vec2 q = mat2(0.7071, -0.7071, 0.7071, 0.7071) * frag / uDot;
+  float d = length(fract(q) - 0.5);
+  float r = sqrt(clamp(1.0 - lum, 0.0, 1.0)) * 0.6;
+  return 1.0 - smoothstep(r - 0.06, r + 0.06, d);
+}
+
 void main() {
   // Wipe in from the top the first time the image is seen.
   if (vUv.y < 1.0 - uReveal) discard;
-  vec4 c = texture2D(tMap, (vUv - 0.5) * uCover + 0.5);
+  vec2 uv = (vUv - 0.5) * uCover + 0.5;
+  vec4 c = texture2D(tMap, uv);
   float g = dot(c.rgb, vec3(0.299, 0.587, 0.114));
-  gl_FragColor = vec4(mix(vec3(g) * 0.82, c.rgb, uColor), 1.0);
+  vec3 base = mix(vec3(g) * 0.82, c.rgb, uColor);
+  if (uPress < 0.001) {
+    gl_FragColor = vec4(base, 1.0);
+    return;
+  }
+  // Continuous tone printed on newsprint, with a fine dot screen as texture over it (not a
+  // filter): the image stays readable, the dots show up close.
+  vec3 tone = mix(PAPER, INK, clamp((1.0 - g) * 0.92, 0.0, 1.0));
+  vec3 dots = mix(PAPER, INK, screen(g * 1.04, gl_FragCoord.xy));
+  vec3 press = mix(tone, dots, 0.45);
+  // On hover the image's own colour comes through, faintly, like a second spot ink.
+  press *= mix(vec3(1.0), c.rgb / max(g, 0.05), 0.28 * uColor);
+  // Cyan and magenta plates a little out of register, more while scrolling.
+  vec2 off = vec2((uMis + 0.6) / uSize.x, 0.0);
+  float gc = dot(texture2D(tMap, uv + off).rgb, vec3(0.299, 0.587, 0.114));
+  float gm = dot(texture2D(tMap, uv - off * 0.8).rgb, vec3(0.299, 0.587, 0.114));
+  press *= mix(vec3(1.0), vec3(0.62, 0.9, 1.0), (1.0 - gc) * 0.10);
+  press *= mix(vec3(1.0), vec3(1.0, 0.72, 0.86), (1.0 - gm) * 0.08);
+  gl_FragColor = vec4(mix(base, press, uPress), 1.0);
 }`;
 
 type Anim = { from: Rect; to: Rect; start: number; done: () => void };
@@ -106,6 +142,7 @@ export function GlStage() {
       let follow: Followers = { fast: window.scrollY, slow: window.scrollY };
       let frame = 0;
       let last = 0;
+      let press = "press" in root.dataset ? 1 : 0;
       let vw = 0;
       let vh = 0;
 
@@ -132,6 +169,10 @@ export function GlStage() {
             uCover: { value: [1, 1] },
             uColor: { value: 0 },
             uReveal: { value: 0 },
+            uPress: { value: 0 },
+            uMis: { value: 0 },
+            uDot: { value: 4 },
+            uSize: { value: [1, 1] },
           },
         });
         const mesh = new Mesh(gl, { geometry, program });
@@ -199,6 +240,13 @@ export function GlStage() {
         const bend = step.lean * BEND_PX;
         const active = activeCard();
         let busy = !step.settled;
+        // Press edition fades in and out; the plate drift follows --misreg (press-motion).
+        const pressTarget = "press" in root.dataset ? 1 : 0;
+        press += (pressTarget - press) * (1 - Math.exp((-dt / 16.67) * 0.1));
+        if (Math.abs(press - pressTarget) < 0.002) press = pressTarget;
+        else busy = true;
+        const mis = press ? Number(root.style.getPropertyValue("--misreg") || 0) : 0;
+        if (mis) busy = true;
 
         for (const e of entries.values()) {
           load(e);
@@ -238,6 +286,10 @@ export function GlStage() {
               : easeOutExpo(Math.min(1, (t - e.revealStart) / REVEAL_MS));
           if (reveal < 1) busy = true;
           u.uReveal.value = reveal;
+          u.uPress.value = press;
+          u.uMis.value = mis;
+          u.uDot.value = 3 * renderer.dpr;
+          u.uSize.value = [rect.w, rect.h];
           const c = coverScale(rect, { w: e.img.naturalWidth, h: e.img.naturalHeight });
           u.uCover.value = [c.x, c.y];
           e.mesh.renderOrder = e.anim ? 1 : 0;
@@ -315,6 +367,9 @@ export function GlStage() {
 
       const mo = new MutationObserver(scan);
       mo.observe(document.body, { childList: true, subtree: true });
+      // Redraw when the Press edition is switched, so the halftone fades in or out.
+      const pressMo = new MutationObserver(wake);
+      pressMo.observe(root, { attributes: true, attributeFilter: ["data-press", "style"] });
       window.addEventListener("resize", resize);
       window.addEventListener("scroll", wake, { passive: true });
       document.addEventListener("scroll", wake, { passive: true, capture: true });
@@ -329,6 +384,7 @@ export function GlStage() {
       stop = () => {
         cancelAnimationFrame(frame);
         mo.disconnect();
+        pressMo.disconnect();
         window.removeEventListener("resize", resize);
         window.removeEventListener("scroll", wake);
         document.removeEventListener("scroll", wake, { capture: true });

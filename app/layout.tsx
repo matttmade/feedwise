@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter_Tight, Newsreader } from "next/font/google";
 import { PREFS_SCRIPT } from "@/lib/prefs";
+import { PRESS_SCRIPT } from "@/lib/press";
+import { PressOverlay } from "@/components/press/press-overlay";
 import "./globals.css";
 
 // Free stand-ins for Flecha M, GT Standard and GT Standard Mono (DESIGN.md §3).
@@ -38,6 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: PREFS_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: PRESS_SCRIPT }} />
       </head>
       <body className="min-h-full">
         <a
@@ -47,6 +50,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         {children}
+        <PressOverlay />
       </body>
     </html>
   );

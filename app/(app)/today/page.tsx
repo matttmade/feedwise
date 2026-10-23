@@ -6,6 +6,7 @@ import { getHome } from "@/lib/data/home";
 import { getReview } from "@/lib/data/review";
 import { dealHome, pickOfTheDay } from "@/lib/feed/home";
 import { affinity, rank, varietySeed } from "@/lib/feed/rank";
+import { issueLine } from "@/lib/press";
 import { ContinueRail } from "@/components/today/continue-rail";
 import { EditorialGrid } from "@/components/home/editorial-grid";
 import { IndexList } from "@/components/home/index-list";
@@ -73,6 +74,7 @@ async function TodayContent({
   const masthead = (
     <header className="flex flex-col gap-(--s-3)">
       <p className="t-label intro flex flex-wrap items-center gap-x-(--s-3) gap-y-(--s-1)">
+        <span className="press-only">{issueLine(new Date(currentTime()))} ·</span>
         <span>{dateline()}</span>
         {sourceCount > 0 && (
           <>

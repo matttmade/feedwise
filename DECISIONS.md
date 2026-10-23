@@ -142,6 +142,14 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
 
     It still always ends.
 
+- **2026-10-23 · Press edition** (branch `claude/press-edition`; Matt asked for a toggle that makes it feel like a vintage newspaper, subtle and editorial).
+  - **The toggle:** "Press" in the top bar. It's a per-browser cookie (`fw_press`) applied before first paint, so it isn't stored in the database.
+  - **Paper:** a newsprint ground (#ebe5d4) with ink (#1c1a16) and a static grain at 7%.
+  - **Images:** continuous tone printed on newsprint with a fine 45° dot screen blended in at 45%, drawn in the WebGL shader. There's a lighter CSS dot screen when WebGL is off. On hover the image's colour shows faintly, like a second spot ink.
+  - **Misprints:** the cyan and magenta plates sit a third of a pixel out of register on headlines and images. While you scroll they drift up to about 2px, driven by scroll velocity through the damped followers (`--misreg`), and settle back when you stop. That part is full motion only.
+  - **Furniture:** registration marks and crop lines bleed off the screen corners, plus a small colour bar on the right edge. They're decorative, `aria-hidden`, and never take pointer events.
+  - **Type:** the wordmark becomes a serif nameplate, the masthead gains "Vol. 1 · No. 296", and section rules become double rules.
+
 ## Waiting on Matt
 
 - A source of YouTube durations (Data API key or a watch-page fetch). Cards show "Video" until then.

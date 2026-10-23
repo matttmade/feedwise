@@ -755,3 +755,157 @@ html[data-calm]::view-transition-new(*) {
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* ── Press edition (lib/press.ts) ─────────────────────────────────────────────
+   A vintage-newspaper layer over the normal design, on when <html data-press>. Kept quiet:
+   newsprint and ink, a faint grain, halftone images, registration marks bleeding off the
+   corners, and plates that drift a pixel or two out of register while you scroll. */
+:root {
+  --newsprint: #ebe5d4;
+  --press-ink: #1c1a16;
+  --plate-c: rgb(0 166 214 / 0.38);
+  --plate-m: rgb(214 0 111 / 0.32);
+}
+html[data-press],
+html[data-press].ground-light {
+  --ground: var(--newsprint);
+  --fg: var(--press-ink);
+  --tint: color-mix(in srgb, var(--press-ink) 9%, var(--newsprint));
+  color-scheme: light;
+}
+
+/* Furniture: hidden unless Press is on. */
+.press-furniture {
+  display: none;
+}
+html[data-press] .press-furniture {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  color: var(--press-ink);
+}
+.press-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.press-mark {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  opacity: 0.42;
+}
+.press-mark svg {
+  width: 100%;
+  height: 100%;
+}
+/* Each mark sits half off its corner, with a crop line running along the edge. */
+.press-tl {
+  top: -15px;
+  left: -15px;
+}
+.press-tr {
+  top: -15px;
+  right: -15px;
+}
+.press-bl {
+  bottom: calc(-15px + var(--bar) + env(safe-area-inset-bottom));
+  left: -15px;
+}
+.press-br {
+  bottom: calc(-15px + var(--bar) + env(safe-area-inset-bottom));
+  right: -15px;
+}
+@media (min-width: 1024px) {
+  .press-bl,
+  .press-br {
+    bottom: -15px;
+  }
+}
+.press-crop {
+  position: absolute;
+  background: currentColor;
+}
+.press-tl .press-crop,
+.press-bl .press-crop {
+  left: 46px;
+  width: 22px;
+  height: 0.75px;
+}
+.press-tr .press-crop,
+.press-br .press-crop {
+  right: 46px;
+  width: 22px;
+  height: 0.75px;
+}
+.press-tl .press-crop,
+.press-tr .press-crop {
+  top: 17px;
+}
+.press-bl .press-crop,
+.press-br .press-crop {
+  bottom: 17px;
+}
+.press-colorbar {
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  translate: 0 -50%;
+  opacity: 0.55;
+}
+.press-colorbar i {
+  display: block;
+  width: 8px;
+  height: 8px;
+}
+
+/* Halftone when the WebGL layer isn't drawing the images: a fine 45° dot screen. */
+html[data-press]:not(.gl-on) .img-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.32;
+  background-image: radial-gradient(circle, var(--press-ink) 0.75px, transparent 1.15px);
+  background-size: 3px 3px;
+  rotate: 0deg;
+}
+html[data-press]:not(.gl-on) .img-frame img.img-fill {
+  filter: grayscale(1) contrast(1.15) brightness(1.06);
+}
+
+/* Type on newsprint: plates a hair out of register at rest, drifting further while you
+   scroll (--misreg, from components/press/press-motion.tsx), settling back when you stop. */
+html[data-press] :is(.t-display, .t-headline, .t-lead) {
+  text-shadow:
+    calc(var(--misreg, 0) * 1px + 0.35px) calc(var(--misreg, 0) * 0.25px) 0 var(--plate-c),
+    calc(var(--misreg, 0) * -1px - 0.3px) 0 0 var(--plate-m);
+}
+html[data-press] main section.border-t {
+  border-top: 3px double var(--rule);
+}
+/* The wordmark becomes a serif nameplate. */
+html[data-press] .wordmark {
+  font-family: var(--font-display);
+  font-size: var(--t-lead);
+  letter-spacing: var(--tr-display);
+}
+.press-only {
+  display: none;
+}
+html[data-press] .press-only {
+  display: inline;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-press] :is(.t-display, .t-headline, .t-lead) {
+    --misreg: 0;
+  }
+}
