@@ -14,11 +14,19 @@ export const requireUser = cache(async (): Promise<CurrentUser> => {
   return { id: claims.sub, email: String(claims.email ?? "") };
 });
 
-/** v1 is single-user: only these addresses may sign in. Empty list = nobody. */
-export function isAllowedEmail(email: string): boolean {
-  const allowed = (process.env.ALLOWED_EMAILS ?? "")
+function allowedEmails(): string[] {
+  return (process.env.ALLOWED_EMAILS ?? "")
     .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
-  return allowed.includes(email.trim().toLowerCase());
+}
+
+/** Email links are only offered when ALLOWED_EMAILS lists someone (local dev, the owner). */
+export function emailSignInEnabled(): boolean {
+  return allowedEmails().length > 0;
+}
+
+/** Only these addresses may sign in by email link. Google sign-in is open to anyone. */
+export function isAllowedEmail(email: string): boolean {
+  return allowedEmails().includes(email.trim().toLowerCase());
 }

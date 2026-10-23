@@ -150,6 +150,8 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
   - **Furniture:** registration marks and crop lines bleed off the screen corners, plus a small colour bar on the right edge. They're decorative, `aria-hidden`, and never take pointer events.
   - **Type:** the wordmark becomes a serif nameplate, the masthead gains "Vol. 1 · No. 296", and section rules become double rules.
 
+- **2026-10-23 · Google sign-in, open sign-ups.** "Continue with Google" is the sign-in, and anyone with a Google account can create their own account; this replaces the single-user email gate. The email link stays only where `ALLOWED_EMAILS` is set (owner, local Mailpit audits). New accounts get a welcome step on Today that follows a few picked starter feeds (`lib/starters.ts`) and fetches them straight away, so the first Today isn't empty. Data model unchanged: every table was already per-user under RLS.
+
 ## Waiting on Matt
 
 - A source of YouTube durations (Data API key or a watch-page fetch). Cards show "Video" until then.

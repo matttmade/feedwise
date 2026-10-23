@@ -7,6 +7,7 @@ import { getReview } from "@/lib/data/review";
 import { dealHome, pickOfTheDay } from "@/lib/feed/home";
 import { affinity, rank, varietySeed } from "@/lib/feed/rank";
 import { issueLine } from "@/lib/press";
+import { Welcome } from "@/components/today/welcome";
 import { ContinueRail } from "@/components/today/continue-rail";
 import { EditorialGrid } from "@/components/home/editorial-grid";
 import { IndexList } from "@/components/home/index-list";
@@ -97,15 +98,7 @@ async function TodayContent({
     return (
       <>
         {masthead}
-        <section className="intro mt-(--s-5) max-w-[62ch]">
-          <h2 className="t-lead">Let&apos;s start with one site you already like.</h2>
-          <p className="mt-(--s-2)">
-            Paste its address and Feedwise turns new posts into a feed that learns what you like.
-          </p>
-          <Link href="/sources" className="btn mt-(--s-4)">
-            Add a source →
-          </Link>
-        </section>
+        <Welcome />
       </>
     );
   }
