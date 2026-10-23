@@ -88,8 +88,14 @@ export function ItemCard({
             {item.title}
           </Link>
         </h3>
-        {withSummary && item.summary && (
-          <p className="mt-(--s-2) line-clamp-3 max-w-[52ch] text-muted">{item.summary}</p>
+        {(withSummary || layout === "editorial") && item.summary && (
+          // Editorial cards always carry it; Tune's "Summaries" dial decides which show.
+          <p
+            data-optional={withSummary ? undefined : ""}
+            className="card-summary mt-(--s-2) line-clamp-3 max-w-[52ch] text-muted"
+          >
+            {item.summary}
+          </p>
         )}
         <div className="relative z-10 flex">
           <KeepButton className="card-btn" />

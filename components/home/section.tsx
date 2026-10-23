@@ -18,7 +18,10 @@ export function Section({
   children: ReactNode;
 }) {
   return (
-    <section aria-labelledby={id} className="mt-(--s-6) border-t border-rule pt-(--s-3)">
+    <section
+      aria-labelledby={id}
+      className="mt-[calc(var(--s-6)*var(--k-sections,1))] border-t border-rule pt-(--s-3)"
+    >
       <div className="t-label flex items-baseline justify-between gap-(--s-3)">
         <h2 id={id}>
           <span className="mr-(--s-3)">{String(number).padStart(2, "0")}</span>

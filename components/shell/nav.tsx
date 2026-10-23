@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PressToggle } from "@/components/press/press-toggle";
+import { TuneButton } from "@/components/tune/tune-panel";
 
 type Tab = { href: string; label: string };
 
@@ -33,7 +34,10 @@ export function TopBar() {
   return (
     <header className="sticky top-0 z-30 bg-ground">
       <div className="flex h-(--top) items-center gap-(--s-4) px-(--gutter)">
-        <Link href="/today" className="wordmark flex min-h-11 items-center">
+        <Link
+          href="/today"
+          className="wordmark flex min-h-11 shrink-0 items-center whitespace-nowrap"
+        >
           The Me Times
         </Link>
         <nav aria-label="Main" className="hidden flex-1 justify-center lg:flex">
@@ -55,9 +59,12 @@ export function TopBar() {
           </ul>
         </nav>
         <span className="flex-1 lg:hidden" />
-        <ul className="flex gap-(--s-3)">
+        <ul className="flex gap-(--s-2) sm:gap-(--s-3)">
           <li>
             <PressToggle />
+          </li>
+          <li>
+            <TuneButton />
           </li>
           {[TABS[4], ...UTILITY].map(({ href, label }) => {
             const active = isActive(path, href);
