@@ -12,8 +12,11 @@ export async function GET(request: NextRequest) {
   if (!data?.claims) {
     const { error } = await supabase.auth.signInAnonymously();
     if (error) {
-      console.error("guest sign-in failed", error.message);
-      return NextResponse.redirect(new URL("/login?error=guest", origin));
+      console.error("guest sign-in failed", error.code, error.status, error.message);
+      // Pass Supabase's error code along so the sign-in page can say what to change.
+      const url = new URL("/login?error=guest", origin);
+      url.searchParams.set("reason", error.code ?? String(error.status ?? "unknown"));
+      return NextResponse.redirect(url);
     }
   }
   return NextResponse.redirect(new URL(safeNext(searchParams.get("next")), origin));

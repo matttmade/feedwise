@@ -95,15 +95,3 @@ export const getReview = cache(async (): Promise<ReviewData> => {
     hasCards: all.length > 0,
   };
 });
-
-/** Cumulative days with any reading or reviewing. Only ever goes up. */
-export async function getDaysLearned(): Promise<number> {
-  const user = await requireUser();
-  const supabase = await createClient();
-  const { count } = await supabase
-    .from("activity")
-    .select("day", { count: "exact", head: true })
-    .eq("user_id", user.id)
-    .or("items_read.gt.0,cards_reviewed.gt.0");
-  return count ?? 0;
-}

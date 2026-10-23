@@ -68,6 +68,88 @@ Deviations from the defaults in `PLAN.md`, and library choices the plan left ope
 - **2026-10-22 · Guest previews** (Matt's call; email links weren't arriving on the preview). On Vercel preview deployments, or anywhere `ALLOW_GUEST=true`, a visitor with no session gets a Supabase anonymous session instead of the sign-in page. The session lives in cookies like any other, and their data sits under that anonymous user, so row-level security is unchanged. The sign-in page also offers "Preview without an account". Production stays email-only unless `ALLOW_GUEST` is set there.
 - **2026-10-22 · The wordmark is plain text,** "Feedwise" at body size with no weight or italic change.
 
+- **2026-10-22 · jsdom pinned to 26.x.** jsdom 30 loads ten ES-module-only dependencies with `require()` (parse5 8, @asamuzakjp/css-color and others). That needs Node's `require(esm)` support, and Vercel's functions fail it with `ERR_REQUIRE_ESM`, which broke every signed-in page. jsdom 26 supports Node 18, so all its dependencies load the classic way. Revisit when moving to jsdom ≥ 27.
+
+- **2026-10-22 · Second design pass after studying aristidebenoist.com and zajno.com** (Matt's direction: keep the serif, an editorial layout with several items per view, cards that fly in, diving into an item and back, sections you engage with differently, one WebGL layer, dark ground that flips on open).
+  - **Ground:** near-black (`--press` #121110) everywhere, ignoring the OS setting. The Reader flips the page to light stone (#dddbd5) while it's showing. This replaces "ground follows the OS".
+  - **Type:** the serif stays. `--t-display` grows to 52–168px for page titles. Long titles (the lead story, the Reader) use `--t-headline` (36–88px, the old display step) so they don't run to six lines. That's a documented fifth step alongside the Reader prose size.
+  - **Today is a sectioned home:** masthead (date, progress), then numbered sections:
+    - Recall (when cards are due, and then it's the primary action)
+    - the lead story: edge-to-edge 2.2:1 image, the title overlapping it, an A/B/C/D fact table
+    - the rest of today's set as an offset magazine spread
+    - quick reads and videos as sideways swipe rows (their own scrollers)
+    - Continue
+    - a finish
+  - **Fly-in:** items rise and settle as they enter the viewport, using a CSS view timeline. It reads scroll position and never moves the page. It's full motion only and off under Calm mode or reduced motion. Explore's board uses it too.
+  - **WebGL layer** (`components/gl/gl-stage.tsx`, OGL, MIT, about 25 KB): one canvas behind the page draws each framed image in place. Three effects:
+    - grayscale at rest, colour on hover or focus (on touch, the item nearest the middle)
+    - a slight bend from scroll velocity (the existing fast/slow followers)
+    - opening an item grows its image to fill the screen, and coming back shrinks it into place
+
+    It's full motion only. Otherwise, or without WebGL, the `<img>` shows as before. The Reader's image is now edge to edge so the dive lands on it.
+
+- **2026-10-22 · Third pass: a richer home, depth and transitions** (Matt: more content, the dynamic sections, intros and outros between pages, tiles that don't all move as one).
+  - **Limits raised:** fresh means the last 30 days (was 14), and the board shows 24 (was 16). The daily set stays 3–5.
+  - **The home deals a pool of up to 150 fresh items into sections, each engaged differently:**
+    - count-up stats
+    - Recall
+    - the lead story
+    - the rest of today's set
+    - an inline keep-or-skip stack (swipe or tap, undoable)
+    - quick reads and videos to swipe
+    - "From your sources" (newest from each, as an index)
+    - a resurfaced highlight that changes daily
+    - topic tabs
+    - long reads for later
+    - Continue
+    - a finish
+
+    No item appears in two of the main sections (`lib/feed/home.ts`, tested).
+  - **Per-tile scroll depth** (`components/motion/depth-stage.tsx`) follows the GSAP ScrollSmoother `data-speed` / `data-lag` and Codrops "Elastic Grid Scroll" patterns, but on native scroll: tiles get their own parallax speed and lag via `translate`.
+    - Explore's columns use "auto" lag, so edges trail the centre (measured: about 60px at the centre, 120px at the edges mid-scroll).
+    - Index rows cascade.
+    - Full motion only.
+  - **Transitions:** pages exit (lift, blur) and enter (rise) through React `<ViewTransition>`. Loading placeholders sink as content rises. No Next config is needed.
+    - The view transitions stay at 450ms or less, because the page is a snapshot and can't be tapped while they run. An earlier 900ms version blocked drags right after load.
+    - The longer intro runs on the live page afterwards: the masthead rising out of a mask, staggered rises, and WebGL image wipes.
+  - **Images inside rotated or dragged cards** (the keep-or-skip stack, the Swipe deck) stay plain `<img>`. The WebGL layer can't follow their rotation.
+  - **Axe on Explore** can flag contrast on cards still flying in at the bottom edge, because they're partly transparent mid-animation. They settle at full ink.
+
+- **2026-10-22 · No tracking: Today is a ranked feed that keeps refreshing** (Matt's call: "less like a tracker or chore"). This reverses UX rule 3's "visible progress" and PLAN's daily set of 3–5.
+  - **Removed:**
+    - days learned (the activity rows are still written, just never shown)
+    - the stats strip
+    - the "02 / 05 done" daily quota
+    - the nav's due-count badge and the Recall due count
+    - the "Today's set" setting (the column stays in `settings`, so no data change)
+  - **Ranking** (`lib/feed/rank.ts`, tested) has three parts:
+    - **Freshness:** a 4-day half-life feel.
+    - **Affinity to the post's source and topics,** from the last 120 days of what you did. Opened counts +1, read past half +1, kept +2, skipped −1, squashed to −1…1.
+    - **Variety:** a seeded nudge that reshuffles every 10 minutes, or straight away with "Shuffle".
+  - **Home order:**
+    1. the lead story
+    2. For you (8)
+    3. Still reading
+    4. Keep or skip (it teaches the feed)
+    5. quick reads
+    6. from your sources
+    7. a resurfaced highlight
+    8. topics
+    9. Watch
+    10. Recall (a quiet link, not a count)
+    11. long reads
+    12. a finish with Shuffle and Explore
+
+    It still always ends.
+
+- **2026-10-23 · Press edition** (branch `claude/press-edition`; Matt asked for a toggle that makes it feel like a vintage newspaper, subtle and editorial).
+  - **The toggle:** "Press" in the top bar. It's a per-browser cookie (`fw_press`) applied before first paint, so it isn't stored in the database.
+  - **Paper:** a newsprint ground (#ebe5d4) with ink (#1c1a16) and a static grain at 7%.
+  - **Images:** continuous tone printed on newsprint with a fine 45° dot screen blended in at 45%, drawn in the WebGL shader. There's a lighter CSS dot screen when WebGL is off. On hover the image's colour shows faintly, like a second spot ink.
+  - **Misprints:** the cyan and magenta plates sit a third of a pixel out of register on headlines and images. While you scroll they drift up to about 2px, driven by scroll velocity through the damped followers (`--misreg`), and settle back when you stop. That part is full motion only.
+  - **Furniture:** registration marks and crop lines bleed off the screen corners, plus a small colour bar on the right edge. They're decorative, `aria-hidden`, and never take pointer events.
+  - **Type:** the wordmark becomes a serif nameplate, the masthead gains "Vol. 1 · No. 296", and section rules become double rules.
+
 ## Waiting on Matt
 
 - A source of YouTube durations (Data API key or a watch-page fetch). Cards show "Video" until then.

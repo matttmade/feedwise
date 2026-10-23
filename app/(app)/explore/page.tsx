@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, ViewTransition } from "react";
 import { getExplore, getSettings, getSources, getTopics, getWatchItems } from "@/lib/data/feed";
 import { effectivePrefs } from "@/lib/prefs";
 import { eagerIndexes } from "@/lib/feed/masonry";
@@ -17,8 +17,18 @@ export default function ExplorePage({ searchParams }: PageProps<"/explore">) {
   return (
     <>
       <h1 className="t-display">Explore</h1>
-      <Suspense fallback={<BoardSkeleton />}>
-        <Board searchParams={searchParams} />
+      <Suspense
+        fallback={
+          <ViewTransition exit="load-out" default="none">
+            <BoardSkeleton />
+          </ViewTransition>
+        }
+      >
+        <ViewTransition enter="load-in" default="none">
+          <div>
+            <Board searchParams={searchParams} />
+          </div>
+        </ViewTransition>
       </Suspense>
     </>
   );
@@ -140,6 +150,8 @@ async function Board({ searchParams }: { searchParams: PageProps<"/explore">["se
                 key={item.id}
                 item={item}
                 index={i}
+                className="fly-in"
+                depth={{ lag: "auto" }}
                 priority={eager.has(i)}
                 morph
                 sizes="(min-width: 1536px) 18vw, (min-width: 1024px) 21vw, (min-width: 640px) 30vw, 44vw"

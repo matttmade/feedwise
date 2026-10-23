@@ -3,8 +3,8 @@
 export const BATCH_MIN = 3;
 export const BATCH_MAX = 5;
 /** Older unread items quietly age out instead of piling up into a guilt backlog. */
-export const FRESH_DAYS = 14;
-export const BOARD_LIMIT = 16;
+export const FRESH_DAYS = 30;
+export const BOARD_LIMIT = 24;
 export const READ_THRESHOLD = 0.9;
 
 export type Selectable = { id: string; sourceId: string; sortAt: string };

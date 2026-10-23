@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter_Tight, Newsreader } from "next/font/google";
 import { PREFS_SCRIPT } from "@/lib/prefs";
+import { PRESS_SCRIPT } from "@/lib/press";
+import { PressOverlay } from "@/components/press/press-overlay";
 import "./globals.css";
 
 // Free stand-ins for Flecha M, GT Standard and GT Standard Mono (DESIGN.md §3).
@@ -23,22 +25,22 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f1ea" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0a09" },
-  ],
+  themeColor: "#121110",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      // Full motion until the prefs script (or the OS setting) says otherwise.
+      data-motion="full"
       className={`${display.variable} ${text.variable} ${mono.variable} h-full`}
       // The prefs script below sets data-* attributes before React hydrates.
       suppressHydrationWarning
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: PREFS_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: PRESS_SCRIPT }} />
       </head>
       <body className="min-h-full">
         <a
@@ -48,6 +50,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         {children}
+        <PressOverlay />
       </body>
     </html>
   );

@@ -16,12 +16,15 @@ export function CardFrame({
   title,
   labelledBy,
   className,
+  depth,
   children,
 }: {
   itemId: string;
   title: string;
   labelledBy: string;
   className: string;
+  /** Scroll depth for components/motion/depth-stage.tsx. */
+  depth?: { speed?: number; lag?: number | "auto" };
   children: ReactNode;
 }) {
   const actions = useItemActions(itemId, title);
@@ -37,6 +40,8 @@ export function CardFrame({
         ref={swipeRef}
         aria-labelledby={labelledBy}
         onKeyDown={shortcutHandler(actions)}
+        data-speed={depth?.speed}
+        data-lag={depth?.lag}
         className={`swipeable ${className}`}
       >
         {children}

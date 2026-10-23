@@ -88,8 +88,8 @@ log("review before due:", (await p.locator("main h2").first().innerText()).trim(
 // 4. Time travel: make everything due, check badge + Today hero
 sql("update cards set fsrs = jsonb_set(fsrs, '{due}', to_jsonb('2026-10-01T00:00:00.000Z'::text))");
 await p.goto(`${BASE}/today`);
-await p.getByRole("heading", { name: /^Time to review/ }).waitFor();
-log("Today hero:", await p.locator("#review-hero").innerText());
+await p.locator("#recall").waitFor();
+log("Today recall:", (await p.locator("#recall").locator("..").innerText()).replace(/\s+/g, " "));
 log(
   "nav badge:",
   (await p.locator('nav a[href="/review"]').last().innerText()).replace(/\s+/g, " "),
@@ -167,7 +167,7 @@ log(
 );
 await p.goto(`${BASE}/library`);
 const keptBefore = await p.getByRole("heading", { name: /^Kept/ }).innerText();
-await p.locator("main li").first().getByRole("button", { name: "Remove" }).click();
+await p.locator("main section li").first().getByRole("button", { name: "Remove" }).click();
 await p.getByRole("status").getByText("Removed from your Library.").waitFor();
 await p.getByRole("button", { name: "Undo" }).click();
 await p.getByRole("status").getByText("Undone.").waitFor();

@@ -30,8 +30,8 @@ export default function HelpPage() {
             of hours.
           </li>
           <li>
-            <em>Today</em> gives you a short set (3–5) of fresh posts. When it&apos;s done,
-            you&apos;re done.
+            <em>Today</em> is a feed that keeps refreshing, ranked by what you read and keep. Open,
+            read, Keep and Skip all teach it. It ends too, and Shuffle mixes it up.
           </li>
           <li>
             <em>Explore</em> shows the rest as a board. It ends too — nothing scrolls forever.
@@ -59,7 +59,7 @@ export default function HelpPage() {
           </li>
           <li>
             <em>Settings</em> holds the dials: motion, density, text size, autoplay, captions, how
-            many posts and reviews a day, and Calm mode.
+            many reviews a day, and Calm mode.
           </li>
           <li>
             <em>Library</em> holds everything you&apos;ve kept and highlighted, with search.

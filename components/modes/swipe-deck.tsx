@@ -174,7 +174,7 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
                 zIndex: 2 - i,
               }}
             >
-              <CardImage item={b} ratio="wide" sizes="400px" />
+              <CardImage item={b} ratio="wide" sizes="400px" gl={false} />
             </div>
           ))
           .reverse()}
@@ -186,6 +186,7 @@ export function SwipeDeck({ items, more }: { items: CardItem[]; more: number }) 
                 ratio="wide"
                 sizes="(min-width: 480px) 448px, 100vw"
                 priority
+                gl={false}
               />
             </div>
           </ViewTransition>

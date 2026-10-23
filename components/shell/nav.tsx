@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { PressToggle } from "@/components/press/press-toggle";
 
 type Tab = { href: string; label: string };
 
@@ -20,9 +20,6 @@ const UTILITY: Tab[] = [
   { href: "/help", label: "Help" },
 ];
 
-/** The due count streams in from the server; the nav itself is static. */
-type NavProps = { reviewBadge?: ReactNode };
-
 const isActive = (path: string, href: string) => path === href || path.startsWith(`${href}/`);
 
 const tabClass = (active: boolean) =>
@@ -31,12 +28,12 @@ const tabClass = (active: boolean) =>
   }`;
 
 /** Wordmark left, the main tabs (≥ 1024px), Sources, Settings and Help as small labels right. */
-export function TopBar({ reviewBadge }: NavProps) {
+export function TopBar() {
   const path = usePathname();
   return (
     <header className="sticky top-0 z-30 bg-ground">
       <div className="flex h-(--top) items-center gap-(--s-4) px-(--gutter)">
-        <Link href="/today" className="flex min-h-11 items-center">
+        <Link href="/today" className="wordmark flex min-h-11 items-center">
           Feedwise
         </Link>
         <nav aria-label="Main" className="hidden flex-1 justify-center lg:flex">
@@ -51,7 +48,6 @@ export function TopBar({ reviewBadge }: NavProps) {
                     className={tabClass(active)}
                   >
                     {label}
-                    {href === "/review" && reviewBadge}
                   </Link>
                 </li>
               );
@@ -60,6 +56,9 @@ export function TopBar({ reviewBadge }: NavProps) {
         </nav>
         <span className="flex-1 lg:hidden" />
         <ul className="flex gap-(--s-3)">
+          <li>
+            <PressToggle />
+          </li>
           {[TABS[4], ...UTILITY].map(({ href, label }) => {
             const active = isActive(path, href);
             return (
@@ -81,7 +80,7 @@ export function TopBar({ reviewBadge }: NavProps) {
 }
 
 /** Bottom tab bar < 1024px: five words, the current one underlined. */
-export function BottomBar({ reviewBadge }: NavProps) {
+export function BottomBar() {
   const path = usePathname();
   return (
     <nav
@@ -99,7 +98,6 @@ export function BottomBar({ reviewBadge }: NavProps) {
                 className={`${tabClass(active)} flex-1 justify-center`}
               >
                 {label}
-                {href === "/review" && reviewBadge}
               </Link>
             </li>
           );

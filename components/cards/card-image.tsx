@@ -3,13 +3,15 @@ import { clampRatio } from "@/lib/feed/masonry";
 import { FallbackArt } from "./fallback-art";
 
 type Props = {
-  item: Pick<CardItem, "image" | "type" | "sourceTitle" | "sourceId">;
+  item: Pick<CardItem, "id" | "image" | "type" | "sourceTitle" | "sourceId">;
   sizes: string;
   /** Clamp very tall or very wide images so one card can't dominate the board. */
-  ratio?: "native" | "wide";
+  ratio?: "native" | "wide" | "cinema";
   priority?: boolean;
   /** Fill the parent's height from 1024px up (hero beside its text). */
   fillOnLarge?: boolean;
+  /** Let the WebGL layer draw it. Off for images inside rotated or dragged cards. */
+  gl?: boolean;
 };
 
 /**
@@ -23,12 +25,22 @@ export function CardImage({
   ratio = "native",
   priority = false,
   fillOnLarge = false,
+  gl = true,
 }: Props) {
   const image = item.image;
-  const aspect = ratio === "wide" ? 16 / 9 : image ? clampRatio(image.width / image.height) : 4 / 3;
+  const aspect =
+    ratio === "cinema"
+      ? 2.2
+      : ratio === "wide"
+        ? 16 / 9
+        : image
+          ? clampRatio(image.width / image.height)
+          : 4 / 3;
 
   return (
     <div
+      // The WebGL layer (components/gl) draws framed images by this id when it's running.
+      data-gl={image && gl ? item.id : undefined}
       className={fillOnLarge ? "img-frame lg:aspect-auto lg:h-full" : "img-frame"}
       style={{ "--ar": aspect } as React.CSSProperties}
     >
